@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_graph"
+    app:startDestination="@id/home_fragment">
+
+    <fragment
+        android:id="@+id/addresses_fragment"
+        android:name="com.felicksdev.onlymap.Addresses"
+        android:label="fragment_addresses"
+        tools:layout="@layout/fragment_addresses" />
+    <fragment
+        android:id="@+id/home_fragment"
+        android:name="com.felicksdev.onlymap.Home"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" />
+    <fragment
+        android:id="@+id/routes_fragment"
+        android:name="com.felicksdev.onlymap.Routes"
+        android:label="fragment_routes"
+        tools:layout="@layout/fragment_routes" />
+</navigation>
