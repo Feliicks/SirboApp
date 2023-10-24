@@ -3,6 +3,7 @@ package com.felicksdev.onlymap
 import android.annotation.SuppressLint
 import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +17,12 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.maps.android.data.geojson.GeoJsonLayer
+import org.json.JSONException
+import org.json.JSONObject
+import java.io.BufferedReader
+import java.io.IOException
+import java.io.InputStreamReader
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -103,7 +110,38 @@ class Home : Fragment(),
         mMap.isMyLocationEnabled = true
         mMap.setOnMyLocationButtonClickListener(this)
         mMap.setOnMyLocationClickListener(this)
+        //val geoJsonData: JSONObject? = R.raw.ruta// JSONObject containing the GeoJSON data
+        // Leer el archivo GeoJSON crudo como una cadena
+        //val geoJsonRaw = resources.openRawResource(R.raw.data)
+        val geoJsonRaw = resources.openRawResource(R.raw.ruta)
+        val reader = BufferedReader(InputStreamReader(geoJsonRaw))
+        val jsonString = reader.use { it.readText() }
+
+// Parsear el JSON
+        val geoJson = JSONObject(jsonString)
+        //val geoJsonData: JSONObject? = R.raw.data
+// Crear la capa GeoJsonLayer
+        //loadGeoJson()
+        //retrieveFileFromResource()
+
     }
+
+    private fun retrieveFileFromResource() {
+        try {
+            val layer = GeoJsonLayer(mMap, R.raw.ruta, context)
+            layer.addLayerToMap()
+        } catch (e: IOException) {
+            Log.e("ERROR","GeoJSON file could not be read" )
+        } catch (e: JSONException) {
+            Log.e("ERROR","GeoJSON file could not be converted to a JSONObject")
+        }
+    }
+    private fun loadGeoJson() {
+        //val geoJson = GeoJsonLoader.loadGeoJson(this, R.raw.ruta)
+        //val layer = GeoJsonLayer(mMap, R.raw.ruta)
+        //layer.addLayerToMap();
+    }
+
     override fun onMyLocationButtonClick(): Boolean {
         Toast.makeText(context, "MyLocation button clicked", Toast.LENGTH_SHORT)
             .show()
