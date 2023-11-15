@@ -12,6 +12,3 @@ data class RutaTransporte(
     val entidadMatriz: String,
     val aprobacion: String
 )
-data class GeometriaRuta(
-    val coordenadas: List<List<List<Double>>>
-)

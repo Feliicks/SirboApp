@@ -2,19 +2,14 @@ package com.felicksdev.onlymap
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.felicksdev.onlymap.databinding.ActivityMain2Binding
-import com.felicksdev.onlymap.services.LocationService
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
@@ -43,6 +38,9 @@ class MainActivity2 : AppCompatActivity()  {
         bottomNavigationView.setupWithNavController(navController)
         //createFragment()
         checkSelfPermission()
+        //val retrofitTraer = consumirAPI.getRutas()
+        //Log.d("Retrofit",   retrofitTraer.toString())
+
         //mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         //mapFragment.getMapAsync(this) // Asegúrate de llamar a getMapAsync para activar onMapReady
     }

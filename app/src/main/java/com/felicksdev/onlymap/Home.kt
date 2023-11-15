@@ -1,7 +1,6 @@
 package com.felicksdev.onlymap
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
@@ -12,6 +11,9 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
+import com.felicksdev.onlymap.models.GeometriaRuta
+import com.felicksdev.onlymap.models.MyApiService
+import com.felicksdev.onlymap.models.Ruta
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener
@@ -21,7 +23,15 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.maps.android.data.geojson.GeoJsonLayer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONArray
 import org.json.JSONException
+import org.json.JSONObject
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 
 // TODO: Rename parameter arguments, choose names that match
@@ -127,7 +137,7 @@ class Home : Fragment(),
 
         //Toast.makeText(context, "Soy el texto", Toast.LENGTH_LONG).show()
         mMap = googleMap
-        createMarker()
+        //createMarker()
         mMap.isMyLocationEnabled = true
         mMap.setOnMyLocationButtonClickListener(this)
         mMap.setOnMyLocationClickListener(this)
@@ -135,7 +145,9 @@ class Home : Fragment(),
         // Crear la capa GeoJsonLayer
         //loadGeoJson()
         //retrieveFileFromResource()
-
+        //val retrofitTraer = consumirAPI.getRutas()x
+        //Log.d("Retrofit",   retrofitTraer.toString())
+        searchByRuta();
     }
 
     private fun retrieveFileFromResource() {
@@ -155,6 +167,83 @@ class Home : Fragment(),
         //layer.addLayerToMap();
     }
 
+    private fun getRetrofit(): Retrofit{
+        return Retrofit.Builder()
+            .baseUrl("http://10.0.2.2:3000/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+    private fun mostrarRutaEnMapa(geometriaRuta: GeometriaRuta) {
+        try {
+            val geoJsonString = convertirGeometriaARawGeoJson(geometriaRuta)
+            val layer = GeoJsonLayer(mMap, JSONObject(geoJsonString))
+            layer.addLayerToMap()
+        } catch (e: JSONException) {
+            Log.e("Error", "Error al procesar GeoJSON: ${e.message}")
+        }
+    }
+    private fun convertirGeometriaARawGeoJson(geometriaRuta: GeometriaRuta): String {
+        // Aquí debes implementar la lógica para convertir la geometría de la ruta a GeoJSON
+        // Puedes usar la librería Gson u otras para hacerlo
+        // Por ahora, supongamos que la geometría ya está en formato GeoJSON
+        return geometriaRuta.geoJsonString
+    }
+    private fun searchByLinea(){
+        CoroutineScope(Dispatchers.IO).launch {
+            val call = getRetrofit().create(MyApiService::class.java).getLinea("ruta/nombre/893")
+            val rutaVehicular = call.body()
+            if (call.isSuccessful){
+                //Procesar para verificar que no existe error
+                Log.d("Retrofit", rutaVehicular.toString())
+                //val geometriaRuta = rutas?.geometria_ruta
+                //val geoJson = JSONObject(geometriaRuta.getTuMetodoParaObtenerLaGeometria())
+
+            }else{
+                Log.d("Retrofit", call.errorBody().toString())
+            }
+        }
+    }
+    private fun createGeoJsonFromGeometriaRuta(geometriaRuta: GeometriaRuta?): JSONObject {
+        val geoJson = JSONObject()
+        try {
+            geoJson.put("type", geometriaRuta?.type)
+            geoJson.put("coordinates", JSONArray(geometriaRuta?.coordinates))
+        } catch (e: JSONException) {
+            e.printStackTrace()
+        }
+        return geoJson
+    }
+
+    private fun searchByRuta(){
+        CoroutineScope(Dispatchers.IO).launch {
+            val call = getRetrofit().create(MyApiService::class.java).getRuta("ruta/522")
+            val ruta: Ruta? = call.body()
+            if (call.isSuccessful){
+                //Procesar para verificar que no existe error
+                val geoJson = createGeoJsonFromGeometriaRuta(ruta?.geometria_ruta)
+                withContext(Dispatchers.Main) {
+                    // Añadir la capa GeoJsonLayer al mapa
+                    val geoJsonLayer = GeoJsonLayer(mMap, geoJson)
+                    geoJsonLayer.addLayerToMap()
+
+                    // Verificar si la capa tiene bounding box antes de intentar centrar el mapa
+                    if (geoJsonLayer.boundingBox != null) {
+                        // Centrar el mapa en la geometría de la ruta
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(geoJsonLayer.boundingBox, 10))
+                    } else {
+                        // Manejar el caso en que la capa no tiene bounding box
+                        Log.e("MapError", "La capa GeoJsonLayer no tiene bounding box definido")
+                        // Obtener el primer punto de la geometría y centrar el mapa en él
+                        val primerPunto = LatLng(geoJson.getJSONArray("coordinates").getJSONArray(0).getJSONArray(0).getDouble(1),
+                            geoJson.getJSONArray("coordinates").getJSONArray(0).getJSONArray(0).getDouble(0))
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(primerPunto, 10f))
+                    }
+                }
+            }else{
+                Log.d("Retrofit", call.errorBody().toString())
+            }
+        }
+    }
     override fun onMyLocationButtonClick(): Boolean {
         Toast.makeText(context, "MyLocation button clicked", Toast.LENGTH_SHORT)
             .show()
