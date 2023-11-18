@@ -2,6 +2,7 @@ package com.felicksdev.onlymap
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
@@ -21,7 +22,9 @@ import com.google.android.gms.maps.GoogleMap.OnMyLocationClickListener
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.PolylineOptions
 import com.google.maps.android.data.geojson.GeoJsonLayer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -147,7 +150,10 @@ class Home : Fragment(),
         //retrieveFileFromResource()
         //val retrofitTraer = consumirAPI.getRutas()x
         //Log.d("Retrofit",   retrofitTraer.toString())
-        searchByRuta();
+        //searchByRuta();
+        getRouteByLinea("893")
+        //mostrarRutaEnMapa(522)
+        getRouteById(522)
     }
 
     private fun retrieveFileFromResource() {
@@ -158,6 +164,29 @@ class Home : Fragment(),
             Log.e("ERROR", "GeoJSON file could not be read")
         } catch (e: JSONException) {
             Log.e("ERROR", "GeoJSON file could not be converted to a JSONObject")
+        }
+    }
+    private fun getRouteByLinea(Linea: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val call = getRetrofit().create(MyApiService::class.java).getLinea("ruta/nombre/$Linea")
+                val rutas: List<Ruta>? = call.body()
+
+                if (call.isSuccessful && !rutas.isNullOrEmpty()) {
+                    // Procesar y mostrar las rutas en el mapa
+                    withContext(Dispatchers.Main) {
+                        //searchByLineas2(rutas)
+                        printRoute(rutas)
+                    }
+                } else {
+                    Log.d("Retrofit", call.errorBody().toString())
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Log.e("Error", "Error al obtener y mostrar rutas: ${e.message}")
+                    //Toast.makeText(context, "Ocurrio un error al obtener las rutas: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
 
@@ -203,6 +232,169 @@ class Home : Fragment(),
             }
         }
     }
+    private fun getRouteById(rutaId: Int) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val call = getRetrofit().create(MyApiService::class.java).getRuta("ruta/$rutaId")
+                val ruta: Ruta? = call.body()
+                if (ruta != null) {
+                    withContext(Dispatchers.Main) {
+                        // Limpiar cualquier polilínea existente en el mapa antes de agregar la nueva
+                        mMap.clear()
+                        // Mostrar la ruta en el mapa
+                        printRoute(ruta)
+                    }
+                }
+            } catch (e: Exception) {
+                //mostrar Toas y no actualizar
+                Log.e("Error", "Error al obtener la ruta: ${e.message}")
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Ocurrio un error al obtener la ruta: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun printRoute(ruta: Ruta) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                withContext(Dispatchers.Main) {
+                    // Limpiar cualquier polilínea existente en el mapa antes de agregar la nueva
+                    // With contexto vuelve a trabajr en el hilo principal
+                    mMap.clear()
+                }
+                val polylineOptions = PolylineOptions()
+
+                ruta.geometria_ruta.coordinates.forEach { coordinates ->
+                    coordinates.forEach { coordinate ->
+                        val latLng = LatLng(coordinate[1], coordinate[0])
+                        polylineOptions.add(latLng)
+                    }
+                }
+
+                val color = when (ruta.sentido_ruta.sentido) {
+                    "i" -> Color.BLUE
+                    "v" -> Color.RED
+                    "c" -> Color.GREEN
+                    // Agrega más casos según sea necesario
+                    else -> Color.BLACK
+                }
+
+                withContext(Dispatchers.Main) {
+                    // Asignar propiedades al PolylineOptions fuera del bucle para evitar duplicaciones
+                    polylineOptions.color(color)
+                    polylineOptions.width(5f) // Ancho de la polilínea (ajusta según tus necesidades)
+
+                    // Agregar la polilínea al mapa una sola vez fuera del bucle
+                    mMap.addPolyline(polylineOptions)
+
+                    // Centrar el mapa en la geometría de la ruta
+                    mMap.moveCamera(
+                        CameraUpdateFactory.newLatLngBounds(
+                            getLatLngBounds(ruta.geometria_ruta.coordinates),
+                            10
+                        )
+                    )
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Ocurrio un error al obtener la ruta: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+                Log.e("Error", "Error al obtener la ruta: ${e.message}")
+            }
+        }
+    }
+
+    private fun getLatLngBounds(coordinates: List<List<List<Double>>>): LatLngBounds {
+        val builder = LatLngBounds.Builder()
+        coordinates.forEach { coordinates ->
+            coordinates.forEach { coordinate ->
+                val latLng = LatLng(coordinate[1], coordinate[0])
+                builder.include(latLng)
+            }
+        }
+        return builder.build()
+    }
+
+    private fun searchByLineas2(rutas: List<Ruta>?) {
+        val colores = arrayOf(Color.BLUE, Color.RED) // Puedes agregar más colores según sea necesario
+        rutas?.forEachIndexed { index, ruta ->
+            val polylineOptions = PolylineOptions()
+            Log.d("rutasGet", rutas[index].toString())
+            ruta.geometria_ruta.coordinates.forEach { coordinates ->
+                coordinates.forEach { coordinate ->
+                    val latLng = LatLng(coordinate[1], coordinate[0])
+                    polylineOptions.add(latLng)
+                }
+            }
+
+            // Asignar colores diferentes según el tipo de ruta
+//            val color = when (ruta.tipo_ruta) {
+//                TipoRuta.IDA -> Color.BLUE
+//                TipoRuta.VUELTA -> Color.RED
+//                // Puedes agregar más casos según sea necesario
+//            }
+
+            //polylineOptions.color(color)
+            //mMap.addPolyline(polylineOptions)
+
+            mMap.addPolyline(polylineOptions)
+        }
+
+        // Centra el mapa en una posición inicial (reemplazar con tus coordenadas iniciales)
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(0.0, 0.0), 12f))
+    }
+    private fun printRoute (rutas: List<Ruta>){
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                withContext(Dispatchers.Main) {
+                    // Limpiar cualquier polilínea existente en el mapa antes de agregar las nuevas
+                    mMap.clear()
+                }
+                for (ruta in rutas) {
+                    val polylineOptions = PolylineOptions()
+
+                    ruta.geometria_ruta.coordinates.forEach { coordinates ->
+                        coordinates.forEach { coordinate ->
+                            val latLng = LatLng(coordinate[1], coordinate[0])
+                            polylineOptions.add(latLng)
+                        }
+                    }
+
+                    val color = when (ruta.sentido_ruta.sentido) {
+                        "i" -> Color.BLUE
+                        "v" -> Color.RED
+                        "c" -> Color.GREEN
+                        // Agrega más casos según sea necesario
+                        else -> Color.BLACK
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        // Asignar propiedades al PolylineOptions fuera del bucle para evitar duplicaciones
+                        polylineOptions.color(color)
+                        polylineOptions.width(5f) // Ancho de la polilínea (ajusta según tus necesidades)
+
+                        // Agregar la polilínea al mapa una sola vez fuera del bucle
+                        mMap.addPolyline(polylineOptions)
+                    }
+                }
+
+                // Centrar el mapa en la geometría de la primera ruta (ajusta según tus necesidades)
+                if (rutas.isNotEmpty()) {
+                    withContext(Dispatchers.Main) {
+                        mMap.moveCamera(
+                            CameraUpdateFactory.newLatLngBounds(
+                                getLatLngBounds(rutas[0].geometria_ruta.coordinates),
+                                10
+                            )
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("Error", "Error al obtener las rutas: ${e.message}")
+            }
+        }
+    }
     private fun createGeoJsonFromGeometriaRuta(geometriaRuta: GeometriaRuta?): JSONObject {
         val geoJson = JSONObject()
         try {
@@ -213,7 +405,6 @@ class Home : Fragment(),
         }
         return geoJson
     }
-
     private fun searchByRuta(){
         CoroutineScope(Dispatchers.IO).launch {
             val call = getRetrofit().create(MyApiService::class.java).getRuta("ruta/522")
@@ -234,7 +425,7 @@ class Home : Fragment(),
                         // Manejar el caso en que la capa no tiene bounding box
                         Log.e("MapError", "La capa GeoJsonLayer no tiene bounding box definido")
                         // Obtener el primer punto de la geometría y centrar el mapa en él
-                        val primerPunto = LatLng(geoJson.getJSONArray("coordinates").getJSONArray(0).getJSONArray(0).getDouble(1),
+                        val     primerPunto = LatLng(geoJson.getJSONArray("coordinates").getJSONArray(0).getJSONArray(0).getDouble(1),
                             geoJson.getJSONArray("coordinates").getJSONArray(0).getJSONArray(0).getDouble(0))
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(primerPunto, 10f))
                     }
@@ -244,6 +435,7 @@ class Home : Fragment(),
             }
         }
     }
+
     override fun onMyLocationButtonClick(): Boolean {
         Toast.makeText(context, "MyLocation button clicked", Toast.LENGTH_SHORT)
             .show()

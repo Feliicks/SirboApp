@@ -6,5 +6,9 @@ data class Ruta(
     val id: Int,
     val nombre: String,
     val recorrido: String,
-    val ruta_anterior: String
+    val ruta_anterior: String,
+    val sentido_ruta: SentidoRuta,
+    val tipo_ruta: TipoRuta,
+    val operador: Operador,
+    val tipo_vehiculo: TipoVehiculo
 )
