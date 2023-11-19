@@ -12,9 +12,9 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
-import com.felicksdev.onlymap.models.GeometriaRuta
-import com.felicksdev.onlymap.models.MyApiService
-import com.felicksdev.onlymap.models.Ruta
+import com.felicksdev.onlymap.data.models.GeometriaRuta
+import com.felicksdev.onlymap.data.network.MyApiService
+import com.felicksdev.onlymap.data.models.Ruta
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener
@@ -151,9 +151,9 @@ class Home : Fragment(),
         //val retrofitTraer = consumirAPI.getRutas()x
         //Log.d("Retrofit",   retrofitTraer.toString())
         //searchByRuta();
-        getRouteByLinea("893")
+        //getRouteByLinea("893")
         //mostrarRutaEnMapa(522)
-        getRouteById(522)
+        //getRouteById(522)
     }
 
     private fun retrieveFileFromResource() {

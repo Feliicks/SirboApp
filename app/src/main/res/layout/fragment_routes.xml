@@ -7,16 +7,7 @@
     tools:context=".Routes">
 
     <!-- TODO: Update blank fragment layout -->
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Rutas"/>
-    </LinearLayout>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -24,7 +15,10 @@
         android:text="Rutas Fragment"
         android:textSize="26dp" />
 
-
-
+    <!-- Agregar ComposeView -->
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/routesComposeView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </FrameLayout>

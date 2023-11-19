@@ -1,6 +1,6 @@
-package com.felicksdev.onlymap.models
+package com.felicksdev.onlymap.data.models
 
-data class RutaVehicularItem(
+data class RutaResponse (
     val cod_ruta: String,
     val geometria_ruta: GeometriaRuta,
     val id: Int,
