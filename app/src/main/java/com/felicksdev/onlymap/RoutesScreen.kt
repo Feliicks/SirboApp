@@ -1,18 +1,16 @@
 package com.felicksdev.onlymap
 
-import androidx.compose.foundation.Image
+import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -28,18 +26,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,13 +41,15 @@ import com.felicksdev.onlymap.data.models.SentidoRuta
 import com.felicksdev.onlymap.data.models.TipoRuta
 import com.felicksdev.onlymap.data.models.TipoVehiculo
 import com.felicksdev.onlymap.ui.theme.OnlyMapTheme
-import com.mapbox.maps.extension.style.expressions.dsl.generated.id
+import com.felicksdev.onlymap.viewmodel.RutasViewModel
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RoutesScreen() {
-
+fun RoutesScreen(
+    viewModel : RutasViewModel
+) {
+    val state = viewModel.state
 
     Surface(
         color = MaterialTheme.colorScheme.background
@@ -72,7 +63,14 @@ fun RoutesScreen() {
             // Agrega aquí tu contenido de Compose para el fragmento Routes
             SearchBar()
             Text(text = "Hello, this is the Routes screen!")
-
+            LazyColumn {
+                items(state.rutas) { ruta ->
+                    //Log.d("RoutesScreen", "Operador: ${ruta.operador}, Tipo Vehiculo: ${ruta.tipo_vehiculo}")
+                    RouteItem(ruta = ruta)
+                    viewModel.onRouteItemSelected(ruta)
+                    Divider() // Agrega un separador entre elementos, si lo deseas
+                }
+            }
         }
     }
 
@@ -82,7 +80,7 @@ fun RoutesScreen() {
 @Composable
 fun RoutesScreenPreview() {
     OnlyMapTheme {
-        RoutesScreen()
+        //RoutesScreen()
         //RouteItemCard(rutaTest)
     }
 }
@@ -101,13 +99,13 @@ val rutaTest = Ruta(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun RouteItemCardPreview() {
-    RouteItemCard(rutaTest)
+    RouteItem(rutaTest)
 }
 @Composable
 fun RoutesList(rutas: List<Ruta>) {
     LazyColumn {
         items(rutas) { ruta ->
-            RouteItemCard(ruta = ruta)
+            RouteItem(ruta = ruta)
             Divider() // Agrega un separador entre elementos, si lo deseas
         }
     }
@@ -117,7 +115,7 @@ fun RoutesList(rutas: List<Ruta>) {
 fun RoutesList(rutas: List<Ruta>, modifier: Modifier = Modifier) {
     LazyColumn(modifier = modifier) {
         items(rutas) { ruta ->
-            RouteItemCard(ruta = ruta)
+            RouteItem(ruta = ruta)
             Divider() // Agrega un separador entre elementos, si lo deseas
         }
     }
@@ -144,13 +142,13 @@ fun validateString(string: String): String {
 }
 
 @Composable
-fun RouteItemCard(ruta: Ruta) {
+fun RouteItem(ruta: Ruta) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
             .padding(10.dp)
-            .clickable { }
+            .clickable {   }
     ) {
         Row(
             modifier = Modifier
@@ -168,7 +166,9 @@ fun RouteItemCard(ruta: Ruta) {
                 Text(text = ruta.nombre, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(4.dp))
                 //Text(text = "Línea ${ruta.id}", color = Color.Gray, fontSize = 14.sp)
-                Text(text = validateString(ruta.tipo_vehiculo.tipo_vehiculo), color = Color.Gray, fontSize = 14.sp)
+                //Text(text = validateString(ruta.tipo_vehiculo.tipo_vehiculo), color = Color.Gray, fontSize = 14.sp)
+                Text(text = ruta.tipo_vehiculo?.tipo_vehiculo ?: "No disponible", color = Color.Gray, fontSize = 14.sp)
+
             }
 
             // Columna central
@@ -178,7 +178,9 @@ fun RouteItemCard(ruta: Ruta) {
                     .padding(5.dp)
             ) {
                 Text(text = "Ruta: ${ruta.nombre}")
-                Text(text = validateString(ruta.operador.nombre_sindicato))
+                ruta.operador?.let {
+                    Text(text = validateString(it.nombre_sindicato))
+                }
                 val recorridoArr = ruta.recorrido.split(", ")
                 Text(text = "${validateString(recorridoArr[0])} - ${validateString(recorridoArr[recorridoArr.size - 1])}")
                 //Text(text = "Recorrido: ${ruta.recorrido}")

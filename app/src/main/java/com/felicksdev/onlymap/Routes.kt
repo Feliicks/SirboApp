@@ -53,9 +53,9 @@ class Routes : Fragment() {
         composeView.setContent {
             OnlyMapTheme {
                 // Utiliza RoutesScreen() en lugar de Routes()
-                RoutesScreen()
-                //val viewModel = RutasViewModel(getRetrofit().create(MyApiService::class.java))
-                RoutesList(rutas = routesList)
+                val viewModel = RutasViewModel(getRetrofit().create(MyApiService::class.java))
+                RoutesScreen(viewModel)
+                //RoutesList(viewModel)
             }
         }
         return view

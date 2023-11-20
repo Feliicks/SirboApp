@@ -10,7 +10,7 @@ interface MyApiService {
     @GET
     suspend fun getLinea(@Url url: String): Response<RutaVehicular>
 
-    @GET
+    @GET("ruta")
     suspend fun getAllRutas(): Response<List<Ruta>>
 
     @GET

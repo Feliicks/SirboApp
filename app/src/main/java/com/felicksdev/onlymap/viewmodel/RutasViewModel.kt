@@ -1,5 +1,6 @@
 package com.felicksdev.onlymap.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,6 +14,7 @@ import com.felicksdev.onlymap.data.models.RutaState
 import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import kotlin.math.log
 
 class RutasViewModel (
     private val MyApiService: MyApiService
@@ -21,23 +23,46 @@ class RutasViewModel (
         private set
     private val _routes = MutableLiveData<List<Ruta>>()
     val routes: LiveData<List<Ruta>> get() = _routes
-
-    fun getRoutes() {
+    init {
         viewModelScope.launch {
             try {
-                val call = getRetrofit().create(MyApiService::class.java).getAllRutas()
-                val rutas: List<Ruta>? = call.body()
-                if (call.isSuccessful && !rutas.isNullOrEmpty()) {
-                    _routes.value = rutas
-                } else {
-                    // Manejar el error según sea necesario
-
-                }
-            } catch (e: Exception) {
+                val rutas = MyApiService.getAllRutas().body() ?: emptyList()
+                state=state.copy(
+                    rutas = rutas,
+                )
+            }
+            catch (e: Exception) {
                 // Manejar el error según sea necesario
+                Log.e("RutasViewModel", "Error al obtener las rutas", e)
             }
         }
     }
+    fun onRouteItemSelected(rutas: Ruta) {
+        viewModelScope.launch {
+            try {
+                state = state.copy(currentRuta = ruta)
+            } catch (e: Exception) {
+                Log.e("RutasViewModel", "Error al seleccionar la ruta", e)
+            }
+        }
+    }
+
+//    fun getRoutes() {
+//        viewModelScope.launch {
+//            try {
+//                val call = getRetrofit().create(MyApiService::class.java).getAllRutas()
+//                val rutas: List<Ruta>? = call.body()
+//                if (call.isSuccessful && !rutas.isNullOrEmpty()) {
+//                    _routes.value = rutas
+//                } else {
+//                    // Manejar el error según sea necesario
+//
+//                }
+//            } catch (e: Exception) {
+//                // Manejar el error según sea necesario
+//            }
+//        }
+//    }
 
     private fun getRetrofit(): Retrofit {
         return Retrofit.Builder()
