@@ -40,7 +40,7 @@ class RutasViewModel (
     fun onRouteItemSelected(rutas: Ruta) {
         viewModelScope.launch {
             try {
-                state = state.copy(currentRuta = ruta)
+                state = state.copy()
             } catch (e: Exception) {
                 Log.e("RutasViewModel", "Error al seleccionar la ruta", e)
             }

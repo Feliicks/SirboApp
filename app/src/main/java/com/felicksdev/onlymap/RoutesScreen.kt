@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.felicksdev.onlymap.data.models.GeometriaRuta
 import com.felicksdev.onlymap.data.models.Operador
 import com.felicksdev.onlymap.data.models.Ruta
@@ -47,7 +48,8 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoutesScreen(
-    viewModel : RutasViewModel
+    viewModel: RutasViewModel,
+    navController: NavController
 ) {
     val state = viewModel.state
 
@@ -65,16 +67,20 @@ fun RoutesScreen(
             Text(text = "Hello, this is the Routes screen!")
             LazyColumn {
                 items(state.rutas) { ruta ->
-                    //Log.d("RoutesScreen", "Operador: ${ruta.operador}, Tipo Vehiculo: ${ruta.tipo_vehiculo}")
-                    RouteItem(ruta = ruta)
-                    viewModel.onRouteItemSelected(ruta)
+                    RouteItem(
+                        ruta = ruta,
+                        navigateToDetail = {
+                            // Llama a la función de navegación del NavController aquí
+                            navController.navigate("fragment_addresses")
+                        }
+                    )
                     Divider() // Agrega un separador entre elementos, si lo deseas
                 }
             }
         }
     }
-
 }
+
 
 @Preview
 @Composable
@@ -96,31 +102,7 @@ val rutaTest = Ruta(
     operador = Operador(id = 1, nombre_sindicato = "Sindicato SIMON BOLIVAR"),
     ruta_anterior = "387",
 )
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun RouteItemCardPreview() {
-    RouteItem(rutaTest)
-}
-@Composable
-fun RoutesList(rutas: List<Ruta>) {
-    LazyColumn {
-        items(rutas) { ruta ->
-            RouteItem(ruta = ruta)
-            Divider() // Agrega un separador entre elementos, si lo deseas
-        }
-    }
-}
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun RoutesList(rutas: List<Ruta>, modifier: Modifier = Modifier) {
-    LazyColumn(modifier = modifier) {
-        items(rutas) { ruta ->
-            RouteItem(ruta = ruta)
-            Divider() // Agrega un separador entre elementos, si lo deseas
-        }
-    }
-    
-}
+
 fun camelCase(string: String, delimiter: String = " ", separator: String = " "): String {
     return string.split(delimiter).joinToString(separator = separator) {
         it.lowercase().replaceFirstChar { char -> char.titlecase() }
@@ -142,13 +124,15 @@ fun validateString(string: String): String {
 }
 
 @Composable
-fun RouteItem(ruta: Ruta) {
+fun RouteItem(ruta: Ruta, navigateToDetail: (Ruta) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
             .padding(10.dp)
-            .clickable {   }
+            .clickable {
+                navigateToDetail(ruta)
+            }
     ) {
         Row(
             modifier = Modifier

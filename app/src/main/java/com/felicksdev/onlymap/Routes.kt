@@ -7,6 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
+import androidx.navigation.fragment.NavHostFragment.Companion.findNavController
+import androidx.navigation.fragment.findNavController
 import com.felicksdev.onlymap.data.network.MyApiService
 import com.felicksdev.onlymap.data.models.Ruta
 import com.felicksdev.onlymap.ui.theme.OnlyMapTheme
@@ -49,12 +51,21 @@ class Routes : Fragment() {
         val view = inflater.inflate(R.layout.fragment_routes, container, false)
         val composeView = view.findViewById<ComposeView>(R.id.routesComposeView)
 
+        val navController = findNavController()
+
+        // Obtén la ruta actual
+        //val currentDestination = navController.currentDestination
+        //val currentRoute = currentDestination?.label.toString()
+
+        // Haz algo con la ruta, por ejemplo, imprímela
+        //Log.d("TuFragment", "Ruta actual: $currentRoute")
+
         getRoutes()
         composeView.setContent {
             OnlyMapTheme {
                 // Utiliza RoutesScreen() en lugar de Routes()
                 val viewModel = RutasViewModel(getRetrofit().create(MyApiService::class.java))
-                RoutesScreen(viewModel)
+                RoutesScreen(viewModel, navController)
                 //RoutesList(viewModel)
             }
         }
