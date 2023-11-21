@@ -208,7 +208,7 @@ class Home : Fragment(),
             val layer = GeoJsonLayer(mMap, JSONObject(geoJsonString))
             layer.addLayerToMap()
         } catch (e: JSONException) {
-            Log.e("Error", "Error al procesar GeoJSON: ${e.message}")
+            Log.e("Erro r", "Error al procesar GeoJSON: ${e.message}")
         }
     }
     private fun convertirGeometriaARawGeoJson(geometriaRuta: GeometriaRuta): String {
