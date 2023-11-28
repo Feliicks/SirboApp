@@ -27,6 +27,10 @@ sealed class Destinations(
         "addresses_screen",
         "Addresses",
         Icons.Filled.Favorite
-
+    )
+    object LocationsSelectionScreen: Destinations(
+        "locations_screen",
+        "Locations",
+        Icons.Filled.Favorite
     )
 }
