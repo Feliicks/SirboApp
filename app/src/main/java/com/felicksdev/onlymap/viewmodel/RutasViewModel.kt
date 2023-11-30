@@ -1,45 +1,32 @@
-package com.felicksdev.onlymap.viewmodel
-
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.felicksdev.onlymap.data.network.MyApiService
+import com.felicksdev.onlymap.core.RetrofitHelper
 import com.felicksdev.onlymap.data.models.Ruta
 import com.felicksdev.onlymap.data.models.RutaState
 import kotlinx.coroutines.launch
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import kotlin.math.log
 
-class RutasViewModel (
-    private val MyApiService: MyApiService
-) : ViewModel() {
+class RutasViewModel : ViewModel() {
+
     var state by mutableStateOf(RutaState())
         private set
-    private val _routes = MutableLiveData<List<Ruta>>()
-    val routes: LiveData<List<Ruta>> get() = _routes
+
+    var routesList by mutableStateOf<List<Ruta>>(emptyList())
+        private set
+
     init {
-        viewModelScope.launch {
-            try {
-                val rutas = MyApiService.getAllRutas().body() ?: emptyList()
-                state=state.copy(
-                    rutas = rutas,
-                )
-            }
-            catch (e: Exception) {
-                // Manejar el error según sea necesario
-                Log.e("RutasViewModel", "Error al obtener las rutas", e)
-            }
-        }
+        obtenerRutas()
     }
-    fun onRouteItemSelected(rutas: Ruta) {
+
+    fun onRouteItemSelected(ruta: Ruta) {
         viewModelScope.launch {
             try {
+                // Lógica para manejar la selección de una ruta, si es necesario
+                // Puedes actualizar el estado u realizar otras acciones aquí
                 state = state.copy()
             } catch (e: Exception) {
                 Log.e("RutasViewModel", "Error al seleccionar la ruta", e)
@@ -47,27 +34,23 @@ class RutasViewModel (
         }
     }
 
-//    fun getRoutes() {
-//        viewModelScope.launch {
-//            try {
-//                val call = getRetrofit().create(MyApiService::class.java).getAllRutas()
-//                val rutas: List<Ruta>? = call.body()
-//                if (call.isSuccessful && !rutas.isNullOrEmpty()) {
-//                    _routes.value = rutas
-//                } else {
-//                    // Manejar el error según sea necesario
-//
-//                }
-//            } catch (e: Exception) {
-//                // Manejar el error según sea necesario
-//            }
-//        }
-//    }
+    private fun obtenerRutas() {
+        viewModelScope.launch {
+            try {
+                val resultado = RetrofitHelper.getRetrofit().getAllRutas()
+                if (resultado.isSuccessful) {
+                    routesList = resultado.body() ?: emptyList()
+                    Log.d("RutasViewModel", "Rutas obtenidas $routesList")
+                    Log.d("RutasViewModel", "Obtuve todas las rutas exitosamente")
 
-    private fun getRetrofit(): Retrofit {
-        return Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:3000/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
+                } else {
+                    // Manejar el caso en que la llamada no fue exitosa
+                    Log.e("RutasViewModel", "Resulta !issuccessfulError al obtener las rutas: ${resultado.message()}")
+                }
+            } catch (e: Exception) {
+                // Manejar errores, por ejemplo, emitir un estado de error
+                Log.e("RutasViewModel", "Error al obtener las rutas", e)
+            }
+        }
     }
 }

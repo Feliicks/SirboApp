@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -23,7 +24,7 @@ import com.felicksdev.onlymap.screens.components.BottomNavigationBar
 
 class MainActivity2 : AppCompatActivity() {
     private lateinit var binding: ActivityMain2Binding
-
+    //val rutasViewModel = viewModels<> {  }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //binding=ActivityMain2Binding.inflate(layoutInflater)
@@ -61,9 +62,10 @@ class MainActivity2 : AppCompatActivity() {
     fun MainScreen() {
         val navController = rememberNavController()
         val navigationItems = listOf(
-            ThirdScreen,
+            SecondScreen,
             HomeScreen,
-            SecondScreen
+            ThirdScreen
+
         )
         Scaffold(
             bottomBar = {

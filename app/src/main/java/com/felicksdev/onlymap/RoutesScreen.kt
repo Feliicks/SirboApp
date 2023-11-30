@@ -1,5 +1,6 @@
 package com.felicksdev.onlymap
 
+import RutasViewModel
 import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -26,6 +27,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,7 +44,6 @@ import com.felicksdev.onlymap.data.models.SentidoRuta
 import com.felicksdev.onlymap.data.models.TipoRuta
 import com.felicksdev.onlymap.data.models.TipoVehiculo
 import com.felicksdev.onlymap.ui.theme.OnlyMapTheme
-import com.felicksdev.onlymap.viewmodel.RutasViewModel
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,11 +53,20 @@ fun RoutesScreen(
     navController: NavController
 ) {
     val state = viewModel.state
+    val rutas = viewModel.routesList
+    DisposableEffect(Unit) {
+        // Código que se ejecuta cuando la pantalla se carga
+        Log.d("RoutesScreen", "La pantalla RoutesScreen se cargó")
+        Log.d("RoutesScreen", "Rutas obtenidas ${viewModel.routesList}")
+
+        onDispose { /* Cleanup, si es necesario */ }
+    }
 
     Surface(
-        color = MaterialTheme.colorScheme.background
     ) {
+        //color = MaterialTheme.colorScheme.background
         Column {
+            Log.d("RoutesScreen", "Rutas obtenidas ${viewModel.routesList}")
             TopAppBar(
                 title = {
                     Text(text = "Routes")
@@ -66,12 +76,13 @@ fun RoutesScreen(
             SearchBar()
             Text(text = "Hello, this is the Routes screen!")
             LazyColumn {
+
                 items(state.rutas) { ruta ->
                     RouteItem(
                         ruta = ruta,
                         navigateToDetail = {
                             // Llama a la función de navegación del NavController aquí
-                            navController.navigate("fragment_addresses")
+                            //navController.navigate("fragment_addresses")
                         }
                     )
                     Divider() // Agrega un separador entre elementos, si lo deseas

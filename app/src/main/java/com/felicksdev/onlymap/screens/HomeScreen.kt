@@ -22,6 +22,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.felicksdev.onlymap.navigation.Destinations
+import com.felicksdev.onlymap.navigation.Destinations.*
 import com.felicksdev.onlymap.viewmodel.HomeScreenViewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -34,7 +37,8 @@ import com.google.maps.android.compose.rememberCameraPositionState
 @Composable
 fun HomeScreen(
     navegarPantalla2: (String) -> Unit,
-    viewModel: HomeScreenViewModel // Asume que se pasa como parámetro
+    viewModel: HomeScreenViewModel, // Asume que se pasa como parámetro
+    navController: NavController
 ) {
     val datosCargados = remember { mutableStateOf(false) }
     var textValue by remember { mutableStateOf("") }
@@ -64,7 +68,8 @@ fun HomeScreen(
                         if (it is PressInteraction.Release) {
                             // works like onClick
                             Log.d("HomeScreen", "Click")
-                            navegarPantalla2("Hola")
+                            //navegarPantalla2("Hola")
+                            navController.navigate(Destinations.LocationsSelectionScreen.route)
                         }
                     }
                 }
@@ -81,8 +86,9 @@ fun HomeScreen(
             .wrapContentSize()
             .padding(16.dp)
             .clickable {
-                navegarPantalla2("Hola")
+                //navController.navigate(LocationsSelectionScreen.route)
             }
+
 
     )
 

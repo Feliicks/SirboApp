@@ -1,5 +1,6 @@
 package com.felicksdev.onlymap
 
+import RutasViewModel
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -7,12 +8,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
-import androidx.navigation.fragment.NavHostFragment.Companion.findNavController
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.felicksdev.onlymap.data.network.MyApiService
 import com.felicksdev.onlymap.data.models.Ruta
 import com.felicksdev.onlymap.ui.theme.OnlyMapTheme
-import com.felicksdev.onlymap.viewmodel.RutasViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -52,7 +52,7 @@ class Routes : Fragment() {
         val composeView = view.findViewById<ComposeView>(R.id.routesComposeView)
 
         val navController = findNavController()
-
+        val rutasViewModel = viewModels<RutasViewModel> ()
         // Obtén la ruta actual
         //val currentDestination = navController.currentDestination
         //val currentRoute = currentDestination?.label.toString()
@@ -64,8 +64,8 @@ class Routes : Fragment() {
         composeView.setContent {
             OnlyMapTheme {
                 // Utiliza RoutesScreen() en lugar de Routes()
-                val viewModel = RutasViewModel(getRetrofit().create(MyApiService::class.java))
-                RoutesScreen(viewModel, navController)
+
+                //RoutesScreen(rutasViewModel, navController)
                 //RoutesList(viewModel)
             }
         }
