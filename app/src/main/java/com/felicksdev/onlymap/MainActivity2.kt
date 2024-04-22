@@ -3,6 +3,7 @@ package com.felicksdev.onlymap
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
@@ -10,6 +11,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
@@ -21,6 +23,7 @@ import com.felicksdev.onlymap.screens.HomeScreen
 import com.felicksdev.onlymap.screens.MyGoogleMap
 import com.felicksdev.onlymap.screens.ThirdScreen
 import com.felicksdev.onlymap.screens.components.BottomNavigationBar
+import com.felicksdev.onlymap.viewmodel.LocationViewModel
 
 class MainActivity2 : AppCompatActivity() {
     private lateinit var binding: ActivityMain2Binding
@@ -29,6 +32,8 @@ class MainActivity2 : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         //binding=ActivityMain2Binding.inflate(layoutInflater)
         //setContentView(binding.root)
+        var locationViewModel = LocationViewModel()
+        //locationViewModel.geoCoder = Geocoder(requireC)
         setContent {
             //NavigationHost()
             MainScreen()
@@ -65,7 +70,6 @@ class MainActivity2 : AppCompatActivity() {
             SecondScreen,
             HomeScreen,
             ThirdScreen
-
         )
         Scaffold(
             bottomBar = {

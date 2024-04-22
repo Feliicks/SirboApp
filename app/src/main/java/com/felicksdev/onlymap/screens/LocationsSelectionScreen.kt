@@ -1,4 +1,7 @@
 import android.annotation.SuppressLint
+import android.util.Log
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -6,26 +9,75 @@ import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.felicksdev.onlymap.navigation.Destinations
+import com.felicksdev.onlymap.data.models.LocationInfo
 import com.felicksdev.onlymap.navigation.Destinations.*
 import com.felicksdev.onlymap.screens.components.LocationOptionItem
+import com.felicksdev.onlymap.viewmodel.LocationViewModel
+import com.google.android.gms.maps.model.LatLng
+
+@Composable
+fun OrigenField(origenAddress: String, onFieldSelected: () -> Unit) {
+    //Log.d("OrigenField", "OrigenField: ${origenAddress}")
+
+    //val origenAddress by locationInfo.observeAsState(LocationInfo(LatLng(0.0, 0.0), ""))
+    OutlinedTextField(
+        value = origenAddress,
+        onValueChange = {  },
+        label = { Text("Origen") },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp),
+        interactionSource = remember { MutableInteractionSource() }
+            .also { interactionSource ->
+                LaunchedEffect(interactionSource) {
+                    interactionSource.interactions.collect {
+                        if (it is PressInteraction.Release) {
+                            onFieldSelected()
+                        }
+                    }
+                }
+            },
+    )
+}
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun LocationsSelectionScreen(onNextClick: (String, String) -> Unit, navController: NavController) {
-    var origin by remember { mutableStateOf("") }
-    var destination by remember { mutableStateOf("") }
+fun LocationsSelectionScreen(
+    locationViewModel: LocationViewModel,
+    onNextClick: (String, String) -> Unit, navController: NavController
+) {
     val focusRequester = FocusRequester()
+    locationViewModel.initializeGeoCoder(context = LocalContext.current)
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
+        //locationViewModel.onFieldSelected()
+
     }
+    locationViewModel.getLastLocation(context = LocalContext.current);
+    //locationViewModel.getAddressOrigen(locationViewModel.origenCoordinates)
+    val currentAddress: String by locationViewModel.originAddressText.observeAsState("")
+    val origenLocation: LocationInfo by locationViewModel.origenLocation.observeAsState(
+        LocationInfo(
+            LatLng(0.0, 0.0),
+            ""
+        )
+    )
+//    val currentAddress: String by remember {
+//        mutableStateOf(
+//            origenLocation.address)
+//    }
+    val origenFieldSelected: Boolean by locationViewModel.origenFieldSelected.observeAsState(false)
+    val destinoFieldSelected: Boolean by locationViewModel.destinoFieldSelected.observeAsState(true)
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -40,25 +92,10 @@ fun LocationsSelectionScreen(onNextClick: (String, String) -> Unit, navControlle
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                OutlinedTextField(
-                    value = origin,
-                    onValueChange = { origin = it },
-                    label = { Text("Origen") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
-                )
+                OrigenField(currentAddress, { locationViewModel.onOrigenSelected() })
+                DestinoField(locationViewModel.destinoAddressText, focusRequester,
+                    { locationViewModel.onDestinoSelected() })
 
-                OutlinedTextField(
-                    value = destination,
-                    onValueChange = { destination = it },
-                    label = { Text("Destino") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
-                        .focusRequester(focusRequester)
-
-                )
                 Column {
                     Box() {
                         androidx.compose.material3.Text(
@@ -72,21 +109,29 @@ fun LocationsSelectionScreen(onNextClick: (String, String) -> Unit, navControlle
                             .fillMaxSize()
 
                         //verticalArrangement = Arrangement.Center,
-                        //horizontalAlignment = Alignment.CenterHorizontally
+                        //horizontalAlignment = Alignment.CenterHorizontally]
                     ) {
                         LocationOptionItem(
                             locationIcon = Icons.Default.LocationOn, locationText = "Mi ubicación",
-                            navController = navController
+                            onLocationSelected = {}
                         )
                         LocationOptionItem(
                             locationIcon = Icons.Default.LocationOn,
                             locationText = "Seleccionar ubicación en el mapa",
-                            navController = navController
+                            onLocationSelected = {
+                                try {
+                                    navController.navigate(MapScreen.route)
+                                } catch (e: Exception) {
+                                    Log.d(
+                                        "LocationOptionItem", "Error al abrir pantalla ${e.message}"
+                                    )
+                                }
+                            }
                         )
                         LocationOptionItem(
                             locationIcon = Icons.Default.LocationOn,
                             locationText = "Otra ubicación",
-                            navController = navController
+                            onLocationSelected = {}
                         )
                         Button(
                             onClick = {
@@ -94,7 +139,8 @@ fun LocationsSelectionScreen(onNextClick: (String, String) -> Unit, navControlle
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(50.dp)
+                                .height(50.dp),
+                            enabled = true
                         ) {
                             Row(
                                 modifier = Modifier
@@ -102,16 +148,48 @@ fun LocationsSelectionScreen(onNextClick: (String, String) -> Unit, navControlle
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text("Siguiente")
-                                Icon(imageVector = Icons.Default.ArrowForward, contentDescription = null)
+                                Icon(
+                                    imageVector = Icons.Default.ArrowForward,
+                                    contentDescription = null
+                                )
                             }
                         }
                     }
                 }
-                
+
             }
         }
     )
 }
+
+@Composable
+fun DestinoField(
+    destinoAddressText: String,
+    focusRequester: FocusRequester,
+    onFieldSelected: () -> Unit
+) {
+    OutlinedTextField(
+        value = destinoAddressText,
+        onValueChange = { destinoAddressText },
+        label = { Text("Destino") },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp)
+            .focusRequester(focusRequester),
+        interactionSource = remember { MutableInteractionSource() }
+            .also { interactionSource ->
+                LaunchedEffect(interactionSource) {
+                    interactionSource.interactions.collect {
+                        if (it is PressInteraction.Release) {
+                            onFieldSelected()
+                        }
+                    }
+                }
+            },
+
+        )
+}
+
 @Preview(showBackground = true)
 @Composable
 fun ButtonPreview(navController: NavController? = null) {
@@ -133,6 +211,7 @@ fun ButtonPreview(navController: NavController? = null) {
         }
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun SelectRouteScreenPreview() {

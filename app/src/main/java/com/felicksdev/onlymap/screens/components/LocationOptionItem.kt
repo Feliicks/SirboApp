@@ -6,8 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -19,11 +17,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.felicksdev.onlymap.navigation.Destinations
-import com.felicksdev.onlymap.navigation.Destinations.*
+import com.felicksdev.onlymap.navigation.Destinations.MapScreen
 
 @Composable
-fun LocationOptionItem(locationIcon: ImageVector, locationText: String, navController: NavController) {
+fun LocationOptionItem(
+    locationIcon: ImageVector,
+    locationText: String,
+    //navController: NavController,
+    onLocationSelected: () -> Unit
+) {
     Row(
         modifier = Modifier
             .height(56.dp)
@@ -31,12 +33,12 @@ fun LocationOptionItem(locationIcon: ImageVector, locationText: String, navContr
             .padding(bottom = 4.dp)
             .clickable {
                 Log.d("LocationOptionItem", "Abriendo pantalla")
-                try {
-                    navController.navigate(MapScreen.route)
-                }
-                catch (e: Exception) {
-                    Log.d("LocationOptionItem", "Error al abrir pantalla ${e.message}")
-                }
+                onLocationSelected()
+//                try {
+//                    navController.navigate(MapScreen.route)
+//                } catch (e: Exception) {
+//                    Log.d("LocationOptionItem", "Error al abrir pantalla ${e.message}")
+//                }
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -54,11 +56,11 @@ fun LocationOptionItem(locationIcon: ImageVector, locationText: String, navContr
                 .padding(start = 10.dp)
 
 
-
         )
         // Agrega aquí cualquier otro elemento que desees en el mismo Row
     }
 }
+
 @Preview
 @Composable
 fun LocationOptionPreview() {
