@@ -1,4 +1,4 @@
-package com.felicksdev.onlymap
+package com.felicksdev.onlymap.data.models
 
 data class RutaTransporte(
     val codigoRuta: String,

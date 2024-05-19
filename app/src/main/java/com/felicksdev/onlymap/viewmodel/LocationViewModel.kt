@@ -1,7 +1,6 @@
 package com.felicksdev.onlymap.viewmodel
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Geocoder
@@ -32,8 +31,14 @@ class LocationViewModel
 
     private val _destinoLocation = MutableLiveData<LocationInfo>()
     val destinoLocation : LiveData<LocationInfo> = _destinoLocation
-    private val _origenLocation = MutableLiveData<LocationInfo>()
-    val origenLocation : LiveData<LocationInfo> = _origenLocation
+
+    private val _originLocation = MutableLiveData<LocationInfo>()
+    val originLocation : LiveData<LocationInfo> = _originLocation
+
+
+    private val _destinyLocation = MutableLiveData<LocationInfo>()
+    val destinyLocation : LiveData<LocationInfo> = _destinyLocation
+
 
     var destinoAddressText by mutableStateOf("")
     var destinoCoordinates by mutableStateOf(LatLng(0.0, 0.0))
@@ -43,10 +48,10 @@ class LocationViewModel
     val originAddressText : LiveData<String> = _originAddressText
     var origenCoordinates by mutableStateOf(LatLng(0.0, 0.0))
 
-    private val _origenFieldSelected = MutableLiveData<Boolean>()
+    private val _origenFieldSelected = MutableLiveData<Boolean>(false)
     val origenFieldSelected : LiveData<Boolean> = _origenFieldSelected
 
-    private val _destinoFieldSelected   = MutableLiveData<Boolean>()
+    private val _destinoFieldSelected   = MutableLiveData<Boolean>(true)
     val destinoFieldSelected : LiveData<Boolean> = _destinoFieldSelected
 
     private val _isButtonEnable = MutableLiveData<Boolean>()
@@ -86,6 +91,11 @@ class LocationViewModel
                         LocationState.Error
                     } else {
                         _currentLocation.value = LatLng(location.latitude, location.longitude)
+//                        _originLocation.value = LocationInfo(
+//                            LatLng(location.latitude, location.longitude),
+//                            getAddressOrigen(location.latitude, location.longitude).toString(
+//                        )
+                        location
                         Log.d("LocationViewModel", currentLocation.value.toString())
                         LocationState.LocationAvailable(
                             LatLng(
@@ -98,15 +108,15 @@ class LocationViewModel
 
             }
     }
-    fun onLocationChanged (location: LatLng){
-        Log.d("LocationViewModel", "Location Changed")
-        origenCoordinates = location
-        getAddressOrigen(origenCoordinates)
-        _origenLocation.value = LocationInfo(
-            LatLng(location.latitude, location.longitude),
-            getAddressOrigen(origenCoordinates).toString()
-        )
-    }
+//    fun onLocationChanged (location: LatLng){
+//        Log.d("LocationViewModel", "Location Changed")
+//        origenCoordinates = location
+//        getAddressOrigen(origenCoordinates)
+//        _origenLocation.value = LocationInfo(
+//            LatLng(location.latitude, location.longitude),
+//            getAddressOrigen(origenCoordinates).toString()
+//        )
+//    }
     fun getLastLocation(context: Context) {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
         if (ActivityCompat.checkSelfPermission(
@@ -142,7 +152,7 @@ class LocationViewModel
                 //Log.d("LocationViewModel", location.toString())
                 origenCoordinates = LatLng(location.latitude, location.longitude)
                 getAddressOrigen(origenCoordinates)
-                _origenLocation.value = LocationInfo(
+                _originLocation.value = LocationInfo(
                     LatLng(location.latitude, location.longitude),
                     getAddressOrigen(origenCoordinates).toString()
                 )
@@ -158,16 +168,18 @@ class LocationViewModel
     fun getAddressDestino(latLng: LatLng) {
         viewModelScope.launch {
             val address = geoCoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
-            //Log.d("LocationViewModel", address.toString())
             if (address!!.isNotEmpty()) {
                 val addressLine = address!![0].getAddressLine(0)
                 Log.d("LocationViewModel Destino", addressLine.toString())
                 destinoAddressText = addressLine
+                _destinyLocation.value = LocationInfo(
+                    latLng,
+                    addressLine
+                )
+                Log.d("LocationViewModel Destino", _destinyLocation.toString())
             } else {
-                //Log.d("LocationViewModel", "No address found")
                 destinoAddressText = "Direccion no disponible"
             }
-            //text = address?.get(0)?.getAddressLine(0) ?: ""
         }
     }
     fun getAddressOrigen(latLng: LatLng) {
@@ -178,15 +190,16 @@ class LocationViewModel
                 val addressLine = address!![0].getAddressLine(0)
                 Log.d("LocationViewModel Origen", addressLine.toString())
                 _originAddressText.value = addressLine
-                _origenLocation.value = LocationInfo(
+                _originLocation.value = LocationInfo(
                     latLng,
                     addressLine
                 )
+                Log.e("LocationViewModel originInfo", _originLocation.toString())
+                Log.e("LocationViewModel originInfo", _originLocation.value.toString())
             } else {
                 Log.d("LocationViewModel", "No address found")
                 _originAddressText.value = "Direccion no disponible"
             }
-            //text = address?.get(0)?.getAddressLine(0) ?: ""
         }
     }
 

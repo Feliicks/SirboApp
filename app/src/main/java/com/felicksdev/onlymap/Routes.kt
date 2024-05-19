@@ -3,15 +3,15 @@ package com.felicksdev.onlymap
 import RutasViewModel
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.felicksdev.onlymap.data.network.MyApiService
 import com.felicksdev.onlymap.data.models.Ruta
+import com.felicksdev.onlymap.services.network.MyApiService
 import com.felicksdev.onlymap.ui.theme.OnlyMapTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

@@ -1,4 +1,4 @@
-package com.felicksdev.onlymap.screens
+package com.felicksdev.onlymap.presentation.screens
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.border

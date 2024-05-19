@@ -1,11 +1,10 @@
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.felicksdev.onlymap.core.RetrofitHelper
+import com.felicksdev.onlymap.services.network.RetrofitHelper
 import com.felicksdev.onlymap.data.models.Ruta
 import com.felicksdev.onlymap.data.models.RutaState
 import kotlinx.coroutines.launch

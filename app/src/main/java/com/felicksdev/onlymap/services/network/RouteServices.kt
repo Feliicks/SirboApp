@@ -1,7 +1,6 @@
-package com.felicksdev.onlymap.data.network
+package com.felicksdev.onlymap.services.network
 
-import com.felicksdev.onlymap.core.RetrofitHelper
-import com.felicksdev.onlymap.core.RetrofitHelper.getRetrofit
+import com.felicksdev.onlymap.services.network.RetrofitHelper.getRetrofit
 import com.felicksdev.onlymap.data.models.Ruta
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

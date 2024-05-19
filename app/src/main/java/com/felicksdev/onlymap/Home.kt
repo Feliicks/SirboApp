@@ -13,8 +13,8 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import com.felicksdev.onlymap.data.models.GeometriaRuta
-import com.felicksdev.onlymap.data.network.MyApiService
 import com.felicksdev.onlymap.data.models.Ruta
+import com.felicksdev.onlymap.services.network.MyApiService
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener

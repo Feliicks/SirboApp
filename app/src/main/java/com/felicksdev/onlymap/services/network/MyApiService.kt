@@ -1,4 +1,4 @@
-package com.felicksdev.onlymap.data.network
+package com.felicksdev.onlymap.services.network
 
 import com.felicksdev.onlymap.data.models.Ruta
 import com.felicksdev.onlymap.data.models.RutaVehicular

@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -20,18 +21,15 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.felicksdev.onlymap.data.models.LocationInfo
 import com.felicksdev.onlymap.navigation.Destinations.*
-import com.felicksdev.onlymap.screens.components.LocationOptionItem
+import com.felicksdev.onlymap.presentation.screens.components.LocationOptionItem
 import com.felicksdev.onlymap.viewmodel.LocationViewModel
 import com.google.android.gms.maps.model.LatLng
 
 @Composable
-fun OrigenField(origenAddress: String, onFieldSelected: () -> Unit) {
-    //Log.d("OrigenField", "OrigenField: ${origenAddress}")
-
-    //val origenAddress by locationInfo.observeAsState(LocationInfo(LatLng(0.0, 0.0), ""))
+fun LocationField2(locationAddress: String, onFieldSelected: () -> Unit) {
     OutlinedTextField(
-        value = origenAddress,
-        onValueChange = {  },
+        value = locationAddress,
+        onValueChange = { },
         label = { Text("Origen") },
         modifier = Modifier
             .fillMaxWidth()
@@ -55,28 +53,23 @@ fun LocationsSelectionScreen(
     locationViewModel: LocationViewModel,
     onNextClick: (String, String) -> Unit, navController: NavController
 ) {
+//    val originFieldIsSelected: Boolean by locationViewModel.origenFieldSelected.observeAsState()
+//    val destinoFieldSelected: Boolean  = locationViewModel.origenFieldSelected.value ?: false
+
     val focusRequester = FocusRequester()
     locationViewModel.initializeGeoCoder(context = LocalContext.current)
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
-        //locationViewModel.onFieldSelected()
-
     }
     locationViewModel.getLastLocation(context = LocalContext.current);
     //locationViewModel.getAddressOrigen(locationViewModel.origenCoordinates)
     val currentAddress: String by locationViewModel.originAddressText.observeAsState("")
-    val origenLocation: LocationInfo by locationViewModel.origenLocation.observeAsState(
+    val origenLocation: LocationInfo by locationViewModel.originLocation.observeAsState(
         LocationInfo(
             LatLng(0.0, 0.0),
             ""
         )
     )
-//    val currentAddress: String by remember {
-//        mutableStateOf(
-//            origenLocation.address)
-//    }
-    val origenFieldSelected: Boolean by locationViewModel.origenFieldSelected.observeAsState(false)
-    val destinoFieldSelected: Boolean by locationViewModel.destinoFieldSelected.observeAsState(true)
 
     Scaffold(
         topBar = {
@@ -92,13 +85,21 @@ fun LocationsSelectionScreen(
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                OrigenField(currentAddress, { locationViewModel.onOrigenSelected() })
-                DestinoField(locationViewModel.destinoAddressText, focusRequester,
-                    { locationViewModel.onDestinoSelected() })
+                LocationField(
+                    currentAddress,
+                    { locationViewModel.onOrigenSelected() },
+                    label = "Origen"
+                )
+                LocationField(
+                    locationAddress = locationViewModel.destinoAddressText,
+                    onFieldSelected = { locationViewModel.onDestinoSelected() },
+                    label = "Destino", focusRequester = focusRequester
+                )
+
 
                 Column {
                     Box() {
-                        androidx.compose.material3.Text(
+                        Text(
                             text = "Selecciona una ubicación",
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.align(Alignment.Center)
@@ -115,6 +116,7 @@ fun LocationsSelectionScreen(
                             locationIcon = Icons.Default.LocationOn, locationText = "Mi ubicación",
                             onLocationSelected = {}
                         )
+                        Spacer(modifier = Modifier.height(16.dp))
                         LocationOptionItem(
                             locationIcon = Icons.Default.LocationOn,
                             locationText = "Seleccionar ubicación en el mapa",
@@ -163,7 +165,7 @@ fun LocationsSelectionScreen(
 }
 
 @Composable
-fun DestinoField(
+fun DestinoField2(
     destinoAddressText: String,
     focusRequester: FocusRequester,
     onFieldSelected: () -> Unit

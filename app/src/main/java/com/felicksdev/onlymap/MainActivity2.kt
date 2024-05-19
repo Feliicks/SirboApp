@@ -3,63 +3,37 @@ package com.felicksdev.onlymap
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.location.Geocoder
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.felicksdev.onlymap.databinding.ActivityMain2Binding
-import com.felicksdev.onlymap.navigation.Destinations
-import com.felicksdev.onlymap.navigation.Destinations.*
+import com.felicksdev.onlymap.navigation.Destinations.HomeScreen
+import com.felicksdev.onlymap.navigation.Destinations.SecondScreen
+import com.felicksdev.onlymap.navigation.Destinations.ThirdScreen
 import com.felicksdev.onlymap.navigation.NavigationHost
-import com.felicksdev.onlymap.screens.HomeScreen
-import com.felicksdev.onlymap.screens.MyGoogleMap
-import com.felicksdev.onlymap.screens.ThirdScreen
-import com.felicksdev.onlymap.screens.components.BottomNavigationBar
+import com.felicksdev.onlymap.presentation.screens.components.BottomNavigationBar
 import com.felicksdev.onlymap.viewmodel.LocationViewModel
 
 class MainActivity2 : AppCompatActivity() {
     private lateinit var binding: ActivityMain2Binding
+    // TODO  Validacion de que si el eusautio tiene permisos de ubicacion
+
     //val rutasViewModel = viewModels<> {  }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //binding=ActivityMain2Binding.inflate(layoutInflater)
-        //setContentView(binding.root)
+
         var locationViewModel = LocationViewModel()
-        //locationViewModel.geoCoder = Geocoder(requireC)
+
         setContent {
-            //NavigationHost()
+//            NavigationHost()
             MainScreen()
         }
-        /*replaceFragment(Home())
-        binding.bottomNavigationView.setOnItemSelectedListener {
-            when (it.itemId){
-                R.id.home_fragment ->replaceFragment(Home())
-                R.id.addresses_fragment ->replaceFragment(Addresses())
-                R.id.routes_fragment ->replaceFragment(Routes())
-                else->{
-                }
-            }
-            true
-        }*/
-        //val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
-        //val navController = findNavController(R.id.nav_host_fragment_container)
-        //binding.bottomNavigationView.setupWithNavController(navController)
-        //bottomNavigationView.setupWithNavController(navController)
-        //createFragment()
-        //checkSelfPermission()
-        //val retrofitTraer = consumirAPI.getRutas()
-        //Log.d("Retrofit",   retrofitTraer.toString())
-
-        //mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-        //mapFragment.getMapAsync(this) // Asegúrate de llamar a getMapAsync para activar onMapReady
     }
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")

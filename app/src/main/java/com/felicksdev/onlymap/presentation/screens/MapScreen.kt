@@ -1,4 +1,4 @@
-package com.felicksdev.onlymap.screens
+package com.felicksdev.onlymap.presentation.screens
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -18,6 +18,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -33,27 +35,40 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.felicksdev.onlymap.utils.MapConfig
+import com.google.android.gms.maps.GoogleMap
+import com.google.maps.android.compose.CameraPositionState
 
+import com.google.maps.android.compose.MapUiSettings
 
 @Composable
 fun MapScreen(
-    viewModel: LocationViewModel
+    viewModel: LocationViewModel,
 ) {
-
-    mMap(viewModel = viewModel)
+    MapContent(
+        viewModel = viewModel,
+        uiSettings = MapConfig().mapUiConfig,
+        properties = MapConfig().mapProperties,
+        initialState = MapConfig().initialState
+    )
     Column {
-        Text(text = "Hola soy un Text View")
+        Text(text = "")
+
     }
 
 }
 
 @Composable
-fun mMap(
-    viewModel: LocationViewModel
+fun MapContent(
+    viewModel: LocationViewModel,
+    uiSettings: MapUiSettings,
+    properties: MapProperties,
+    initialState: CameraPositionState
+
 ) {
-    var markerPosition = LatLng(0.0, 0.0)
+    var markerPosition = initialState.position.target
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(markerPosition, 1f)
+        position = CameraPosition.fromLatLngZoom(markerPosition, 12f)
     }
 
     LaunchedEffect(cameraPositionState.isMoving) {
@@ -79,14 +94,15 @@ fun mMap(
     }
     Box(modifier = Modifier.fillMaxSize()) {
         GoogleMap(
+            uiSettings = uiSettings,
+            properties = properties,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(bottom = 56.dp),
             cameraPositionState = cameraPositionState,
-            properties = MapProperties(
-                isMyLocationEnabled = true
-            )
-        ) {
+
+
+            ) {
             // Add a marker at the position of the camera
             //Escuhar los cambiso de camerea position state
             LaunchedEffect(cameraPositionState) {

@@ -1,4 +1,4 @@
-package com.felicksdev.onlymap
+package com.felicksdev.onlymap.domain.model
 
 import com.felicksdev.onlymap.data.models.Ruta
 

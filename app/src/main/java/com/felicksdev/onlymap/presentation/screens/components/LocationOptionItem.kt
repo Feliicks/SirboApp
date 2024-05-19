@@ -1,4 +1,4 @@
-package com.felicksdev.onlymap.screens.components
+package com.felicksdev.onlymap.presentation.screens.components
 
 import android.util.Log
 import androidx.compose.foundation.border

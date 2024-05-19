@@ -1,4 +1,4 @@
-package com.felicksdev.onlymap.screens.components
+package com.felicksdev.onlymap.presentation.screens.components
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon

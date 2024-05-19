@@ -1,4 +1,4 @@
-package com.felicksdev.onlymap.screens
+package com.felicksdev.onlymap.presentation.screens
 
 
 import android.util.Log
@@ -16,7 +16,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -25,11 +24,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.felicksdev.onlymap.navigation.Destinations.*
 import com.felicksdev.onlymap.utils.MapConfig
-import com.felicksdev.onlymap.utils.MapUiConfig
 import com.felicksdev.onlymap.viewmodel.HomeScreenViewModel
 import com.felicksdev.onlymap.viewmodel.LocationViewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
@@ -41,7 +40,12 @@ fun HomeScreen(
     navController: NavController,
     locationViewModel: LocationViewModel
 ) {
-    val locationLaPaz = LatLng(-16.5000000,  -68.1500000)
+    val userLocationState =
+        remember { mutableStateOf(LatLng(0.0, 0.0)) } // Inicializa la ubicación en (0.0, 0.0)
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(userLocationState.value, 17f)
+    }
+    val locationLaPaz = LatLng(-16.5000000, -68.1500000)
     val datosCargados = remember { mutableStateOf(false) }
     var textValue by remember { mutableStateOf("") }
     val uiSettings by remember {
@@ -51,22 +55,14 @@ fun HomeScreen(
             )
         )
     }
-        //locationViewModel.getInitLocation(context = LocalContext.current);
-    //val currentLocation: LatLng by locationViewModel.currentLocation.observeAsState(initial = locationLaPaz)
-    //Log.d("HomeScreen", "Current location: ${currentLocation}")
-    //val polygonPoints = remember { mutableStateOf(emptyList<LatLng>()) }
     LaunchedEffect(viewModel) {
         viewModel.loadRouteById(893)
     }
-
-    // Campo de texto en medio del mapa
-
-
-    // Mapa
     MyGoogleMap(
         mapConfiguration = MapConfig().mapProperties,
         mapUiConfiguration = MapConfig().mapUiConfig,
-        initialState = MapConfig().initialState
+        initialState = MapConfig().initialState,
+        cameraState = cameraPositionState
     )
     TextField(
         interactionSource = remember { MutableInteractionSource() }
@@ -111,18 +107,17 @@ fun HomeScreen(
 }
 
 @Composable
-fun MyGoogleMap( mapConfiguration : MapProperties , mapUiConfiguration: MapUiSettings , initialState: MapConfig.CameraState){
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(initialState.center, initialState.zoomLevel)
-        //Log.d("HomeScreen", "Camera position: ${position}")
-    }
-
-
+fun MyGoogleMap(
+    mapConfiguration: MapProperties,
+    mapUiConfiguration: MapUiSettings,
+    initialState: CameraPositionState,
+    cameraState : CameraPositionState
+) {
     GoogleMap(
         modifier = Modifier
             .fillMaxSize()
             .padding(bottom = 56.dp),  // Usa el modificador weight para ocupar el espacio restante
-        cameraPositionState = cameraPositionState,
+        cameraPositionState = initialState,
         uiSettings = mapUiConfiguration,
         properties = mapConfiguration
     ) {

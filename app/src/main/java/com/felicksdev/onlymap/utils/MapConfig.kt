@@ -9,13 +9,11 @@ import com.google.maps.android.compose.MapUiSettings
 
 
 class MapConfig {
-    var mapProperties : MapProperties
+    var mapProperties: MapProperties
     val mapUiConfig: MapUiSettings
-    val initialState: CameraState
-    data class CameraState(
-        val center: LatLng,
-        val zoomLevel: Float
-    )
+    val initialState: CameraPositionState
+
+
     init {
         mapProperties = MapProperties(
             mapType = MapType.NORMAL,
@@ -24,9 +22,10 @@ class MapConfig {
         mapUiConfig = MapUiSettings(
             myLocationButtonEnabled = true
         )
-        initialState = CameraState(
-            center = LatLng(-16.489689, -68.15693),
-            zoomLevel = 12f
+        val lpLocation = LatLng(-16.489689, -68.15693)
+        val Location = LatLng(1.35, 103.87)
+        initialState = CameraPositionState(
+            position = CameraPosition.fromLatLngZoom(lpLocation, 12f)
         )
     }
 }

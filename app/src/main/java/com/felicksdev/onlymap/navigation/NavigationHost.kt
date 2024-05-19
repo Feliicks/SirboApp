@@ -12,10 +12,10 @@ import com.felicksdev.onlymap.navigation.Destinations.LocationsSelectionScreen
 import com.felicksdev.onlymap.navigation.Destinations.MapScreen
 import com.felicksdev.onlymap.navigation.Destinations.SecondScreen
 import com.felicksdev.onlymap.navigation.Destinations.ThirdScreen
-import com.felicksdev.onlymap.screens.HomeScreen
-import com.felicksdev.onlymap.screens.MapScreen
-import com.felicksdev.onlymap.screens.SecondScreen
-import com.felicksdev.onlymap.screens.ThirdScreen
+import com.felicksdev.onlymap.presentation.screens.HomeScreen
+import com.felicksdev.onlymap.presentation.screens.MapScreen
+import com.felicksdev.onlymap.presentation.screens.SecondScreen
+import com.felicksdev.onlymap.presentation.screens.ThirdScreen
 import com.felicksdev.onlymap.viewmodel.HomeScreenViewModel
 import com.felicksdev.onlymap.viewmodel.LocationViewModel
 

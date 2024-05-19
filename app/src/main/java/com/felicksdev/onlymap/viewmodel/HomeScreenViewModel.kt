@@ -7,7 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.felicksdev.onlymap.data.models.Ruta
-import com.felicksdev.onlymap.data.network.MyApiService
+import com.felicksdev.onlymap.services.network.MyApiService
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.PolylineOptions

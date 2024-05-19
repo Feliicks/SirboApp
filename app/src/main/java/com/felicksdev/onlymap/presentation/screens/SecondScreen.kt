@@ -1,4 +1,4 @@
-package com.felicksdev.onlymap.screens
+package com.felicksdev.onlymap.presentation.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text

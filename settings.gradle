@@ -1,7 +1,7 @@
 pluginManagement {
     repositories {
-        google()
         mavenCentral()
+        google()
         gradlePluginPortal()
     }
 }
@@ -25,5 +25,5 @@ dependencyResolutionManagement {
         }
     }
 }
-rootProject.name = "onlyMap"
+rootProject.name = "SirboApp"
 include ':app'
