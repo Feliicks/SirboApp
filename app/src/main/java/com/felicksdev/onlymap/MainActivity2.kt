@@ -9,6 +9,8 @@ import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
@@ -16,7 +18,6 @@ import com.felicksdev.onlymap.databinding.ActivityMain2Binding
 import com.felicksdev.onlymap.navigation.Destinations.HomeScreen
 import com.felicksdev.onlymap.navigation.Destinations.SecondScreen
 import com.felicksdev.onlymap.navigation.Destinations.ThirdScreen
-import com.felicksdev.onlymap.navigation.NavigationHost
 import com.felicksdev.onlymap.presentation.screens.components.BottomNavigationBar
 import com.felicksdev.onlymap.viewmodel.LocationViewModel
 
@@ -49,12 +50,13 @@ class MainActivity2 : AppCompatActivity() {
             bottomBar = {
                 BottomNavigationBar(
                     navController = navController,
-                    items = navigationItems
+                    items = navigationItems,
+//                    bottomBarState = rememberSaveable { mutableStateOf(true) }
                 )
             }
 
         ){
-            NavigationHost(navController = navController)
+//            NavigationHost(navController = navController,it)
 //            HomeScreen(navegarPantalla2 = { newText ->
 //                navController.navigate(SecondScreen.createRoute(newText))
 //            })

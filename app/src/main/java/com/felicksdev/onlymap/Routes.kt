@@ -52,7 +52,6 @@ class Routes : Fragment() {
         val composeView = view.findViewById<ComposeView>(R.id.routesComposeView)
 
         val navController = findNavController()
-        val rutasViewModel = viewModels<RutasViewModel> ()
         // Obtén la ruta actual
         //val currentDestination = navController.currentDestination
         //val currentRoute = currentDestination?.label.toString()

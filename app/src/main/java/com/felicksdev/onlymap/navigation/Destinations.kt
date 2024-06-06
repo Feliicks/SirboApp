@@ -3,6 +3,7 @@ package com.felicksdev.onlymap.navigation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -13,7 +14,7 @@ sealed class Destinations(
 ) {
     object HomeScreen : Destinations(
         "home_screen",
-        "Home",
+        "Inicio",
         Icons.Filled.Home
     )
 
@@ -27,6 +28,11 @@ sealed class Destinations(
 
     object ThirdScreen : Destinations(
         "addresses_screen",
+        "Rutas",
+        Icons.Filled.LocationOn
+    )
+    object RouteDetailScreen : Destinations(
+        "route_detail_screen",
         "Rutas",
         Icons.Filled.Favorite
     )

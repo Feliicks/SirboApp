@@ -1,5 +1,7 @@
 package com.felicksdev.onlymap.data.models
 
+import com.felicksdev.onlymap.data.models.otpModels.RoutesModelItem
+
 //data class RutaState (
 //    val cod_ruta: String= "",
 //    val nombre: String = "",
@@ -11,6 +13,6 @@ package com.felicksdev.onlymap.data.models
 //    val tipo_vehiculo: TipoVehiculo = TipoVehiculo(id = 0, tipo_vehiculo = "")
 //)
 data class RutaState (
-   val rutas : List<Ruta> = emptyList(),
-   val currentRuta : List<Ruta> = emptyList()
+   val rutas : List<RoutesModelItem> = emptyList(),
+   val currentRuta : List<RoutesModelItem> = emptyList()
 )

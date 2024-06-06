@@ -17,10 +17,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Place
-import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -36,13 +36,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.felicksdev.onlymap.data.models.GeometriaRuta
-import com.felicksdev.onlymap.data.models.Operador
-import com.felicksdev.onlymap.data.models.Ruta
-import com.felicksdev.onlymap.data.models.SentidoRuta
-import com.felicksdev.onlymap.data.models.TipoRuta
-import com.felicksdev.onlymap.data.models.TipoVehiculo
-import com.felicksdev.onlymap.ui.theme.OnlyMapTheme
+import com.felicksdev.onlymap.data.models.otpModels.RoutesModelItem
+import com.felicksdev.onlymap.data.models.rutaTest
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,7 +68,6 @@ fun RoutesScreen(
             )
             // Agrega aquí tu contenido de Compose para el fragmento Routes
             SearchBar()
-            Text(text = "Hello, this is the Routes screen!")
             LazyColumn {
 
                 items(state.rutas) { ruta ->
@@ -90,34 +84,21 @@ fun RoutesScreen(
         }
     }
 }
+fun cortarCadena(cadena: String): String {
+    var partes = cadena.split("→")
 
-
-@Preview
-@Composable
-fun RoutesScreenPreview() {
-    OnlyMapTheme {
-        //RoutesScreen()
-        //RouteItemCard(rutaTest)
-    }
+//    println(partes.last())
+    return  partes.last()
 }
-val rutaTest = Ruta(
-    id = 1,
-    nombre = "893",
-    cod_ruta = "m893i",
-    recorrido = "Av. Simon Bolivar, Camacho, Av Eliodoro Martinez",
-    geometria_ruta = GeometriaRuta(coordinates = listOf(listOf(listOf(0.0, 0.0))), type = "LineString", geoJsonString = "GeoJsonString"),
-    tipo_ruta = TipoRuta(id = 1, tipo_ruta = "Metropolitana"),
-    sentido_ruta = SentidoRuta(id = 1 , sentido = "i"),
-    tipo_vehiculo = TipoVehiculo(id = 1, tipo_vehiculo = "MINIBUS"),
-    operador = Operador(id = 1, nombre_sindicato = "Sindicato SIMON BOLIVAR"),
-    ruta_anterior = "387",
-)
+
+
 
 fun camelCase(string: String, delimiter: String = " ", separator: String = " "): String {
     return string.split(delimiter).joinToString(separator = separator) {
         it.lowercase().replaceFirstChar { char -> char.titlecase() }
     }
 }
+
 fun String.capitalizeWords(): String = split(" ").map { it.capitalize() }.joinToString(" ")
 fun String.capitalize(): String {
     return this.replaceFirstChar {
@@ -125,6 +106,7 @@ fun String.capitalize(): String {
         else it.toString()
     }
 }
+
 fun validateString(string: String): String {
     return if (string.isEmpty()) {
         "No disponible"
@@ -134,14 +116,14 @@ fun validateString(string: String): String {
 }
 
 @Composable
-fun RouteItem(ruta: Ruta, navigateToDetail: (Ruta) -> Unit) {
-    Card(
+fun RouteItem(ruta: RoutesModelItem, navigateToDetail: () -> Unit) {
+    OutlinedCard(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
             .padding(10.dp)
             .clickable {
-                navigateToDetail(ruta)
+                navigateToDetail()
             }
     ) {
         Row(
@@ -156,12 +138,16 @@ fun RouteItem(ruta: Ruta, navigateToDetail: (Ruta) -> Unit) {
                     .border(1.dp, Color.Black),
                 horizontalAlignment = Alignment.CenterHorizontally,
 
-            ) {
-                Text(text = ruta.nombre, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                ) {
+                Text(text = ruta.shortName, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(4.dp))
                 //Text(text = "Línea ${ruta.id}", color = Color.Gray, fontSize = 14.sp)
                 //Text(text = validateString(ruta.tipo_vehiculo.tipo_vehiculo), color = Color.Gray, fontSize = 14.sp)
-                Text(text = ruta.tipo_vehiculo?.tipo_vehiculo ?: "No disponible", color = Color.Gray, fontSize = 14.sp)
+                Text(
+                    text = ruta.mode ?: "No disponible",
+                    color = Color.Gray,
+                    fontSize = 14.sp
+                )
 
             }
 
@@ -171,12 +157,11 @@ fun RouteItem(ruta: Ruta, navigateToDetail: (Ruta) -> Unit) {
                     .weight(1f)
                     .padding(5.dp)
             ) {
-                Text(text = "Ruta: ${ruta.nombre}")
-                ruta.operador?.let {
-                    Text(text = validateString(it.nombre_sindicato))
-                }
-                val recorridoArr = ruta.recorrido.split(", ")
-                Text(text = "${validateString(recorridoArr[0])} - ${validateString(recorridoArr[recorridoArr.size - 1])}")
+                Text(text = "Hacia: ${cortarCadena (ruta.longName)}")
+
+                val recorridoArr = ruta.longName.split(", ")
+//                Text(text = "${validateString(recorridoArr[0])} - ${validateString(recorridoArr[recorridoArr.size - 1])}")
+                Text(text = ruta.longName)
                 //Text(text = "Recorrido: ${ruta.recorrido}")
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -186,7 +171,7 @@ fun RouteItem(ruta: Ruta, navigateToDetail: (Ruta) -> Unit) {
                     .weight(0.3f)
                     .border(1.dp, Color.Black),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
+            ) {
                 // Ícono de tipo de ruta
                 Column(
 
@@ -214,14 +199,23 @@ fun RouteItem(ruta: Ruta, navigateToDetail: (Ruta) -> Unit) {
     }
 }
 
+@Preview
+@Composable
+fun RouteItemPreview() {
+    RouteItem(rutaTest, navigateToDetail = {})
+}
 
-@Preview(showBackground = true)
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBar() {
-    OutlinedTextField(
-        value = "NUMERO DE RUTA",
-        onValueChange = { },
-        label = { Text("NUMERO DE RUTA") }
-    )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        OutlinedTextField(
+            value = "NUMERO DE RUTA",
+            onValueChange = { },
+            label = { Text("NUMERO DE RUTA") }
+        )
+    }
 }

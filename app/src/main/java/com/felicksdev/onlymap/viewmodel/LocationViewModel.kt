@@ -30,14 +30,14 @@ class LocationViewModel
     var locationState by mutableStateOf<LocationState>(LocationState.NoPermission)
 
     private val _destinoLocation = MutableLiveData<LocationInfo>()
-    val destinoLocation : LiveData<LocationInfo> = _destinoLocation
+    val destinoLocation: LiveData<LocationInfo> = _destinoLocation
 
     private val _originLocation = MutableLiveData<LocationInfo>()
-    val originLocation : LiveData<LocationInfo> = _originLocation
+    val originLocation: LiveData<LocationInfo> = _originLocation
 
 
     private val _destinyLocation = MutableLiveData<LocationInfo>()
-    val destinyLocation : LiveData<LocationInfo> = _destinyLocation
+    val destinyLocation: LiveData<LocationInfo> = _destinyLocation
 
 
     var destinoAddressText by mutableStateOf("")
@@ -45,27 +45,28 @@ class LocationViewModel
 
 
     private val _originAddressText = MutableLiveData<String>()
-    val originAddressText : LiveData<String> = _originAddressText
+    val originAddressText: LiveData<String> = _originAddressText
     var origenCoordinates by mutableStateOf(LatLng(0.0, 0.0))
 
     private val _origenFieldSelected = MutableLiveData<Boolean>(false)
-    val origenFieldSelected : LiveData<Boolean> = _origenFieldSelected
+    val origenFieldSelected: LiveData<Boolean> = _origenFieldSelected
 
-    private val _destinoFieldSelected   = MutableLiveData<Boolean>(true)
-    val destinoFieldSelected : LiveData<Boolean> = _destinoFieldSelected
+    private val _destinoFieldSelected = MutableLiveData<Boolean>(true)
+    val destinoFieldSelected: LiveData<Boolean> = _destinoFieldSelected
 
     private val _isButtonEnable = MutableLiveData<Boolean>()
-    val isButtonEnable : LiveData<Boolean> = _isButtonEnable
+    val isButtonEnable: LiveData<Boolean> = _isButtonEnable
 
 
-    private val _currentLocation   = MutableLiveData<LatLng>()
-    val currentLocation : LiveData<LatLng> = _currentLocation
+    private val _currentLocation = MutableLiveData<LatLng>()
+    val currentLocation: LiveData<LatLng> = _currentLocation
 
 
     fun initializeGeoCoder(context: Context) {
         geoCoder = Geocoder(context)
     }
-    fun getInitLocation (context: Context){
+
+    fun getInitLocation(context: Context) {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
         if (ActivityCompat.checkSelfPermission(
                 context,
@@ -91,32 +92,18 @@ class LocationViewModel
                         LocationState.Error
                     } else {
                         _currentLocation.value = LatLng(location.latitude, location.longitude)
-//                        _originLocation.value = LocationInfo(
-//                            LatLng(location.latitude, location.longitude),
-//                            getAddressOrigen(location.latitude, location.longitude).toString(
-//                        )
                         location
-                        Log.d("LocationViewModel", currentLocation.value.toString())
                         LocationState.LocationAvailable(
                             LatLng(
                                 location.latitude,
                                 location.longitude
                             )
                         )
-
                     }
 
             }
     }
-//    fun onLocationChanged (location: LatLng){
-//        Log.d("LocationViewModel", "Location Changed")
-//        origenCoordinates = location
-//        getAddressOrigen(origenCoordinates)
-//        _origenLocation.value = LocationInfo(
-//            LatLng(location.latitude, location.longitude),
-//            getAddressOrigen(origenCoordinates).toString()
-//        )
-//    }
+
     fun getLastLocation(context: Context) {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
         if (ActivityCompat.checkSelfPermission(
@@ -160,11 +147,12 @@ class LocationViewModel
             }
     }
 
-    fun onLocationFieldsChange(origen : String, destino : String) {
+    fun onLocationFieldsChange(origen: String, destino: String) {
         _originAddressText.value = origen
         _originAddressText.value = destino
         _isButtonEnable.value = isOrigenFieldValid() && isDestinoFieldValid()
     }
+
     fun getAddressDestino(latLng: LatLng) {
         viewModelScope.launch {
             val address = geoCoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
@@ -182,6 +170,7 @@ class LocationViewModel
             }
         }
     }
+
     fun getAddressOrigen(latLng: LatLng) {
         viewModelScope.launch {
             val address = geoCoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
@@ -194,8 +183,7 @@ class LocationViewModel
                     latLng,
                     addressLine
                 )
-                Log.e("LocationViewModel originInfo", _originLocation.toString())
-                Log.e("LocationViewModel originInfo", _originLocation.value.toString())
+                Log.i("LocationViewModel originInfo", _originLocation.value.toString())
             } else {
                 Log.d("LocationViewModel", "No address found")
                 _originAddressText.value = "Direccion no disponible"
@@ -203,23 +191,29 @@ class LocationViewModel
         }
     }
 
-    fun onDestinoSelected(){
+    fun onDestinoSelected() {
+//        fieldSelected = FieldSelected.Destino
         Log.d("LocationViewModel", "Destino Field seleccionado")
-
         _destinoFieldSelected.value = true
         _origenFieldSelected.value = false
     }
 
-    fun onOrigenSelected(){
-        Log.d("LocationViewModel", "Origen Field seleccionado")
+    fun onOriginSelected() {
+
+        Log.d("LocationViewModel", "Origin Field selecionado")
         _destinoFieldSelected.value = false
         _origenFieldSelected.value = true
     }
 
-    fun isOrigenFieldValid() : Boolean{
+    fun isOrigenFieldValid(): Boolean {
         return true
     }
-    fun isDestinoFieldValid() : Boolean{
+
+    fun isDestinoFieldValid(): Boolean {
         return true
+    }
+
+    fun getCurrentLocation(): LatLng {
+        return currentLocation.value!!
     }
 }
