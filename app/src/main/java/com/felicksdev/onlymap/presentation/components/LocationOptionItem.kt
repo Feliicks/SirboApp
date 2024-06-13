@@ -1,6 +1,6 @@
-package com.felicksdev.onlymap.presentation.screens.components
+package com.felicksdev.onlymap.presentation.components
 
-import android.util.Log
+import android.content.Context
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
@@ -16,15 +16,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.felicksdev.onlymap.navigation.Destinations.MapScreen
 
 @Composable
 fun LocationOptionItem(
     locationIcon: ImageVector,
     locationText: String,
-    //navController: NavController,
-    onLocationSelected: () -> Unit
+    onLocationSelected: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -32,7 +29,8 @@ fun LocationOptionItem(
             .border(1.dp, Color.Black, MaterialTheme.shapes.medium)
             .padding(bottom = 4.dp)
             .clickable {
-                Log.d("LocationOptionItem", "Abriendo pantalla")
+//                locationViewModel.getLastLocation(context = LocalContext.current)
+
                 onLocationSelected()
 //                try {
 //                    navController.navigate(MapScreen.route)

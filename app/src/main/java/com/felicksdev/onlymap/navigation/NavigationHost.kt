@@ -15,21 +15,24 @@ import com.felicksdev.onlymap.navigation.Destinations.RouteDetailScreen
 import com.felicksdev.onlymap.navigation.Destinations.SecondScreen
 import com.felicksdev.onlymap.navigation.Destinations.ThirdScreen
 import com.felicksdev.onlymap.presentation.screens.MapScreen
+import com.felicksdev.onlymap.presentation.screens.OptimalRoutesScreen
 import com.felicksdev.onlymap.presentation.screens.RouteDetailScreen
 import com.felicksdev.onlymap.presentation.screens.main.HomeScreen
 import com.felicksdev.onlymap.presentation.screens.main.SecondScreen
 import com.felicksdev.onlymap.presentation.screens.main.ThirdScreen
 import com.felicksdev.onlymap.viewmodel.HomeScreenViewModel
 import com.felicksdev.onlymap.viewmodel.LocationViewModel
+import com.felicksdev.onlymap.viewmodel.MainViewModel
 
 
 @Composable
 fun NavigationHost(
     navController: NavHostController,
     paddings: PaddingValues,
-    rutasViewModel : RutasViewModel,
+    rutasViewModel: RutasViewModel,
     homeScreenViewModel: HomeScreenViewModel,
-    locationViewModel : LocationViewModel
+    locationViewModel: LocationViewModel,
+    mainViewModel: MainViewModel
 
 ) {
 //    val rutasViewModel = RutasViewModel()
@@ -64,18 +67,33 @@ fun NavigationHost(
                 ruta = rutasViewModel.routeSelected,
                 viewModel = rutasViewModel,
                 padding = paddings,
-//                navController = navController
+                navController = navController
+            )
+        }
+        composable(Destinations.OptimalRoutesScreen.route) {
+            OptimalRoutesScreen(
+                mainViewModel = mainViewModel,
+                locationViewModel = locationViewModel,
+                rutasViewModel = rutasViewModel,
+                navController = navController,
+                paddingValues = paddings
+
             )
         }
         composable(LocationsSelectionScreen.route) {
             LocationsSelectionScreen(
                 onNextClick = { _, _ -> },
                 navController = navController,
-                locationViewModel = locationViewModel
+                locationViewModel = locationViewModel,
+                routesViewModel = rutasViewModel
+
             )
         }
         composable(MapScreen.route) {
-            MapScreen(locationViewModel)
+            MapScreen(
+                viewModel = locationViewModel,
+                rutasViewModel = rutasViewModel
+            )
         }
 
     }

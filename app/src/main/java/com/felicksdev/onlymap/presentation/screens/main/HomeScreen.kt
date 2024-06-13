@@ -107,6 +107,7 @@ fun MyGoogleMap(
         cameraPositionState = initialState,
         uiSettings = mapUiConfiguration,
         properties = mapConfiguration
+
     ) {
 
     }

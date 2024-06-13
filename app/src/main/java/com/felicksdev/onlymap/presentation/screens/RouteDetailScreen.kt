@@ -20,9 +20,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.felicksdev.onlymap.data.models.otpModels.RouteStopItem
 import com.felicksdev.onlymap.data.models.otpModels.RoutesModelItem
-import com.felicksdev.onlymap.presentation.screens.components.RouteDetailsTopBar
+import com.felicksdev.onlymap.presentation.components.RouteDetailsTopBar
 import com.felicksdev.onlymap.utils.MapConfig
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
@@ -33,14 +34,16 @@ import com.google.maps.android.compose.Polyline
 
 @Composable
 fun RouteDetailScreen(
-    ruta : RoutesModelItem,
+    ruta: RoutesModelItem,
     viewModel: RutasViewModel,
     padding: PaddingValues,
-//    navController: NavController
+    navController: NavController
 ) {
 //    val ruta: RoutesModelItem = viewModel.routeSelected;
-    Log.d("RouteDetailScreen", "Rut" +
-            "a seleccionada en e detail screen es: ${ruta}")
+    Log.d(
+        "RouteDetailScreen", "Rut" +
+                "a seleccionada en e detail screen es: ${ruta}"
+    )
 //    Usar un launched effect para hacer peticion del detalle de la ruta con el id que se paso porparametro
     LaunchedEffect(ruta.id) {
         Log.d("RouteDetailScreen", "ruta seleccioando como parametro es l: ${ruta}")
@@ -52,8 +55,9 @@ fun RouteDetailScreen(
     Log.d("RouteDetailScreen", "RouteDetailScreen: ${polyLines}")
 
     Column(modifier = Modifier.padding(padding)) {
-        RouteDetailsTopBar(route = ruta
-//            navController = navController
+        RouteDetailsTopBar(
+            route = ruta,
+            navController = navController
         )
         Text(text = "Ruta: ${ruta.shortName}", style = MaterialTheme.typography.bodySmall)
         Text(text = "Duración: dsa5 minutos")

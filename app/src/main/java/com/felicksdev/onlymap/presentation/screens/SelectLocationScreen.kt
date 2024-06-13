@@ -11,9 +11,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -25,19 +27,30 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun SelectLocationScreen() {
+fun SelectLocationScreen(
+    navcontroller: NavController
+) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text("SIRBO APP")
+                },
+                navigationIcon = {
+                    IconButton(onClick = { 
+                        navcontroller.popBackStack()
+                    }) {
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
                 }
             )
-        }
+        },
+
     ) {
         Box(){
             Text(text = "Selecciona una ubicación", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.align(Alignment.Center))
@@ -60,11 +73,11 @@ fun SelectLocationScreen() {
     }
 }
 
-@Preview
-@Composable
-fun RouteSelectionDetailDetail() {
-    SelectLocationScreen()
-}
+//@Preview
+//@Composable
+//fun RouteSelectionDetailDetail() {
+//    SelectLocationScreen(navcontroller = NavController( ))
+//}
 
 
 @Composable

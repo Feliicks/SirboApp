@@ -1,4 +1,4 @@
-package com.felicksdev.onlymap.presentation.screens.components
+package com.felicksdev.onlymap.presentation.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.material.BottomNavigation
@@ -6,18 +6,19 @@ import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.felicksdev.onlymap.navigation.Destinations
+import com.felicksdev.onlymap.navigation.Destinations.LocationsSelectionScreen
+import com.felicksdev.onlymap.navigation.Destinations.MapScreen
+import com.felicksdev.onlymap.navigation.Destinations.OptimalRoutesScreen
+import com.felicksdev.onlymap.navigation.Destinations.RouteDetailScreen
 import com.felicksdev.onlymap.utils.currentRoute
 
 @Composable
 fun BottomNavigationBar(
-//    bottomBarState: MutableState<Boolean>,
     navController: NavHostController,
     items: List<Destinations>
 ) {
@@ -25,15 +26,20 @@ fun BottomNavigationBar(
 
     val bottomBarState = rememberSaveable { mutableStateOf(true) }
     when (currenRoute) {
-        Destinations.RouteDetailScreen.route -> {
-            // Show BottomBar and TopBar
+        RouteDetailScreen.route -> {
             bottomBarState.value = false
-
         }
-
+        LocationsSelectionScreen.route -> {
+            bottomBarState.value = false
+        }
+        MapScreen.route -> {
+            bottomBarState.value = false
+        }
+        OptimalRoutesScreen.route -> {
+            bottomBarState.value = false
+        }
         else -> {
             bottomBarState.value = true
-
         }
     }
     AnimatedVisibility(visible = bottomBarState.value) {
@@ -56,10 +62,4 @@ fun BottomNavigationBar(
             }
         }
     }
-}
-
-@Composable
-private fun currentRoute(navController: NavHostController): String? {
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    return navBackStackEntry?.destination?.route
 }

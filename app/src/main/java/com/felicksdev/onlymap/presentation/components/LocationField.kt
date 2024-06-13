@@ -12,16 +12,19 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.unit.dp
+import com.felicksdev.onlymap.data.models.AddressState
 
 @Composable
 fun LocationField(
+    locationState: AddressState,
     locationAddress: String, onFieldSelected: () -> Unit, label: String,
     focusRequester: FocusRequester? = null
 ) {
     OutlinedTextField(
-        value = locationAddress,
+        value = locationState.address,
         onValueChange = { },
         label = { Text(label) },
+        maxLines = 1,
         modifier = Modifier
             .fillMaxWidth()
             .onFocusChanged { focusState ->

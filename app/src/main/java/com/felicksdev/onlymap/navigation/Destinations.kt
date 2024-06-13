@@ -36,6 +36,11 @@ sealed class Destinations(
         "Rutas",
         Icons.Filled.Favorite
     )
+    object OptimalRoutesScreen : Destinations(
+        "optimal_routes_screen",
+        "rutas optimas",
+        Icons.Filled.Favorite
+    )
 
     object LocationsSelectionScreen : Destinations(
         "locations_screen",
