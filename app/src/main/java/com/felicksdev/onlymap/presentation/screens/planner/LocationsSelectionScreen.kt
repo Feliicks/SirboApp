@@ -11,16 +11,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,11 +29,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.felicksdev.onlymap.data.models.AddressState
 import com.felicksdev.onlymap.navigation.Destinations.LocationsSelectionScreen
 import com.felicksdev.onlymap.navigation.Destinations.MapScreen
 import com.felicksdev.onlymap.navigation.Destinations.OptimalRoutesScreen
 import com.felicksdev.onlymap.presentation.components.LocationOptionItem
+import com.felicksdev.onlymap.presentation.components.TopBar
 import com.felicksdev.onlymap.viewmodel.LocationViewModel
 
 
@@ -46,9 +45,19 @@ fun LocationsSelectionScreen(
     navController: NavController,
     routesViewModel: RutasViewModel
 ) {
-    val originLocationState: AddressState = locationViewModel.originLocationState.value!!
-    val destinoLocationState: AddressState = locationViewModel.destinationLocationState.value!!
+//    val originLocationState: AddressState = locationViewModel.originLocationState.value!!
+//    val destinoLocationState: AddressState = locationViewModel.destinationLocationState.value!!
 //    settear como origen la ubicación actual
+    // Inicializar el GeoCoder y obtener la dirección al llegar a la pantalla
+    val context = LocalContext.current
+//    LaunchedEffect(Unit) {
+//        locationViewModel.initializeGeoCoder(context)
+//        locationViewModel.updateLocationAddresses() // Asegúrate que esta función esté en tu ViewModel
+//    }
+
+
+
+
     val focusRequester = remember { FocusRequester() }
     locationViewModel.initializeGeoCoder(context = LocalContext.current)
     LaunchedEffect(Unit) {
@@ -58,20 +67,9 @@ fun LocationsSelectionScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(text = "Sirbo App", color = Color.White)
-                },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        navController.popBackStack()
-                    }) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
+            TopBar(
+                text = "Selecciona una ubicación",
+                navController = navController
             )
         },
         content = { innerPadding ->
@@ -84,10 +82,6 @@ fun LocationsSelectionScreen(
                 LocationsInputs(
                     viewModel = locationViewModel,
                     focusRequester = focusRequester,
-                    originAddress = "Ubicación desconocida",
-//                    currentLocation = currentLocation,
-                    originLocationState = originLocationState,
-                    destinationLocationState = destinoLocationState
                 )
                 Column {
                     Box {
@@ -101,8 +95,7 @@ fun LocationsSelectionScreen(
                         navController = navController,
                         locationViewModel = locationViewModel,
                         routesViewModel = routesViewModel,
-                        originLocation = originLocationState,
-                        destinationLocation = destinoLocationState
+
                     )
                 }
 
@@ -116,9 +109,6 @@ fun LocationsOptions(
     navController: NavController,
     locationViewModel: LocationViewModel,
     routesViewModel: RutasViewModel,
-    originLocation : AddressState,
-    destinationLocation : AddressState,
-
 ) {
     Column(
         modifier = Modifier
@@ -156,9 +146,8 @@ fun LocationsOptions(
 //                      si ambos objeos estan llenos entonces
 //                      navegar a la siguiente pantalla de planificaiocn
 //                routesViewModel.getOptimalRoutes( originLocation ,destinationLocation)
+                // Todo  hacer el fetch aqui
                 navController.navigate(OptimalRoutesScreen.route)
-
-//                navController.navigate(MapScreen.route)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -184,27 +173,28 @@ fun LocationsOptions(
 fun LocationsInputs(
     viewModel: LocationViewModel,
     focusRequester: FocusRequester,
-    originAddress: String,
-//    currentLocation: AddressState,
-    originLocationState: AddressState,
-    destinationLocationState: AddressState
 ) {
+    val originLocation by viewModel.startLocation.collectAsState()
+    val destinationLocation by viewModel.endLocation.collectAsState()
+
     LocationField(
-        locationState = originLocationState,
-        locationAddress = originAddress,
+        locationState = originLocation,
         onFieldSelected = {
             viewModel.onOriginSelected()
             Log.d(
-                "LocationField", "El address seleccionado es : ${originLocationState}"
+                "LocationField", "El address seleccionado es : ${originLocation}"
             )
         },
         label = "Origen",
     )
     LocationField(
-        locationState = destinationLocationState,
-        locationAddress = viewModel.destinoAddressText,
+        locationState = destinationLocation,
+//        locationAddress = viewModel.destinoAddressText,
         onFieldSelected = {
             viewModel.onDestinoSelected()
+            Log.d(
+                "LocationField", "El address seleccionado es : ${destinationLocation}"
+            )
         },
         label = "Destino", focusRequester = focusRequester
     )
@@ -231,13 +221,3 @@ fun ButtonPreview(navController: NavController? = null) {
         }
     }
 }
-
-//@Preview
-//@Composable
-//fun LocationsSelectionScreenPreview() {
-//    LocationsSelectionScreen(
-//        locationViewModel = LocationViewModel(),
-//        onNextClick = { _, _ -> Unit },
-//        navController = NavController(LocalContext.current)
-//    )
-//}
