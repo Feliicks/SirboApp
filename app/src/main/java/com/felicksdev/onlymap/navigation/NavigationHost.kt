@@ -4,6 +4,7 @@ import LocationsSelectionScreen
 import RutasViewModel
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,6 +21,7 @@ import com.felicksdev.onlymap.presentation.screens.RouteDetailScreen
 import com.felicksdev.onlymap.presentation.screens.main.HomeScreen
 import com.felicksdev.onlymap.presentation.screens.main.SecondScreen
 import com.felicksdev.onlymap.presentation.screens.main.ThirdScreen
+import com.felicksdev.onlymap.utils.MapConfig
 import com.felicksdev.onlymap.viewmodel.HomeScreenViewModel
 import com.felicksdev.onlymap.viewmodel.LocationViewModel
 import com.felicksdev.onlymap.viewmodel.MainViewModel
@@ -33,18 +35,20 @@ fun NavigationHost(
     homeScreenViewModel: HomeScreenViewModel,
     locationViewModel: LocationViewModel,
     mainViewModel: MainViewModel
-
 ) {
 //    val rutasViewModel = RutasViewModel()
 //    val homeScreenViewModel = HomeScreenViewModel()
 //    val locationViewModel = LocationViewModel()
+    val cameraPositionState = remember { MapConfig.initialState }
+
     NavHost(navController = navController, startDestination = HomeScreen.route) {
         composable(HomeScreen.route) {
 
             HomeScreen(
                 viewModel = homeScreenViewModel,
                 navController = navController,
-                defaultPadding = paddings
+                innerPadding = paddings,
+                cameraPositionState = cameraPositionState
             )
         }
         composable(
@@ -82,17 +86,16 @@ fun NavigationHost(
         }
         composable(LocationsSelectionScreen.route) {
             LocationsSelectionScreen(
-                onNextClick = { _, _ -> },
                 navController = navController,
                 locationViewModel = locationViewModel,
                 routesViewModel = rutasViewModel
-
             )
         }
         composable(MapScreen.route) {
             MapScreen(
                 viewModel = locationViewModel,
-                rutasViewModel = rutasViewModel
+                rutasViewModel = rutasViewModel,
+                cameraPositionState = cameraPositionState
             )
         }
 

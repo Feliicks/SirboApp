@@ -8,7 +8,7 @@ import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 
 
-class MapConfig {
+object MapConfig {
     var mapProperties: MapProperties
     val mapUiConfig: MapUiSettings
     val initialState: CameraPositionState
@@ -23,7 +23,6 @@ class MapConfig {
             myLocationButtonEnabled = true
         )
         val lpLocation = LatLng(-16.489689, -68.15693)
-        val Location = LatLng(1.35, 103.87)
         initialState = CameraPositionState(
             position = CameraPosition.fromLatLngZoom(lpLocation, 12f)
         )

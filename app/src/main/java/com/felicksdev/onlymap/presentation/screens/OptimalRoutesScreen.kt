@@ -25,12 +25,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.felicksdev.onlymap.data.models.AddressState
 import com.felicksdev.onlymap.data.models.otpModels.routing.Leg
 import com.felicksdev.onlymap.presentation.components.BottomDetail
@@ -54,9 +55,7 @@ fun OptimalRoutesScreen(
     navController: NavController,
     paddingValues: PaddingValues
 ) {
-//    val errorState = remember { mutableStateOf(rutasViewModel.errorState) }
     val errorState by rutasViewModel.errorState.collectAsState()
-
     Log.d("MapScreen", "El estado de error es ${errorState}")
     val scope = rememberCoroutineScope()
     val isSheetOpen = rememberSaveable {
@@ -195,31 +194,18 @@ fun OptimalRoutesScreen(
 
 }
 
-//@Composable
-//fun RouteAlternativesList(routeAlternatives: List<String>) {
-//    LazyColumn(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(16.dp)
-//    ) {
-//        items(routeAlternatives) { route ->
-//            Card(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(vertical = 8.dp),
-//                elevation = 4.dp
-//            ) {
-//                Text(
-//                    text = route,
-//                    modifier = Modifier.padding(16.dp)
-//                )
-//            }
-//        }
-//    }
-//}
+@Preview(showBackground = true)
+@Composable
+fun PreviewOptimalRoutesScreen() {
+    val navController = rememberNavController()
 
-
-
-
+    OptimalRoutesScreen(
+        mainViewModel = MainViewModel(),
+        locationViewModel = LocationViewModel(),
+        rutasViewModel = RutasViewModel(),
+        navController = navController,
+        paddingValues = PaddingValues()
+    )
+}
 
 

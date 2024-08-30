@@ -67,9 +67,9 @@ fun RouteDetailScreen(
 
         Map(
             stops = stopsList,
-            mapConfiguration = MapConfig().mapProperties,
-            mapUiConfiguration = MapConfig().mapUiConfig,
-            initialState = MapConfig().initialState,
+            mapConfiguration = MapConfig.mapProperties,
+            mapUiConfiguration = MapConfig.mapUiConfig,
+            initialState = MapConfig.initialState,
         )
 
         Spacer(modifier = Modifier.height(16.dp))

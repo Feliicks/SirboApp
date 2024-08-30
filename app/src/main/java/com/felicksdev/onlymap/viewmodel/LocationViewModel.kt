@@ -20,6 +20,9 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -28,10 +31,21 @@ class LocationViewModel
     (
 
 ) : ViewModel() {
+    //
+//    Localizacion Actualizada
 
+    private val _startLocation = MutableStateFlow(LocationInfo())
+    val startLocation: StateFlow<LocationInfo> = _startLocation.asStateFlow()
+
+    private val _endLocation = MutableStateFlow(LocationInfo())
+    val endLocation: StateFlow<LocationInfo> = _endLocation.asStateFlow()
+
+    val originLocationState = mutableStateOf(AddressState())
+    val destinationLocationState = mutableStateOf(AddressState())
+    //
     val currentAddressState = mutableStateOf(AddressState())
     lateinit var fusedLocationClient: FusedLocationProviderClient
-    lateinit var geoCoder: Geocoder
+//    lateinit var geoCoder: Geocoder
     var locationState by mutableStateOf<LocationState>(LocationState.NoPermission)
 
 //    private val _destinoLocation = MutableLiveData<LocationInfo>()
@@ -76,12 +90,98 @@ class LocationViewModel
     val currentLocation: LiveData<LatLng> = _currentLocation
 
 
-    val originLocationState = mutableStateOf(AddressState())
-    val destinationLocationState = mutableStateOf(AddressState())
 
+
+
+    private lateinit var geocoder: Geocoder
     fun initializeGeoCoder(context: Context) {
-        geoCoder = Geocoder(context)
+        geocoder = Geocoder(context)
     }
+
+    // Función para obtener el LocationInfo basado en la selección
+    fun getSelectedLocationInfo(): LocationInfo {
+        return if (destinoFieldSelected.value!!) {
+            _destinationLocation.value ?: LocationInfo() // Valor predeterminado
+        } else {
+            _originLocation.value ?: LocationInfo() // Valor predeterminado
+        }
+    }
+
+    fun updateLocationInfo(locationInfo: LocationInfo) {
+        viewModelScope.launch {
+            try {
+                val addressList = geocoder.getFromLocation(
+                    locationInfo.coordinates.latitude,
+                    locationInfo.coordinates.longitude,
+                    1
+                )
+                val updatedLocationInfo = locationInfo.copy(
+                    address = addressList?.get(0)?.getAddressLine(0) ?: "Dirección no encontrada"
+                )
+
+                if (_origenFieldSelected.value == true) {
+                    // Actualizar la información de la ubicación de origen
+                    _originLocation.value = updatedLocationInfo
+                } else if (_destinoFieldSelected.value == true) {
+                    // Actualizar la información de la ubicación de destino
+                    _destinationLocation.value = updatedLocationInfo
+                }
+            } catch (e: Exception) {
+                Log.e("LocationViewModel", "Error al obtener dirección: ${e.message}")
+            }
+        }
+    }
+    fun updateLocationAddresses() {
+        viewModelScope.launch {
+            try {
+                // Obtener la dirección para startLocation
+                val startAddress = geocoder.getFromLocation(
+                    _startLocation.value.coordinates.latitude,
+                    _startLocation.value.coordinates.longitude,
+                    1
+                )
+                val newStartLocation = _startLocation.value.copy(
+                    address = startAddress?.get(0)?.getAddressLine(0) ?: "Dirección no encontrada"
+                )
+                _startLocation.value = newStartLocation
+
+                // Obtener la dirección para endLocation
+                val endAddress = geocoder.getFromLocation(
+                    _endLocation.value.coordinates.latitude,
+                    _endLocation.value.coordinates.longitude,
+                    1
+                )
+                val newEndLocation = _endLocation.value.copy(
+                    address = endAddress?.get(0)?.getAddressLine(0) ?: "Dirección no encontrada"
+                )
+                _endLocation.value = newEndLocation
+
+            } catch (e: Exception) {
+                Log.e("LocationViewModel", "Error al obtener dirección: ${e.message}")
+            }
+        }
+    }
+
+
+    fun setMapMarkerLocation (currentLocation : LatLng){
+        if (_destinoFieldSelected.value!!)
+            _endLocation.value= _endLocation.value.copy(coordinates = currentLocation)
+
+        if (_origenFieldSelected.value!!)
+            _startLocation.value = _startLocation.value.copy(coordinates = currentLocation)
+    }
+    // Actualiza el estado de ubicación basado en si es un destino o un origen
+    fun updateLocationState(isDestino: Boolean, addressState: AddressState) {
+        if (isDestino) {
+            destinationLocationState.value = addressState
+            destinoAddressText = addressState.address
+        } else {
+            originLocationState.value = addressState
+        }
+    }
+
+
+
 
     fun getInitLocation(context: Context) {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
@@ -211,15 +311,15 @@ class LocationViewModel
 
     fun onClickSetMyLocation() {
         viewModelScope.launch {
-            var currentLocation = AddressState(
+            var currentLocation = LocationInfo(
                 address = getAddressByLatLng(lastKnowedCoordinates),
                 coordinates = lastKnowedCoordinates
             )
             if (_destinoFieldSelected.value!!)
-                destinationLocationState.value = currentLocation
+                _endLocation.value = currentLocation
 
             if (_origenFieldSelected.value!!)
-                originLocationState.value = currentLocation
+                _startLocation.value = currentLocation
 
 
         }
@@ -254,7 +354,7 @@ class LocationViewModel
         var response: String = "";
         try {
             withContext(Dispatchers.IO) {
-                val address = geoCoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
+                val address = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
                 if (address!!.isNotEmpty()) {
                     val addressLine = address!![0].getAddressLine(0)
                     response = address!![0].getAddressLine(0)
@@ -270,27 +370,10 @@ class LocationViewModel
         return response
     }
 
-    fun getAddressDestino(latLng: LatLng) {
-        viewModelScope.launch {
-            val address = geoCoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
-            if (address!!.isNotEmpty()) {
-                val addressLine = address!![0].getAddressLine(0)
-                Log.d("LocationViewModel Destino", addressLine.toString())
-                destinoAddressText = addressLine
-                _destinyLocation.value = LocationInfo(
-                    latLng,
-                    addressLine
-                )
-                Log.d("LocationViewModel Destino", _destinyLocation.toString())
-            } else {
-                destinoAddressText = "Direccion no disponible"
-            }
-        }
-    }
 
     fun getAddressOrigen(latLng: LatLng) {
         viewModelScope.launch {
-            val address = geoCoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
+            val address = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
             //Log.d("LocationViewModel", address.toString())
             if (address!!.isNotEmpty()) {
                 val addressLine = address!![0].getAddressLine(0)

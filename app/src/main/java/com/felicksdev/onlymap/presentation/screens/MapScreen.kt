@@ -20,6 +20,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -27,128 +33,157 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.felicksdev.onlymap.R
 import com.felicksdev.onlymap.data.models.AddressState
-import com.felicksdev.onlymap.utils.MapConfig
+import com.felicksdev.onlymap.data.models.LocationInfo
+import com.felicksdev.onlymap.presentation.components.MyMap
 import com.felicksdev.onlymap.viewmodel.LocationViewModel
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.MapProperties
-import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
-import com.google.maps.android.compose.rememberCameraPositionState
+import kotlinx.coroutines.launch
 
 @Composable
 fun MapScreen(
     viewModel: LocationViewModel,
-    rutasViewModel: RutasViewModel
+    rutasViewModel: RutasViewModel,
+    cameraPositionState: CameraPositionState
 ) {
-
-
     MapContent(
         viewModel = viewModel,
-        uiSettings = MapConfig().mapUiConfig,
-        properties = MapConfig().mapProperties,
-        initialState = MapConfig().initialState
+        cameraPositionState = cameraPositionState
     )
     Column {
-        Text(text = "")
-
+        Text(text = "Origen: ${viewModel.originLocationState.value!!.address}")
     }
-
-
 }
 
 @Composable
 fun MapContent(
     viewModel: LocationViewModel,
-    uiSettings: MapUiSettings,
-    properties: MapProperties,
-    initialState: CameraPositionState
+    cameraPositionState: CameraPositionState
 ) {
-    val originLocationState: AddressState = viewModel.originLocationState.value!!
-    val destinoLocationState: AddressState = viewModel.destinationLocationState.value!!
 
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(initialState.position.target, 12f)
-    }
 
-    val currentLocationState: AddressState = if (viewModel.destinoFieldSelected.value!!) {
-        viewModel.destinationLocationState.value
+    val startLocationState by viewModel.startLocation.collectAsState()
+    val endLocationState by viewModel.endLocation.collectAsState()
+
+
+//    val currentLocation = viewModel.getSelectedLocationInfo()
+    //    val cameraPositionState = rememberCameraPositionState {
+    //        position = CameraPosition.fromLatLngZoom(initialState.position.target, 12f)
+    //    }
+
+//        val currentLocationState: AddressState = if (viewModel.destinoFieldSelected.value!!) {
+//            viewModel.destinationLocationState.value
+//        } else {
+//            viewModel.originLocationState.value
+//        }
+
+
+    val currentLocationState: LocationInfo = if (viewModel.destinoFieldSelected.value!!) {
+        endLocationState
     } else {
-        viewModel.originLocationState.value
+        startLocationState
     }
 
-    Log.d("MapScreen", "El estado seleccionado es $currentLocationState")
+//    val currentLocationState: LocationInfo = if (viewModel.destinoFieldSelected.value!!) {
+//        viewModel.endLocation.value ?: LocationInfo() // Proporciona un valor predeterminado
+//    } else {
+//        viewModel.startLocation.value ?: LocationInfo() // Proporciona un valor predeterminado
+//    }
+
+
+//        val currentLocationState = viewModel.getSelectedLocationInfo()
+
+//    Log.d("MapScreen", "El estado seleccionado es $currentLocationState")
 
     val markerIcon = getBitmapDescriptor(LocalContext.current, R.drawable.ic_map_marker)
+    val markerState = remember { MarkerState(position = cameraPositionState.position.target) }
+
+
+//    LaunchedEffect(cameraPositionState.isMoving) {
+//        if (!cameraPositionState.isMoving) {
+//            withContext(Dispatchers.IO) {
+//                val address = viewModel.getAddressByLatLng(cameraPositionState.position.target)
+//                currentLocationState.address = address
+//                currentLocationState.coordinates = cameraPositionState.position.target
+//
+//                viewModel.updateLocationInfo(
+////                        isDestino = viewModel.destinoFieldSelected.value!!,
+//                    locationInfo = currentLocationState
+//                )
+//            }
+//        }
+//    }
+    val coroutineScope = rememberCoroutineScope()
+    var cameraMoving by remember { mutableStateOf(cameraPositionState.isMoving) }
+//    var lastKnownPosition by remember { mutableStateOf(cameraPositionState.position.target) }
+    
+    var cameraPosition by remember  { mutableStateOf(cameraPositionState.position.target) }
+
 
     LaunchedEffect(cameraPositionState.isMoving) {
-        if (!cameraPositionState.isMoving) {
-            // Añadir lógica para obtener la dirección cuando la cámara deje de moverse
-            Log.d("MapScreen", "La cámara deje de moverse")
-            currentLocationState.address =
-                viewModel.getAddressByLatLng(cameraPositionState.position.target)
-//        TODO:
-//         hacerlo en un hilo secundario ay que esta relentizado la ui
-//            o hacerlo directamnete cuando se presiona el boton de si
+        // Actualiza el estado de movimiento de la cámara
+        cameraMoving = cameraPositionState.isMoving
+        cameraPosition = cameraPositionState.position.target
 
-            currentLocationState.coordinates = cameraPositionState.position.target
-            Log.d(
-                "MapScreen",
-                "el geocoder es " + viewModel.getAddressByLatLng(cameraPositionState.position.target)
-            )
+        if (!cameraMoving) {
+            // Espera un corto período de tiempo antes de hacer la llamada
+//            delay(500) // Espera 500 milisegundos (puedes ajustar este tiempo según tus necesidades)
 
-            if (viewModel.destinoFieldSelected.value!!) {
-                viewModel.getAddressDestino(cameraPositionState.position.target)
-            } else {
-                viewModel.getAddressOrigen(cameraPositionState.position.target)
+            // Verifica nuevamente si la cámara sigue sin moverse
+            if (!cameraPositionState.isMoving) {
+                coroutineScope.launch {
+                    val address = viewModel.getAddressByLatLng(cameraPosition)
+                    // Actualiza el estado de la dirección en el ViewModel
+                    currentLocationState.address = address
+
+//                      viewModel.updateLocationInfo(
+//                        locationInfo = currentLocationState.copy( address= address)
+//                    )
+                }
             }
         }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        GoogleMap(
-            uiSettings = uiSettings,
-            properties = properties,
-            modifier = Modifier.fillMaxSize(),
-            cameraPositionState = cameraPositionState,
+        MyMap(
+            cameraPositionState = cameraPositionState
         ) {
+
             // Mostrar el marcador siempre y cambiar su visibilidad según el estado de movimiento de la cámara
             Marker(
-                state = MarkerState(position = cameraPositionState.position.target),
+                state = MarkerState(position = cameraPosition),
                 icon = markerIcon,
                 visible = !cameraPositionState.isMoving
             )
-            // Verifica si la coordenada del marcador está presente (no es nula)
-//            if (viewModel.destinoFieldSelected.value == true ) {
-//                Marker(
-//                    state = MarkerState(position = originLocationState.coordinates!!),
-//                    icon = markerIcon,
-//                    title = "Origen"
-//                )
-//            }
             Marker(
-                state = MarkerState(position = destinoLocationState.coordinates!!),
+                state = MarkerState(position = startLocationState.coordinates),
                 icon = markerIcon,
                 title = "Destino"
             )
             Marker(
-                state = MarkerState(position = originLocationState.coordinates!!),
+                state = MarkerState(position = endLocationState.coordinates),
                 icon = markerIcon,
                 title = "Origen"
             )
-// Verifica si la coordenada del marcador está presente (no es nula)
-//            if (viewModel.origenFieldSelected.value == true && originLocationState.coordinates != null) {
-//                Marker(
-//                    state = MarkerState(position = originLocationState.coordinates!!),
-//                    icon = markerIcon,
-//                    title = "Origen"
-//                )
-//            }
+            // Verifica si la coordenada del marcador está presente (no es nula)
+            //            if (viewModel.origenFieldSelected.value == true && originLocationState.coordinates != null) {
+            //                Marker(
+            //                    state = MarkerState(position = originLocationState.coordinates!!),
+            //                    icon = markerIcon,
+            //                    title = "Origen"
+            //                )
+            //            }
         }
+        // Texto en el centro del mapa mostrando la posición de la cámara
+        Text(
+            text = "Camera Position: ${cameraPosition.latitude}, ${cameraPosition.longitude}",
+            modifier = Modifier.align(Alignment.Center)
+        )
+
 
         // Interfaz de usuario adicional, como un botón y un campo de texto
         Column(
@@ -163,22 +198,13 @@ fun MapContent(
             ) {
                 Button(
                     onClick = {
-                        if (viewModel.destinoFieldSelected.value!!) {
-                            viewModel.destinationLocationState.value = currentLocationState
-                            Log.d(
-                                "MapScreen",
-                                "se ha puesto la direccion actual en el destino ${viewModel.destinationLocationState.value}"
-                            )
-                        }
-                        if (viewModel.origenFieldSelected.value!!) {
-                            viewModel.originLocationState.value = currentLocationState
-                            Log.d(
-                                "MapScreen",
-                                "se ha puesto la direccion actual en el origen ${viewModel.originLocationState.value}"
-                            )
-
-                        }
-
+//                        viewModel.setMapMarkerLocation(
+//                            currentLocation = cameraPosition
+//                        )
+                        Log.d("MapScreen", "Ubicación seleccionada actaulzaido al view model: $cameraPosition")
+//                        viewModel.updateLocationInfo(
+//                            locationInfo = currentLocationState.copy( address= address)
+//                        )
                     },
                     modifier = Modifier
                         .width(200.dp)
@@ -189,7 +215,7 @@ fun MapContent(
                 Spacer(modifier = Modifier.weight(1f))
                 TextField(
                     enabled = false,
-                    value = viewModel.destinoAddressText,
+                    value = currentLocationState.address,
                     onValueChange = { },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -214,11 +240,19 @@ private fun getBitmapDescriptor(context: Context, id: Int): BitmapDescriptor? {
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun MapScreenPreview() {
+    val mockLocationViewModel = LocationViewModel().apply {
+        originLocationState.value = AddressState("Mock Origin", LatLng(0.0, 0.0))
+        destinationLocationState.value = AddressState("Mock Destination", LatLng(0.0, 0.0))
+    }
+    val mockRutasViewModel = RutasViewModel()
+    val mockCameraPositionState = CameraPositionState()
+
     MapScreen(
-        viewModel = LocationViewModel(),
-        rutasViewModel = RutasViewModel()
+        viewModel = mockLocationViewModel,
+        rutasViewModel = mockRutasViewModel,
+        cameraPositionState = mockCameraPositionState
     )
 }

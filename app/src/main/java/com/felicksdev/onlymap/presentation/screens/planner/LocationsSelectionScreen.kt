@@ -29,6 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.felicksdev.onlymap.navigation.Destinations.LocationsSelectionScreen
 import com.felicksdev.onlymap.navigation.Destinations.MapScreen
 import com.felicksdev.onlymap.navigation.Destinations.OptimalRoutesScreen
@@ -37,33 +38,28 @@ import com.felicksdev.onlymap.presentation.components.TopBar
 import com.felicksdev.onlymap.viewmodel.LocationViewModel
 
 
+@Preview
+@Composable
+private fun LocationsSelectionScreenPreview() {
+    LocationsSelectionScreen(
+        locationViewModel = LocationViewModel(),
+        navController = rememberNavController(),
+        routesViewModel = RutasViewModel()
+    )
+}
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun LocationsSelectionScreen(
     locationViewModel: LocationViewModel,
-    onNextClick: (String, String) -> Unit,
     navController: NavController,
     routesViewModel: RutasViewModel
 ) {
-//    val originLocationState: AddressState = locationViewModel.originLocationState.value!!
-//    val destinoLocationState: AddressState = locationViewModel.destinationLocationState.value!!
-//    settear como origen la ubicación actual
     // Inicializar el GeoCoder y obtener la dirección al llegar a la pantalla
     val context = LocalContext.current
-//    LaunchedEffect(Unit) {
-//        locationViewModel.initializeGeoCoder(context)
-//        locationViewModel.updateLocationAddresses() // Asegúrate que esta función esté en tu ViewModel
-//    }
-
-
-
-
     val focusRequester = remember { FocusRequester() }
-    locationViewModel.initializeGeoCoder(context = LocalContext.current)
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
+//        focusRequester.requestFocus()
     }
-    locationViewModel.getLastLocation(context = LocalContext.current);
 
     Scaffold(
         topBar = {
@@ -189,7 +185,6 @@ fun LocationsInputs(
     )
     LocationField(
         locationState = destinationLocation,
-//        locationAddress = viewModel.destinoAddressText,
         onFieldSelected = {
             viewModel.onDestinoSelected()
             Log.d(

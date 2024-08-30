@@ -8,6 +8,9 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.felicksdev.onlymap.navigation.Destinations
@@ -62,4 +65,16 @@ fun BottomNavigationBar(
             }
         }
     }
+}
+@Preview
+@Composable
+fun BottomNavigationBarPreview(modifier: Modifier = Modifier) {
+    BottomNavigationBar(
+        navController = NavHostController(LocalContext.current),
+        items = listOf(
+            Destinations.SecondScreen,
+            Destinations.HomeScreen,
+            Destinations.ThirdScreen
+        )
+    )
 }

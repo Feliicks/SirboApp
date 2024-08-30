@@ -1,5 +1,6 @@
 package com.felicksdev.onlymap.data.models
 
+import RutasViewModel
 import com.felicksdev.onlymap.data.models.otpModels.RoutesModelItem
 import com.felicksdev.onlymap.data.models.otpModels.routing.FromX
 import com.felicksdev.onlymap.data.models.otpModels.routing.Leg
@@ -7,6 +8,8 @@ import com.felicksdev.onlymap.data.models.otpModels.routing.LegGeometry
 import com.felicksdev.onlymap.data.models.otpModels.routing.Step
 import com.felicksdev.onlymap.data.models.otpModels.routing.To
 import com.felicksdev.onlymap.data.models.otpModels.routing.ToX
+import com.felicksdev.onlymap.viewmodel.LocationViewModel
+import com.google.android.gms.maps.model.LatLng
 
 val rutaTest = RoutesModelItem(
     id = "893",
@@ -107,7 +110,23 @@ val sampleLegs = listOf(
         steps = emptyList()
     )
 )
+fun LocationViewModel.setTestData() {
+    // Simula una ubicación de origen y destino para la vista previa
+    originLocationState.value = AddressState(
+        address = "Origen de prueba",
+        coordinates = LatLng(37.7749, -122.4194) // Ejemplo: San Francisco
+    )
+    destinationLocationState.value = AddressState(
+        address = "Destino de prueba",
+        coordinates = LatLng(34.0522, -118.2437) // Ejemplo: Los Ángeles
+    )
+}
+fun RutasViewModel.setTestRoutes() {
+    // Simula datos de rutas óptimas para la vista previa
+//    optimalRouteLegs = com.felicksdev.onlymap.data.models.sampleLegs
 
+
+}
 //val legs = listOf(
 //    Leg(
 //        mode = "WALK",

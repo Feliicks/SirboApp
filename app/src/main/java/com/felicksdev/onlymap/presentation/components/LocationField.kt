@@ -1,3 +1,4 @@
+
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,12 +13,13 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.unit.dp
-import com.felicksdev.onlymap.data.models.AddressState
+import com.felicksdev.onlymap.data.models.LocationInfo
 
 @Composable
 fun LocationField(
-    locationState: AddressState,
-    locationAddress: String, onFieldSelected: () -> Unit, label: String,
+    locationState: LocationInfo,
+    onFieldSelected: () -> Unit,
+    label: String,
     focusRequester: FocusRequester? = null
 ) {
     OutlinedTextField(
