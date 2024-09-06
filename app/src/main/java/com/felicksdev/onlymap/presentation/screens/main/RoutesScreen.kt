@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -20,26 +21,21 @@ import com.felicksdev.onlymap.presentation.screens.RouteItem
 import com.felicksdev.onlymap.presentation.screens.SearchBar
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ThirdScreen(
+fun RoutesScreen(
+    padding: PaddingValues,
     viewModel: RutasViewModel,
-    defaultPadding: PaddingValues,
     navController: NavController
 ) {
-
     val listRutas = viewModel.routesList
     Log.d("ThirdScreen", "Rutas obtenidas ${listRutas}")
 
     Surface(
-        modifier = Modifier.padding(defaultPadding)
+        modifier = Modifier
+            .padding(padding)
     ) {
         Column {
-            TopAppBar(
-                title = {
-                    Text(text = "Explorar lineas de transporte")
-                }
-            )
+
             SearchBar()
             Text(text = "Hello, this is the Routes screen!")
             LazyColumn {
@@ -50,7 +46,10 @@ fun ThirdScreen(
                             // Llama a la función de navegación del NavController aquí
                             // Por ejemplo,
                             viewModel.routeSelected = ruta
-                            Log.d("Routes Screen Ruta seleccina ", "Ruta establecida en el viewmodel sss ${viewModel.routeSelected}")
+                            Log.d(
+                                "Routes Screen Ruta seleccina ",
+                                "Ruta establecida en el viewmodel sss ${viewModel.routeSelected}"
+                            )
                             if (viewModel.routeSelected != null) {
                                 navController.navigate(RouteDetailScreen.route)
 //                                navController.navigate(RouteDetailScreen.routeDetailScreenRoute)
@@ -61,6 +60,32 @@ fun ThirdScreen(
                 }
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ThirdScreen(
+    viewModel: RutasViewModel,
+    navController: NavController,
+    bottomPadding: PaddingValues
+) {
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(text = "Explorar lineas de transporte")
+                }
+            )
+        }
+    ) { padding ->
+        RoutesScreen(
+            padding = padding,
+            viewModel = viewModel,
+            navController = navController
+        )
+
     }
 }
 

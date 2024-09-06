@@ -4,7 +4,6 @@ import RutasViewModel
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -36,15 +35,12 @@ import com.google.maps.android.compose.Polyline
 fun RouteDetailScreen(
     ruta: RoutesModelItem,
     viewModel: RutasViewModel,
-    padding: PaddingValues,
     navController: NavController
 ) {
-//    val ruta: RoutesModelItem = viewModel.routeSelected;
     Log.d(
         "RouteDetailScreen", "Rut" +
                 "a seleccionada en e detail screen es: ${ruta}"
     )
-//    Usar un launched effect para hacer peticion del detalle de la ruta con el id que se paso porparametro
     LaunchedEffect(ruta.id) {
         Log.d("RouteDetailScreen", "ruta seleccioando como parametro es l: ${ruta}")
         viewModel.getRouteStops(ruta.id)
@@ -54,7 +50,9 @@ fun RouteDetailScreen(
     val polyLines = viewModel.routeStops.map { LatLng(it.lat, it.lon) }
     Log.d("RouteDetailScreen", "RouteDetailScreen: ${polyLines}")
 
-    Column(modifier = Modifier.padding(padding)) {
+    Column(modifier = Modifier
+//        .padding(padding)
+    ) {
         RouteDetailsTopBar(
             route = ruta,
             navController = navController

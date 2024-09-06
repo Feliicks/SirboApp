@@ -1,51 +1,28 @@
 package com.felicksdev.onlymap.presentation.components
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import com.felicksdev.onlymap.navigation.Destinations
-import com.felicksdev.onlymap.navigation.Destinations.LocationsSelectionScreen
-import com.felicksdev.onlymap.navigation.Destinations.MapScreen
-import com.felicksdev.onlymap.navigation.Destinations.OptimalRoutesScreen
-import com.felicksdev.onlymap.navigation.Destinations.RouteDetailScreen
+import com.felicksdev.onlymap.navigation.MAIN_DESTINATIONS
 import com.felicksdev.onlymap.utils.currentRoute
 
 @Composable
 fun BottomNavigationBar(
-    navController: NavHostController,
-    items: List<Destinations>
+    navController: NavController,
 ) {
+    val items = MAIN_DESTINATIONS
     val currenRoute = currentRoute(navController = navController)
-
-    val bottomBarState = rememberSaveable { mutableStateOf(true) }
-    when (currenRoute) {
-        RouteDetailScreen.route -> {
-            bottomBarState.value = false
-        }
-        LocationsSelectionScreen.route -> {
-            bottomBarState.value = false
-        }
-        MapScreen.route -> {
-            bottomBarState.value = false
-        }
-        OptimalRoutesScreen.route -> {
-            bottomBarState.value = false
-        }
-        else -> {
-            bottomBarState.value = true
-        }
-    }
-    AnimatedVisibility(visible = bottomBarState.value) {
+//    Ahora aqui quiero que solo sevea el bottom bar en las MAIN DESRTINATIONS
+//    pero esa logica ya la tenia hecha
+    if (items.any { it.route == currenRoute }) {
         BottomNavigation {
             items.forEach { screem ->
                 BottomNavigationItem(
@@ -65,16 +42,14 @@ fun BottomNavigationBar(
             }
         }
     }
+
+
 }
+
 @Preview
 @Composable
 fun BottomNavigationBarPreview(modifier: Modifier = Modifier) {
     BottomNavigationBar(
         navController = NavHostController(LocalContext.current),
-        items = listOf(
-            Destinations.SecondScreen,
-            Destinations.HomeScreen,
-            Destinations.ThirdScreen
-        )
     )
 }

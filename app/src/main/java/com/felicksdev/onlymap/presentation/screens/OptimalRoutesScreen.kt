@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -53,7 +52,6 @@ fun OptimalRoutesScreen(
     locationViewModel: LocationViewModel,
     rutasViewModel: RutasViewModel,
     navController: NavController,
-    paddingValues: PaddingValues
 ) {
     val errorState by rutasViewModel.errorState.collectAsState()
     Log.d("MapScreen", "El estado de error es ${errorState}")
@@ -81,7 +79,7 @@ fun OptimalRoutesScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(paddingValues)
+//            .padding(paddingValues)
     ) {
 
 
@@ -204,7 +202,6 @@ fun PreviewOptimalRoutesScreen() {
         locationViewModel = LocationViewModel(),
         rutasViewModel = RutasViewModel(),
         navController = navController,
-        paddingValues = PaddingValues()
     )
 }
 

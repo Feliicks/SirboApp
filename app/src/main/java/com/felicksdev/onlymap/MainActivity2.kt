@@ -48,8 +48,6 @@ class MainActivity2 : AppCompatActivity() {
             bottomBar = {
                 BottomNavigationBar(
                     navController = navController,
-                    items = navigationItems,
-//                    bottomBarState = rememberSaveable { mutableStateOf(true) }
                 )
             }
 

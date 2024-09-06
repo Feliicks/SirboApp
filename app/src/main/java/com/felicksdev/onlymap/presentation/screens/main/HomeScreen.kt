@@ -3,73 +3,59 @@ package com.felicksdev.onlymap.presentation.screens.main
 
 import android.util.Log
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.felicksdev.onlymap.navigation.plus
 import com.felicksdev.onlymap.presentation.components.MyMap
+import com.felicksdev.onlymap.presentation.components.RouterPlannerBar
 import com.felicksdev.onlymap.viewmodel.HomeScreenViewModel
+import com.felicksdev.onlymap.viewmodel.PlannerViewModel
 import com.google.maps.android.compose.CameraPositionState
 
 @Composable
 fun HomeScreen(
     viewModel: HomeScreenViewModel,
     navController: NavController,
-    innerPadding: PaddingValues,
-    cameraPositionState: CameraPositionState
+    cameraPositionState: CameraPositionState,
+    plannerViewModel: PlannerViewModel,
+    bottomPadding: PaddingValues
 ) {
-//    val initialCameraPosition = MapConfig.initialState
-//    val cameraPositionState = remember { initialCameraPosition }
-    var textValue by remember { mutableStateOf("") }
-
-    LaunchedEffect(viewModel) {
-//        viewModel.loadRouteById(893)
+    Scaffold(
+        topBar = {
+            RouterPlannerBar(
+                plannerViewModel = plannerViewModel,
+                navController = navController
+            )
+        }) { padding ->
+        val fullPading = bottomPadding.plus(padding)
+        HomeScreenContent(
+            padding = fullPading,
+            viewModel = viewModel,
+            cameraPositionState = cameraPositionState,
+        )
     }
+}
+
+@Composable
+fun HomeScreenContent(
+    padding: PaddingValues,
+    viewModel: HomeScreenViewModel,
+    cameraPositionState: CameraPositionState,
+) {
     MyMap(
         cameraPositionState = cameraPositionState,
-        padding = innerPadding
+        padding = padding
     )
-//    Logica para pasar a la siguiente pantalla al presioarn un text field
-//    TextField(
-//        interactionSource = remember { MutableInteractionSource() }
-//            .also { interactionSource ->
-//                LaunchedEffect(interactionSource) {
-//                    interactionSource.interactions.collect {
-//                        if (it is PressInteraction.Release) {
-//                            Log.d("HomeScreen", "Click")
-//                            navController.navigate(LocationsSelectionScreen.route)
-//                        }
-//                    }
-//                }
-//            },
-//        leadingIcon = {
-//            Icon(Icons.Filled.Search, contentDescription = null)
-//        },
-//        value = textValue,
-//        onValueChange = {
-//            textValue = it
-//        },
-//        label = { Text("¿A dónde quieres ir?") },
-//        modifier = Modifier
-//            .wrapContentSize()
-//            .padding(16.dp)
-//            .clickable {
-//            }
-//    )
-
     LaunchedEffect(viewModel.rutaData.value) {
         Log.d("HomeScreen", "Ruta: ${viewModel.rutaData}")
         viewModel.rutaData?.let { ruta ->
         }
     }
-
 }
-
 
 
 @Preview(showBackground = true)
@@ -79,8 +65,9 @@ fun PreviewHomeScreen() {
     HomeScreen(
         viewModel = HomeScreenViewModel(), // Instancia de ViewModel de prueba
         navController = navController,
-        innerPadding = PaddingValues(),
-        cameraPositionState = CameraPositionState()
+        cameraPositionState = CameraPositionState(),
+        plannerViewModel = PlannerViewModel(),
+        bottomPadding = PaddingValues()
     )
 }
 

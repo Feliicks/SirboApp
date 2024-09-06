@@ -5,8 +5,11 @@ import LocationsSelectionScreen
 import RutasViewModel
 import android.util.Log
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -30,12 +33,17 @@ import com.felicksdev.onlymap.viewmodel.LocationViewModel
 import com.felicksdev.onlymap.viewmodel.MainViewModel
 import com.felicksdev.onlymap.viewmodel.PlannerViewModel
 
+val MAIN_DESTINATIONS = listOf(
+    SecondScreen,
+    HomeScreen,
+    ThirdScreen
+)
 
 @Composable
 fun NavigationHost(
+    bottomPadding: PaddingValues,
     plannerViewModel: PlannerViewModel,
     navController: NavHostController,
-    paddings: PaddingValues,
     rutasViewModel: RutasViewModel,
     homeScreenViewModel: HomeScreenViewModel,
     locationViewModel: LocationViewModel,
@@ -47,30 +55,30 @@ fun NavigationHost(
             HomeScreen(
                 viewModel = homeScreenViewModel,
                 navController = navController,
-                innerPadding = paddings,
-                cameraPositionState = cameraPositionState
+                cameraPositionState = cameraPositionState,
+                plannerViewModel = plannerViewModel,
+                bottomPadding = bottomPadding
             )
         }
         composable(
             SecondScreen.route,
-            arguments = listOf(navArgument("newText") { defaultValue = "defaultYext" })
         ) { navBackstateEntry ->
-            var newText = navBackstateEntry.arguments?.getString("newText")
-            requireNotNull(newText)
-            SecondScreen(newText)
+            SecondScreen(
+                navController = navController,
+                bottomPadding = bottomPadding
+            )
         }
         composable(ThirdScreen.route) {
             ThirdScreen(
                 viewModel = rutasViewModel,
-                defaultPadding = paddings,
-                navController = navController
+                navController = navController,
+                bottomPadding = bottomPadding
             )
         }
         composable(RouteDetailScreen.route) {
             RouteDetailScreen(
                 ruta = rutasViewModel.routeSelected,
                 viewModel = rutasViewModel,
-                padding = paddings,
                 navController = navController
             )
         }
@@ -80,8 +88,6 @@ fun NavigationHost(
                 locationViewModel = locationViewModel,
                 rutasViewModel = rutasViewModel,
                 navController = navController,
-                paddingValues = paddings
-
             )
         }
         composable(LocationsSelectionScreen.route) {
@@ -96,8 +102,7 @@ fun NavigationHost(
             arguments = listOf(navArgument("isOrigin") {
                 type = NavType.BoolType
             })
-        ) {
-            navBackStack ->
+        ) { navBackStack ->
             val isOrigin = navBackStack.arguments?.getBoolean("isOrigin")
             MapScreen(
                 isOrigin = isOrigin!!,
@@ -124,3 +129,13 @@ fun NavigationHost(
 
     }
 }
+
+
+operator fun PaddingValues.plus(other: PaddingValues): PaddingValues = PaddingValues(
+    start = this.calculateStartPadding(LayoutDirection.Ltr) +
+            other.calculateStartPadding(LayoutDirection.Ltr),
+    top = this.calculateTopPadding() + other.calculateTopPadding(),
+    end = this.calculateEndPadding(LayoutDirection.Ltr) +
+            other.calculateEndPadding(LayoutDirection.Ltr),
+    bottom = this.calculateBottomPadding() + other.calculateBottomPadding(),
+)
