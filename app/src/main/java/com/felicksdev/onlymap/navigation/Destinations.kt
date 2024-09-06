@@ -54,7 +54,12 @@ sealed class Destinations(
         Icons.Filled.Favorite
     )
     object MapScreen : Destinations(
-        "map_screen",
+        "map_screen/",
+        "Mapa",
+        Icons.Filled.Favorite
+    )
+    object ChooseLocations : Destinations(
+        "search/",
         "Mapa",
         Icons.Filled.Favorite
     )

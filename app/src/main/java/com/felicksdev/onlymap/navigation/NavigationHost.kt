@@ -1,11 +1,14 @@
 package com.felicksdev.onlymap.navigation
 
+import ChooseLocationsScreen
 import LocationsSelectionScreen
 import RutasViewModel
+import android.util.Log
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
@@ -25,10 +28,12 @@ import com.felicksdev.onlymap.utils.MapConfig
 import com.felicksdev.onlymap.viewmodel.HomeScreenViewModel
 import com.felicksdev.onlymap.viewmodel.LocationViewModel
 import com.felicksdev.onlymap.viewmodel.MainViewModel
+import com.felicksdev.onlymap.viewmodel.PlannerViewModel
 
 
 @Composable
 fun NavigationHost(
+    plannerViewModel: PlannerViewModel,
     navController: NavHostController,
     paddings: PaddingValues,
     rutasViewModel: RutasViewModel,
@@ -36,14 +41,9 @@ fun NavigationHost(
     locationViewModel: LocationViewModel,
     mainViewModel: MainViewModel
 ) {
-//    val rutasViewModel = RutasViewModel()
-//    val homeScreenViewModel = HomeScreenViewModel()
-//    val locationViewModel = LocationViewModel()
     val cameraPositionState = remember { MapConfig.initialState }
-
     NavHost(navController = navController, startDestination = HomeScreen.route) {
         composable(HomeScreen.route) {
-
             HomeScreen(
                 viewModel = homeScreenViewModel,
                 navController = navController,
@@ -91,11 +91,34 @@ fun NavigationHost(
                 routesViewModel = rutasViewModel
             )
         }
-        composable(MapScreen.route) {
+        composable(
+            route = MapScreen.route + "{isOrigin}",
+            arguments = listOf(navArgument("isOrigin") {
+                type = NavType.BoolType
+            })
+        ) {
+            navBackStack ->
+            val isOrigin = navBackStack.arguments?.getBoolean("isOrigin")
             MapScreen(
+                isOrigin = isOrigin!!,
                 viewModel = locationViewModel,
-                rutasViewModel = rutasViewModel,
                 cameraPositionState = cameraPositionState
+            )
+        }
+
+        composable(
+            route = Destinations.ChooseLocations.route + "{isOrigin}",
+            arguments = listOf(navArgument("isOrigin") {
+                defaultValue = false
+                type = NavType.BoolType
+            })
+        ) { backStackEntry ->
+            val isOrigin = backStackEntry.arguments?.getBoolean("isOrigin")
+            Log.d("NavigationHost", "isOrigin: $isOrigin")
+            ChooseLocationsScreen(
+                isOrigin = isOrigin!!,
+                navController = navController,
+                plannerViewModel = plannerViewModel
             )
         }
 

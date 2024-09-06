@@ -30,11 +30,26 @@ fun MyMap(
         uiSettings = mapUiConfiguration,
         properties = mapConfiguration,
     ) {
-//        Text(text = "Is camera moving: ${cameraPositionState.isMoving}" +
-//                "\n Latitude and Longitude: ${cameraPositionState.position.target.latitude} " +
-//                "and ${cameraPositionState.position.target.longitude}",
-//            textAlign = TextAlign.Center
-//        )
+//        Column(
+//            modifier = Modifier.fillMaxSize(),
+//            horizontalAlignment = Alignment.CenterHorizontally,
+//            verticalArrangement = Arrangement.Center
+//        ) {
+//            IconButton(
+//                onClick = {
+//                },
+//            ) {
+//                Image(
+//                    painter = painterResource(id = R.drawable.ic_map_marker),
+//                    contentDescription = "marker",
+//                )
+//            }
+//            Text(text = "Is camera moving: ${cameraPositionState.isMoving}" +
+//                    "\n Latitude and Longitude: ${cameraPositionState.position.target.latitude} " +
+//                    "and ${cameraPositionState.position.target.longitude}",
+//                textAlign = TextAlign.Center
+//            )
+//        }
         markers()
     }
 }

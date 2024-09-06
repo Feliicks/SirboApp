@@ -28,6 +28,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+
+@Preview
+@Composable
+private fun SelectionLocationPreview() {
+    SelectLocationScreen(navcontroller = rememberNavController())
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -42,7 +49,7 @@ fun SelectLocationScreen(
                     Text("SIRBO APP")
                 },
                 navigationIcon = {
-                    IconButton(onClick = { 
+                    IconButton(onClick = {
                         navcontroller.popBackStack()
                     }) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
@@ -51,9 +58,13 @@ fun SelectLocationScreen(
             )
         },
 
-    ) {
-        Box(){
-            Text(text = "Selecciona una ubicación", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.align(Alignment.Center))
+        ) {
+        Box() {
+            Text(
+                text = "Selecciona una ubicación",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.align(Alignment.Center)
+            )
         }
         Column(
             modifier = Modifier
@@ -72,13 +83,6 @@ fun SelectLocationScreen(
 
     }
 }
-
-//@Preview
-//@Composable
-//fun RouteSelectionDetailDetail() {
-//    SelectLocationScreen(navcontroller = NavController( ))
-//}
-
 
 @Composable
 fun LocationItem(locationIcon: ImageVector, locationText: String) {
