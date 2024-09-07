@@ -63,13 +63,16 @@ fun RouterPlannerBar(
 
     val fromLocation = plannerState.fromPlace
 
-
     Column(
         modifier = Modifier
+            .background(
+                MaterialTheme.colorScheme.surfaceContainer,
+            )
             .fillMaxWidth()
             .padding(4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+        horizontalAlignment = Alignment.CenterHorizontally,
+
+        ) {
         // Fila para la barra de menú y los campos de texto
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -83,13 +86,8 @@ fun RouterPlannerBar(
                     isOrigin = true,
                     onSaved = { /* Guardar el valor */ },
                     placeHolder = "Select origin",
-                    textLeadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.MyLocation,
-                            contentDescription = "Origin"
-                        )
-                    },
-                    trailing =  Icons.Default.Close,
+                    leadingIcon = Icons.Default.MyLocation,
+                    trailing = Icons.Default.Close,
                     locationDetail = fromLocation,
                     plannerViewModel = plannerViewModel,
                     onTrailingClick = { plannerViewModel.reset() },
@@ -101,13 +99,78 @@ fun RouterPlannerBar(
                     isOrigin = false,
                     onSaved = {},
                     placeHolder = "Select destination",
-                    textLeadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.LocationOn,
-                            contentDescription = "Destination"
-                        )
-                    },
-                    trailing =  Icons.Default.SwapVert,
+                    leadingIcon = Icons.Default.LocationOn,
+                    trailing = Icons.Default.SwapVert,
+                    onTrailingClick = { plannerViewModel.swapLocations() },
+                    locationDetail = toLocation,
+                    plannerViewModel = plannerViewModel
+                )
+            }
+            // Botón del menú (hamburguesa)
+            IconButton(
+                onClick = { onMenuClick() },
+                modifier = Modifier
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = "Menu"
+                )
+            }
+
+        }
+    }
+}
+
+@Composable
+fun SmallRouterPlannerBar(
+    modifier: Modifier = Modifier,
+    plannerViewModel: PlannerViewModel,
+    onMenuClick: () -> Unit = { },
+    navController: NavController
+) {
+    val plannerState by plannerViewModel.plannerState.collectAsState()
+
+    val toLocation = plannerState.toPlace
+
+    val fromLocation = plannerState.fromPlace
+
+    Column(
+        modifier = Modifier
+            .background(
+                MaterialTheme.colorScheme.surfaceContainer,
+            )
+            .fillMaxWidth()
+            .padding(4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+
+        ) {
+        // Fila para la barra de menú y los campos de texto
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                // Campo para seleccionar el origen
+                SmallLocationFormField(
+                    navController = navController,
+                    modifier = Modifier,
+                    isOrigin = true,
+                    onSaved = { /* Guardar el valor */ },
+                    placeHolder = "Select origin",
+                    leadingIcon = Icons.Default.MyLocation,
+                    trailing = Icons.Default.Close,
+                    locationDetail = fromLocation,
+                    plannerViewModel = plannerViewModel,
+                    onTrailingClick = { plannerViewModel.reset() },
+                )
+                // Campo para seleccionar el destino
+                SmallLocationFormField(
+                    navController = navController,
+                    isOrigin = false,
+                    onSaved = {},
+                    placeHolder = "Select destination",
+                    leadingIcon = Icons.Default.LocationOn,
+                    trailing = Icons.Default.SwapVert,
                     onTrailingClick = { plannerViewModel.swapLocations() },
                     locationDetail = toLocation,
                     plannerViewModel = plannerViewModel
@@ -181,17 +244,17 @@ fun CustomLocationFormField(
     locationDetail: TrufiLocation?,
     onSaved: (String) -> Unit,
     placeHolder: String,
-    textLeadingIcon: @Composable () -> Unit,
+    leadingIcon: ImageVector? = null,
     trailing: ImageVector? = null,
     fontSize: TextUnit = MaterialTheme.typography.bodyMedium.fontSize,
     navController: NavController,
     plannerViewModel: PlannerViewModel,
-    onTrailingClick : () -> Unit = {}
+    onTrailingClick: () -> Unit = {}
 ) {
 //    var text by rememberSaveable { mutableStateOf(locationDetail?.description ?: "") }
     val locationInfo by plannerViewModel.plannerState.collectAsState()
     var locationSelected = if (isOrigin) locationInfo.fromPlace
-        ?: TrufiLocation() else locationInfo.toPlace?: TrufiLocation()
+        ?: TrufiLocation() else locationInfo.toPlace ?: TrufiLocation()
     var text = if (isOrigin) locationInfo.fromPlace?.description
         ?: "" else locationInfo.toPlace?.description ?: ""
     Row(
@@ -204,8 +267,8 @@ fun CustomLocationFormField(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            if (plannerViewModel.isPlacesDefined()){
-                trailing?.let {icon ->
+            if (plannerViewModel.isPlacesDefined()) {
+                trailing?.let { icon ->
                     IconButton(
                         onClick = { onTrailingClick() },
                         modifier = Modifier.size(50.dp)
@@ -216,8 +279,7 @@ fun CustomLocationFormField(
                         )
                     }
                 }
-            }
-            else Spacer(modifier = Modifier.size(50.dp)) // Adjust size as needed
+            } else Spacer(modifier = Modifier.size(50.dp)) // Adjust size as needed
 
 
         }
@@ -270,15 +332,153 @@ fun CustomLocationFormField(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         // Leading icon (if provided)
-                        if (textLeadingIcon != null) {
-                            textLeadingIcon()
+                        leadingIcon?.let {
+                            Icon(
+                                imageVector = it,
+                                contentDescription = "Location Icon",
+                                modifier = Modifier.size(24.dp),
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                        // Text field content
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(start = 10.dp)
+                        ) {
+                            if (text.isEmpty()) {
+                                Text(
+                                    text = placeHolder,
+                                    style = LocalTextStyle.current.copy(
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                                        fontSize = fontSize
+                                    )
+                                )
+                            }
+                            innerTextField() // The actual text field content
+                        }
+                    }
+                }
+            )
+        }
+    }
+
+}
+
+
+@Composable
+fun SmallLocationFormField(
+    modifier: Modifier = Modifier,
+    isOrigin: Boolean,
+    locationDetail: TrufiLocation?,
+    onSaved: (String) -> Unit,
+    placeHolder: String,
+    leadingIcon: ImageVector? = null,
+    trailing: ImageVector? = null,
+    fontSize: TextUnit = MaterialTheme.typography.bodyMedium.fontSize,
+    navController: NavController,
+    plannerViewModel: PlannerViewModel,
+    onTrailingClick: () -> Unit = {}
+) {
+//    var text by rememberSaveable { mutableStateOf(locationDetail?.description ?: "") }
+    val locationInfo by plannerViewModel.plannerState.collectAsState()
+    var locationSelected = if (isOrigin) locationInfo.fromPlace
+        ?: TrufiLocation() else locationInfo.toPlace ?: TrufiLocation()
+    var text = if (isOrigin) locationInfo.fromPlace?.description
+        ?: "" else locationInfo.toPlace?.description ?: ""
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            if (plannerViewModel.isPlacesDefined()) {
+                trailing?.let { icon ->
+                    IconButton(
+                        onClick = { onTrailingClick() },
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = "Reset"
+                        )
+                    }
+                }
+            } else Spacer(modifier = Modifier.size(50.dp)) // Adjust size as needed
+
+
+        }
+        Column(
+            modifier = Modifier
+                .weight(1f)
+        ) {
+            BasicTextField(
+                interactionSource = remember { MutableInteractionSource() }
+                    .also { interactionSource ->
+                        LaunchedEffect(interactionSource) {
+                            interactionSource.interactions.collect {
+                                if (it is PressInteraction.Release) {
+                                    navController.navigate(Destinations.ChooseLocations.route + isOrigin)
+                                    Log.d(
+                                        "CustomLocationFormField",
+                                        Destinations.ChooseLocations.route + isOrigin
+                                    )
+                                }
+                            }
+                        }
+                    },
+                value = text,
+                onValueChange = { newValue ->
+                    text = newValue
+                    onSaved(locationDetail?.copy(description = newValue).toString())
+                },
+                modifier = modifier
+                    .background(
+                        color = MaterialTheme.colorScheme.surface,
+                        shape = MaterialTheme.shapes.small
+                    )
+                    .border(
+                        BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)),
+                        shape = MaterialTheme.shapes.small
+                    )
+                    .fillMaxWidth()
+                    .padding(2.dp),
+                singleLine = true,
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                textStyle = LocalTextStyle.current.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = fontSize
+                ),
+                decorationBox = { innerTextField ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+//                        horizontalArrangement = Arrangement.End
+                    ) {
+                        // Leading icon (if provided)
+                        leadingIcon?.let {
+
+                            Icon(
+                                imageVector = it,
+                                contentDescription = "Location Icon",
+                                modifier = Modifier
+                                    .size(18.dp),
+//                                    .fillMaxWidth(),
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
                         }
 
                         // Text field content
                         Box(
                             modifier = Modifier
                                 .weight(1f)
-                                .padding(start = 8.dp)
+                                .padding(start = 10.dp)
                         ) {
                             if (text.isEmpty()) {
                                 Text(
@@ -306,7 +506,7 @@ fun PreviewLocationFormField() {
     val sampleLocation = TrufiLocation(description = "Sample Location")
 
     MaterialTheme {
-        CustomLocationFormField(
+        SmallLocationFormField(
             navController = rememberNavController(),
             isOrigin = true,
             locationDetail = sampleLocation,
@@ -319,12 +519,7 @@ fun PreviewLocationFormField() {
                 )
                 .padding(4.dp)
                 .height(60.dp),
-            textLeadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.LocationOn,
-                    contentDescription = "Location Icon"
-                )
-            },
+            leadingIcon = Icons.Default.LocationOn,
             trailing = Icons.Default.Close,
             plannerViewModel = PlannerViewModel()
 
@@ -340,6 +535,20 @@ fun PreviewRouterPlannerBar() {
 
     MaterialTheme {
         RouterPlannerBar(
+            plannerViewModel = previewViewModel,
+            onMenuClick = { /* Acción del menú */ },
+            navController = rememberNavController()
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewSmallRouterPlannerBar() {
+    val previewViewModel = PlannerViewModel()
+
+    MaterialTheme {
+        SmallRouterPlannerBar(
             plannerViewModel = previewViewModel,
             onMenuClick = { /* Acción del menú */ },
             navController = rememberNavController()

@@ -11,7 +11,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.felicksdev.onlymap.navigation.plus
 import com.felicksdev.onlymap.presentation.components.MyMap
-import com.felicksdev.onlymap.presentation.components.RouterPlannerBar
+import com.felicksdev.onlymap.presentation.components.SmallRouterPlannerBar
 import com.felicksdev.onlymap.viewmodel.HomeScreenViewModel
 import com.felicksdev.onlymap.viewmodel.PlannerViewModel
 import com.google.maps.android.compose.CameraPositionState
@@ -26,7 +26,7 @@ fun HomeScreen(
 ) {
     Scaffold(
         topBar = {
-            RouterPlannerBar(
+            SmallRouterPlannerBar(
                 plannerViewModel = plannerViewModel,
                 navController = navController
             )
