@@ -44,7 +44,7 @@ import androidx.navigation.compose.rememberNavController
 import com.felicksdev.onlymap.navigation.Destinations.MapScreen
 import com.felicksdev.onlymap.navigation.Destinations.OptimalRoutesScreen
 import com.felicksdev.onlymap.presentation.components.LocationOptionItem
-import com.felicksdev.onlymap.presentation.components.TopBar
+import com.felicksdev.onlymap.presentation.components.topBars.TopBar
 import com.felicksdev.onlymap.utils.currentRoute
 import com.felicksdev.onlymap.viewmodel.LocationViewModel
 import com.felicksdev.onlymap.viewmodel.PlannerViewModel

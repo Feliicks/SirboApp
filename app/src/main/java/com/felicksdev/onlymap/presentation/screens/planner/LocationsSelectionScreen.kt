@@ -34,7 +34,7 @@ import com.felicksdev.onlymap.navigation.Destinations.LocationsSelectionScreen
 import com.felicksdev.onlymap.navigation.Destinations.MapScreen
 import com.felicksdev.onlymap.navigation.Destinations.OptimalRoutesScreen
 import com.felicksdev.onlymap.presentation.components.LocationOptionItem
-import com.felicksdev.onlymap.presentation.components.TopBar
+import com.felicksdev.onlymap.presentation.components.topBars.TopBar
 import com.felicksdev.onlymap.viewmodel.LocationViewModel
 
 

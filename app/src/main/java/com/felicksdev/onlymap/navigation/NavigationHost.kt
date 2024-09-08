@@ -107,7 +107,8 @@ fun NavigationHost(
             MapScreen(
                 isOrigin = isOrigin!!,
                 viewModel = locationViewModel,
-                cameraPositionState = cameraPositionState
+                cameraPositionState = cameraPositionState,
+                navController = navController
             )
         }
 

@@ -4,12 +4,14 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,9 +25,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.navigation.NavController
 import com.felicksdev.onlymap.R
 import com.felicksdev.onlymap.data.models.LocationInfo
 import com.felicksdev.onlymap.presentation.components.MyMap
+import com.felicksdev.onlymap.presentation.components.topBars.ChooseOnMapTopBar
 import com.felicksdev.onlymap.viewmodel.LocationViewModel
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -36,20 +40,31 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun MapScreen(
-    isOrigin: Boolean, viewModel: LocationViewModel, cameraPositionState: CameraPositionState
+    isOrigin: Boolean,
+    viewModel: LocationViewModel,
+    cameraPositionState: CameraPositionState,
+    navController: NavController
 ) {
-    Log.d("MapScreen", "El estado seleccionado es $isOrigin")
-    MapContent(
-        viewModel = viewModel, cameraPositionState = cameraPositionState
-    )
-    Column {
-        Text(text = "Origen: ${viewModel.originLocationState.value!!.address}")
+
+    Scaffold(
+        topBar = { ChooseOnMapTopBar(navController = navController) },
+    ) { padding ->
+        MapContent(
+            viewModel = viewModel,
+            padding = padding,
+            cameraPositionState = cameraPositionState
+        )
+        Column {
+            Text(text = "Origen: ${viewModel.originLocationState.value!!.address}")
+        }
     }
 }
 
 @Composable
 fun MapContent(
-    viewModel: LocationViewModel, cameraPositionState: CameraPositionState
+    viewModel: LocationViewModel,
+    padding: PaddingValues,
+    cameraPositionState: CameraPositionState
 ) {
     val startLocationState by viewModel.startLocation.collectAsState()
     val endLocationState by viewModel.endLocation.collectAsState()
@@ -78,7 +93,9 @@ fun MapContent(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .padding(padding)) {
         MyMap(
             cameraPositionState = cameraPositionState
         ) {

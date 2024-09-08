@@ -1,7 +1,7 @@
 [versions]
 kotlin = "2.0.0"
 compose = "1.7.0"
-navVersion = "2.7.5"
+navVersion = "2.8.0"
 coreKtx = "1.7.0"
 appcompat = "1.6.1"
 material = "1.8.0"

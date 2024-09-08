@@ -1,4 +1,4 @@
-package com.felicksdev.onlymap.presentation.components
+package com.felicksdev.onlymap.presentation.components.topBars
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource

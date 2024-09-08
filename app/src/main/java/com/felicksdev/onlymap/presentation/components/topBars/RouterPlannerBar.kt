@@ -1,4 +1,4 @@
-package com.felicksdev.onlymap.presentation.components
+package com.felicksdev.onlymap.presentation.components.topBars
 
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
