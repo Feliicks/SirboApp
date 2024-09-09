@@ -2,11 +2,12 @@ package com.felicksdev.onlymap.data.models
 
 import RutasViewModel
 import com.felicksdev.onlymap.data.models.otpModels.RoutesModelItem
+import com.felicksdev.onlymap.data.models.otpModels.routing.FromLeg
 import com.felicksdev.onlymap.data.models.otpModels.routing.FromX
 import com.felicksdev.onlymap.data.models.otpModels.routing.Leg
 import com.felicksdev.onlymap.data.models.otpModels.routing.LegGeometry
 import com.felicksdev.onlymap.data.models.otpModels.routing.Step
-import com.felicksdev.onlymap.data.models.otpModels.routing.To
+import com.felicksdev.onlymap.data.models.otpModels.routing.ToLeg
 import com.felicksdev.onlymap.data.models.otpModels.routing.ToX
 import com.felicksdev.onlymap.viewmodel.LocationViewModel
 import com.google.android.gms.maps.model.LatLng
@@ -48,18 +49,22 @@ val sampleLegs = listOf(
         route = "",
         agencyTimeZoneOffset = -14400000,
         interlineWithPreviousLeg = false,
-        from = FromX(
-            name = "Origin", lon = -68.132, lat = -16.50024, departure = 1531,
+        from = FromLeg(
+            name = "Origin", lon = -68.132, lat = -16.50024,
             orig = "",
             vertexType = ""
         ),
-        to = To(
+        to = ToLeg(
             name = "Avenida Eliodoro Camacho",
             lon = -68.1319705,
             lat = -16.4999285,
-            orig = "",
             arrival = 153,
-            vertexType = ""
+            vertexType = "",
+            departure = 0,
+            stopId = "",
+            stopIndex = 0,
+            stopSequence = 0,
+            boardAlightType = "DEFAULT"
         ),
         legGeometry = LegGeometry(points = "juucBl`z~Kc@OK?IA", length = 4),
         rentedBike = false,
@@ -81,21 +86,22 @@ val sampleLegs = listOf(
         route = "893",
         agencyTimeZoneOffset = -14400000,
         interlineWithPreviousLeg = false,
-        from = FromX(
-            name = "Avenida Eliodoro Camacho",
-            lon = -68.1319705,
-            lat = -16.4999285,
-            departure = 1531,
+        from = FromLeg(
+            name = "Origin", lon = -68.132, lat = -16.50024,
             orig = "",
             vertexType = ""
         ),
-        to = To(
-            name = "Calle Capitán Hugo Estrada",
-            lon = -68.1241297,
-            lat = -16.4997953,
+        to = ToLeg(
+            name = "Avenida Eliodoro Camacho",
+            lon = -68.1319705,
+            lat = -16.4999285,
+            arrival = 153,
             vertexType = "",
-            orig = "",
-            arrival = 153
+            departure = 0,
+            stopId = "",
+            stopIndex = 0,
+            stopSequence = 0,
+            boardAlightType = "DEFAULT"
         ),
         legGeometry = LegGeometry(
             points = "psucBz_z~Kr@gBn@cBn@mAHSBYAWAMEMMc@Yk@Wk@I[Ga@E[Ca@Cs@@U@IBSVw@Vy@L_@Ji@Jo@F]AUCWOm@_@eAWi@e@iAg@qAQo@EQMc@AQAG@WJ{@",
@@ -110,6 +116,7 @@ val sampleLegs = listOf(
         steps = emptyList()
     )
 )
+
 fun LocationViewModel.setTestData() {
     // Simula una ubicación de origen y destino para la vista previa
     originLocationState.value = AddressState(
@@ -121,6 +128,7 @@ fun LocationViewModel.setTestData() {
         coordinates = LatLng(34.0522, -118.2437) // Ejemplo: Los Ángeles
     )
 }
+
 fun RutasViewModel.setTestRoutes() {
     // Simula datos de rutas óptimas para la vista previa
 //    optimalRouteLegs = com.felicksdev.onlymap.data.models.sampleLegs

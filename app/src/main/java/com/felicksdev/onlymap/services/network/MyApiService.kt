@@ -42,6 +42,15 @@ interface MyApiService {
     ): Response<RoutingResponse>
 
 
+    @GET("otp/routers/default/plan")
+    suspend fun fetchItineraries(
+        @Query("fromPlace") fromPlace: String,
+        @Query("toPlace") toPlace: String,
+        @Query("mode") mode: String = "TRANSIT,WALK",
+        @Query("maxWalkDistance") maxWalkDistance: Int = 5000
+    ): Response<RoutingResponse>
+
+
     @GET("otp/routers/default/index/patterns/{id}")
     suspend fun getRoutePatterns(@Path("id") routeId: String): Response<RutaVehicular>
 

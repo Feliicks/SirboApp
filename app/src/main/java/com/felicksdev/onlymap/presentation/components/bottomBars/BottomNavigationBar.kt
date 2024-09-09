@@ -1,4 +1,4 @@
-package com.felicksdev.onlymap.presentation.components
+package com.felicksdev.onlymap.presentation.components.bottomBars
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar

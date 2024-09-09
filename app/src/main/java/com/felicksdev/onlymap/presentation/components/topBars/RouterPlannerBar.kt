@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -23,14 +24,11 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SwapVert
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -62,6 +60,8 @@ fun RouterPlannerBar(
     val toLocation = plannerState.toPlace
 
     val fromLocation = plannerState.fromPlace
+
+    Log.d("RouterPlannerBar", "estado: ${plannerState.isPlacesDefined}")
 
     Column(
         modifier = Modifier
@@ -134,6 +134,10 @@ fun SmallRouterPlannerBar(
 
     val fromLocation = plannerState.fromPlace
 
+//    Log.d("SmallRouterPlannerBar", "From: $fromLocation")
+//    Log.d("SmallRouterPlannerBar", "To: $toLocation")
+    Log.d("SmallRouterPlannerBar", "Estado: ${plannerViewModel.isPlacesDefined()}")
+
     Column(
         modifier = Modifier
             .background(
@@ -191,51 +195,6 @@ fun SmallRouterPlannerBar(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun LocationFormField(
-    isOrigin: Boolean,
-    locationDetail: TrufiLocation?,
-    onSaved: (String) -> Unit,
-    hintText: String,
-    textLeadingIcon: @Composable () -> Unit,
-    trailing: @Composable (() -> Unit)? = null,
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Icono o contenido del trailing
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            trailing?.invoke()
-        }
-        Column(
-            modifier = Modifier
-                .weight(1f)
-        ) {
-            // OutlinedTextField
-            OutlinedTextField(
-                value = locationDetail?.description ?: "",
-                onValueChange = { newValue ->
-                    onSaved(locationDetail?.copy(description = newValue).toString())
-                },
-                label = { Text(hintText) },
-                leadingIcon = textLeadingIcon,
-
-                modifier = Modifier.fillMaxWidth(),
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            )
-        }
-
-
-    }
-}
-
 
 @Composable
 fun CustomLocationFormField(
@@ -280,8 +239,6 @@ fun CustomLocationFormField(
                     }
                 }
             } else Spacer(modifier = Modifier.size(50.dp)) // Adjust size as needed
-
-
         }
         Column(
             modifier = Modifier
@@ -380,15 +337,12 @@ fun SmallLocationFormField(
     plannerViewModel: PlannerViewModel,
     onTrailingClick: () -> Unit = {}
 ) {
-//    var text by rememberSaveable { mutableStateOf(locationDetail?.description ?: "") }
-    val locationInfo by plannerViewModel.plannerState.collectAsState()
-    var locationSelected = if (isOrigin) locationInfo.fromPlace
-        ?: TrufiLocation() else locationInfo.toPlace ?: TrufiLocation()
-    var text = if (isOrigin) locationInfo.fromPlace?.description
-        ?: "" else locationInfo.toPlace?.description ?: ""
+    var text = locationDetail?.description ?: ""
     Row(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .padding(start = 4.dp, end = 4.dp)
+            .height(50.dp) ,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(
@@ -400,7 +354,7 @@ fun SmallLocationFormField(
                 trailing?.let { icon ->
                     IconButton(
                         onClick = { onTrailingClick() },
-                        modifier = Modifier.size(40.dp)
+                        modifier = Modifier.size(50.dp)
                     ) {
                         Icon(
                             imageVector = icon,
@@ -408,7 +362,7 @@ fun SmallLocationFormField(
                         )
                     }
                 }
-            } else Spacer(modifier = Modifier.size(50.dp)) // Adjust size as needed
+            } else Spacer(modifier = Modifier.size(45.dp)) // Adjust size as needed
 
 
         }
@@ -446,7 +400,7 @@ fun SmallLocationFormField(
                         shape = MaterialTheme.shapes.small
                     )
                     .fillMaxWidth()
-                    .padding(2.dp),
+                    .padding(4.dp),
                 singleLine = true,
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 textStyle = LocalTextStyle.current.copy(
@@ -459,29 +413,29 @@ fun SmallLocationFormField(
                             .fillMaxWidth()
                             .padding(4.dp),
                         verticalAlignment = Alignment.CenterVertically,
-//                        horizontalArrangement = Arrangement.End
                     ) {
-                        // Leading icon (if provided)
                         leadingIcon?.let {
-
                             Icon(
                                 imageVector = it,
                                 contentDescription = "Location Icon",
                                 modifier = Modifier
-                                    .size(18.dp),
-//                                    .fillMaxWidth(),
+//                                    .padding(4.dp)
+//                                    .weight(0.15f)
+                                    .size(24.dp)
+                                ,
                                 tint = MaterialTheme.colorScheme.onSecondaryContainer
                             )
                         }
-
+                        Spacer(modifier = Modifier.width(6.dp))
                         // Text field content
                         Box(
                             modifier = Modifier
                                 .weight(1f)
-                                .padding(start = 10.dp)
+//                                .padding(start = 10.dp)
                         ) {
                             if (text.isEmpty()) {
                                 Text(
+                                    modifier  = Modifier.fillMaxWidth(),
                                     text = placeHolder,
                                     style = LocalTextStyle.current.copy(
                                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
@@ -499,7 +453,7 @@ fun SmallLocationFormField(
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewLocationFormField() {

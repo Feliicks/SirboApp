@@ -13,7 +13,8 @@ object RetrofitHelper {
         .build()
     fun getRetrofit(): MyApiService {
         return Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:8080/")
+//            .baseUrl("http://10.0.2.2:8080/")
+            .baseUrl("http://192.168.1.216:8080/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

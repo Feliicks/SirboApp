@@ -66,6 +66,8 @@ fun ChooseLocationsScreen(
     navController: NavController,
     plannerViewModel: PlannerViewModel
 ) {
+    //Realizar popBackStack para homeScreen.
+
 //    LaunchedEffect(Unit) {
 //        plannerViewModel.testSetLocations()
 //    }
@@ -117,7 +119,7 @@ fun SuggestionList(
     isOrigin: Boolean
 ) {
     val route = currentRoute(navController = navController)
-     Log.d("ChooseLocationsScreen", "Actual route: $route")
+//     Log.d("ChooseLocationsScreen", "Actual route: $route")
     Column(
         modifier = Modifier
             .fillMaxSize()

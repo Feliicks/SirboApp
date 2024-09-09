@@ -8,7 +8,7 @@ data class Leg(
     val duration: Double,
     val endTime: Long,
     val flexDrtAdvanceBookMin: Double,
-    val from: FromX,
+    val from: FromLeg,
     val interlineWithPreviousLeg: Boolean,
     val legGeometry: LegGeometry,
     val routeShortName: String? = null,
@@ -20,6 +20,6 @@ data class Leg(
     val route: String,
     val startTime: Long,
     val steps: List<Step>,
-    val to: To,
+    val to: ToLeg,
     val transitLeg: Boolean
 )

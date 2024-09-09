@@ -1,10 +1,13 @@
-package com.felicksdev.onlymap.presentation.screens
+@file:OptIn(ExperimentalMaterial3Api::class)
+
+package com.felicksdev.onlymap.presentation.screens.planner
 
 import RutasViewModel
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,6 +16,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
@@ -33,8 +37,9 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.felicksdev.onlymap.data.models.AddressState
 import com.felicksdev.onlymap.data.models.otpModels.routing.Leg
+import com.felicksdev.onlymap.presentation.components.topBars.RouterPlannerBar
 import com.felicksdev.onlymap.viewmodel.LocationViewModel
-import com.felicksdev.onlymap.viewmodel.MainViewModel
+import com.felicksdev.onlymap.viewmodel.PlannerViewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.maps.android.PolyUtil
 import com.google.maps.android.compose.GoogleMap
@@ -46,11 +51,41 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OptimalRoutesScreen(
-    mainViewModel: MainViewModel,
+fun OptimalRouteScreen(
+    modifier: Modifier = Modifier,
+    plannerViewModel: PlannerViewModel,
+    navController: NavController,
     locationViewModel: LocationViewModel,
     rutasViewModel: RutasViewModel,
-    navController: NavController,
+) {
+    Scaffold(
+        topBar = {
+            RouterPlannerBar(
+                plannerViewModel = plannerViewModel,
+                navController = navController
+            )
+        },
+        bottomBar = {
+//            BottomSheetDetail(
+//                scaffoldState = rememberBottomSheetScaffoldState(),
+////                rutasViewModel.optimalRouteLegs
+//            )
+        },
+    ) { padding ->
+        OptimalRoutesScreenContent(
+            locationViewModel = locationViewModel,
+            rutasViewModel = rutasViewModel,
+            padding = padding
+        )
+    }
+
+}
+
+@Composable
+fun OptimalRoutesScreenContent(
+    locationViewModel: LocationViewModel,
+    rutasViewModel: RutasViewModel,
+    padding: PaddingValues
 ) {
     val errorState by rutasViewModel.errorState.collectAsState()
     Log.d("MapScreen", "El estado de error es ${errorState}")
@@ -78,6 +113,7 @@ fun OptimalRoutesScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .padding(padding)
 //            .padding(paddingValues)
     ) {
 
@@ -116,16 +152,6 @@ fun OptimalRoutesScreen(
                         color = polylineColor,
                         width = 5f,
                     )
-
-                    // Agregar marcadores para cada step
-//                    leg.steps.forEach { step ->
-//                        val latLng = LatLng(step.lat, step.lon)
-//
-//                        Marker(
-//                            state = MarkerState(position = latLng),
-//                            title = step.streetName
-//                        )
-//                    }
                 }
             }
 
@@ -140,10 +166,6 @@ fun OptimalRoutesScreen(
                 snippet = "Punto de llegada"
             )
         }
-//        BottomDetail(scope, sheetState)
-
-        // Mostrar alternativas de rutas
-//        RouteAlternativesList(mapViewModel.routeAlternatives)
     }
 
     Column(
@@ -187,21 +209,15 @@ fun OptimalRoutesScreen(
 //            BottomSheetDetail(scaffoldState = scaffoldState, optimalRoutesLeg)
         }
     }
-
-
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
-fun PreviewOptimalRoutesScreen() {
-    val navController = rememberNavController()
-
-    OptimalRoutesScreen(
-        mainViewModel = MainViewModel(),
+private fun OptimalRouteScreenPreview() {
+    OptimalRouteScreen(
         locationViewModel = LocationViewModel(),
         rutasViewModel = RutasViewModel(),
-        navController = navController,
+        plannerViewModel = PlannerViewModel(),
+        navController = rememberNavController()
     )
 }
-
-

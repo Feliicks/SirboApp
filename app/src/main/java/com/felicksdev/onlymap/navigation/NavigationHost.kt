@@ -22,11 +22,11 @@ import com.felicksdev.onlymap.navigation.Destinations.RouteDetailScreen
 import com.felicksdev.onlymap.navigation.Destinations.SecondScreen
 import com.felicksdev.onlymap.navigation.Destinations.ThirdScreen
 import com.felicksdev.onlymap.presentation.screens.MapScreen
-import com.felicksdev.onlymap.presentation.screens.OptimalRoutesScreen
 import com.felicksdev.onlymap.presentation.screens.RouteDetailScreen
 import com.felicksdev.onlymap.presentation.screens.main.HomeScreen
 import com.felicksdev.onlymap.presentation.screens.main.SecondScreen
 import com.felicksdev.onlymap.presentation.screens.main.ThirdScreen
+import com.felicksdev.onlymap.presentation.screens.planner.OptimalRouteScreen
 import com.felicksdev.onlymap.utils.MapConfig
 import com.felicksdev.onlymap.viewmodel.HomeScreenViewModel
 import com.felicksdev.onlymap.viewmodel.LocationViewModel
@@ -55,7 +55,7 @@ fun NavigationHost(
             HomeScreen(
                 viewModel = homeScreenViewModel,
                 navController = navController,
-                cameraPositionState = cameraPositionState,
+                myCameraPositionState = cameraPositionState,
                 plannerViewModel = plannerViewModel,
                 bottomPadding = bottomPadding
             )
@@ -83,8 +83,8 @@ fun NavigationHost(
             )
         }
         composable(Destinations.OptimalRoutesScreen.route) {
-            OptimalRoutesScreen(
-                mainViewModel = mainViewModel,
+            OptimalRouteScreen(
+                plannerViewModel = plannerViewModel,
                 locationViewModel = locationViewModel,
                 rutasViewModel = rutasViewModel,
                 navController = navController,
@@ -108,7 +108,8 @@ fun NavigationHost(
                 isOrigin = isOrigin!!,
                 viewModel = locationViewModel,
                 cameraPositionState = cameraPositionState,
-                navController = navController
+                navController = navController,
+                plannerViewModel = plannerViewModel
             )
         }
 

@@ -15,7 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import com.felicksdev.onlymap.navigation.Destinations.HomeScreen
 import com.felicksdev.onlymap.navigation.Destinations.SecondScreen
 import com.felicksdev.onlymap.navigation.Destinations.ThirdScreen
-import com.felicksdev.onlymap.presentation.components.BottomNavigationBar
+import com.felicksdev.onlymap.presentation.components.bottomBars.BottomNavigationBar
 import com.felicksdev.onlymap.viewmodel.LocationViewModel
 
 class MainActivity2 : AppCompatActivity() {
