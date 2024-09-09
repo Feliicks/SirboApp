@@ -1,15 +1,15 @@
 package com.felicksdev.onlymap.presentation.components.bottomBars
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
@@ -37,8 +37,9 @@ fun BottomSheetDetail(
         sheetContent = {
             SheetContent(itineraries = itineraries)
         },
-    ){}
+    ) {}
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomItineraryBar(
@@ -61,31 +62,29 @@ fun BottomItineraryBar(
 
 @Composable
 fun ItineraryDetail(legs: List<Leg>) {
-    Row(modifier = Modifier.border(2.dp, Color.Black, MaterialTheme.shapes.medium)) {
-        legs.forEach { leg ->
-            Text(
-                modifier = Modifier.padding(8.dp),
-                text = when (leg.mode) {
-                    "BUS" -> "Pasa ${leg.routeLongName}"
-                    "WALK" -> "Caminar"
-                    else -> {
-                        "Modo de transporte no identificado"
-                    }
-                },
-                style = MaterialTheme.typography.bodyMedium
-            )
-//            Text(
-//                text = "Desde: ${leg.from.name} a ${leg.to.name}",
-//                style = MaterialTheme.typography.bodySmall
-//            )
-//            Text(
-//                text = "Distancia: ${leg.distance} metros",
-//                style = MaterialTheme.typography.bodySmall
-//            )
-//            Text(
-//                text = "Duración: ${leg.duration} seconds",
-//                style = MaterialTheme.typography.bodySmall
-//            )
+    Row(
+        modifier = Modifier.border(
+            2.dp,
+            color = Color.Black,
+//            shape = MaterialTheme.shapes.medium,
+        )
+    ) {
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Row {
+            legs.forEach { leg ->
+                Text(
+                    modifier = Modifier.padding(4.dp),
+                    text = when (leg.mode) {
+                        "BUS" -> "Pasa ${leg.routeShortName}"
+                        "WALK" -> "Caminar"
+                        else -> {
+                            "Modo de transporte no identificado"
+                        }
+                    },
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            }
         }
     }
 }
@@ -112,7 +111,7 @@ fun BottomItineraryPreview() {
 
 
 @Composable
-private fun SheetContent(
+fun SheetContent(
     itineraries: List<Itinerary>
 ) {
     Column(
@@ -120,12 +119,15 @@ private fun SheetContent(
             .fillMaxWidth()
             .padding(16.dp)
     ) {
+        HorizontalDivider()
         itineraries.forEach { itinerary ->
             ItineraryInfo(itinerary = itinerary)
             ItineraryDetail(legs = itinerary.legs)
-            Spacer(modifier = Modifier.height(8.dp))
+//            Spacer(modifier = Modifier.height(8.dp))
         }
+        HorizontalDivider()
     }
+
 }
 
 

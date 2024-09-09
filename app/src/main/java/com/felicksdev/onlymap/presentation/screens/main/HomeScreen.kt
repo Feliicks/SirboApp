@@ -1,10 +1,16 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.felicksdev.onlymap.presentation.screens.main
 
 
-import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Scaffold
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -13,13 +19,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.felicksdev.onlymap.navigation.plus
 import com.felicksdev.onlymap.presentation.components.LoadingScreen
 import com.felicksdev.onlymap.presentation.components.MyMap
-import com.felicksdev.onlymap.presentation.components.bottomBars.BottomSheetDetail
+import com.felicksdev.onlymap.presentation.components.bottomBars.SheetContent
 import com.felicksdev.onlymap.presentation.components.topBars.SmallRouterPlannerBar
 import com.felicksdev.onlymap.viewmodel.HomeScreenViewModel
 import com.felicksdev.onlymap.viewmodel.PlannerViewModel
@@ -36,14 +44,12 @@ fun HomeScreen(
     bottomPadding: PaddingValues
 ) {
 
-    val scaffoldState = rememberBottomSheetScaffoldState()
     LaunchedEffect(Unit) {
 //        si plan es definido y vvalido entonces cargar una loading screen hazstal respuesta de fetchplan
         if (plannerViewModel.isPlacesDefined()) {
             plannerViewModel.fetchPlan()
         }
     }
-    val planResult by plannerViewModel.planResult.collectAsState()
     val errorState by plannerViewModel.errorState.collectAsState()
     val isLoading by plannerViewModel.isLoading.collectAsState()
     val cameraPositionState = plannerViewModel.cameraPosition.collectAsState()
@@ -58,19 +64,15 @@ fun HomeScreen(
             )
         },
         bottomBar = {
-                if (plannerViewModel.isPlacesDefined()) {
-                    planResult?.let {plan ->
-                        BottomSheetDetail(scaffoldState = scaffoldState, itineraries = plan.itineraries)
-                    }
-                }
+
 //            BottomDetail(scaffoldState = scaffoldState, legs = listOf(Leg(), Leg()))
         }
     ) { padding ->
         val fullPading = bottomPadding.plus(padding)
         HomeScreenContent(
             padding = fullPading,
-            viewModel = viewModel,
             cameraPositionState = cameraState,
+            plannerViewModel = plannerViewModel
         )
         // Si está cargando, muestra el indicador de carga
 
@@ -89,19 +91,41 @@ fun HomeScreen(
 @Composable
 fun HomeScreenContent(
     padding: PaddingValues,
-    viewModel: HomeScreenViewModel,
     cameraPositionState: CameraPositionState,
+    plannerViewModel: PlannerViewModel
 ) {
+    val planResult by plannerViewModel.planResult.collectAsState()
+    val scaffoldState = rememberBottomSheetScaffoldState()
 
-    MyMap(
-        cameraPositionState = cameraPositionState,
-        padding = padding
-    )
-    LaunchedEffect(viewModel.rutaData.value) {
-        Log.d("HomeScreen", "Ruta: ${viewModel.rutaData}")
-        viewModel.rutaData?.let { ruta ->
+    BottomSheetScaffold(
+        sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+        scaffoldState = scaffoldState,
+        sheetPeekHeight = 40.dp, // Altura mínima visible del BottomSheet
+        sheetContent = {
+            // Contenido del BottomSheet
+            Column(
+                modifier = Modifier
+
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Aquí colocas el contenido del BottomSheet
+                planResult?.let { plan ->
+                    SheetContent(itineraries = plan.itineraries)
+                }
+            }
+        },
+        content = { innerPadding ->
+            // Contenido principal de la pantalla
+
+            MyMap(
+                cameraPositionState = cameraPositionState,
+                padding = innerPadding
+            )
+
         }
-    }
+    )
+
 }
 
 

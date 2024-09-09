@@ -4,6 +4,8 @@ import ChooseLocationsScreen
 import LocationsSelectionScreen
 import RutasViewModel
 import android.util.Log
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -24,8 +26,8 @@ import com.felicksdev.onlymap.navigation.Destinations.ThirdScreen
 import com.felicksdev.onlymap.presentation.screens.MapScreen
 import com.felicksdev.onlymap.presentation.screens.RouteDetailScreen
 import com.felicksdev.onlymap.presentation.screens.main.HomeScreen
+import com.felicksdev.onlymap.presentation.screens.main.RoutesScreen
 import com.felicksdev.onlymap.presentation.screens.main.SecondScreen
-import com.felicksdev.onlymap.presentation.screens.main.ThirdScreen
 import com.felicksdev.onlymap.presentation.screens.planner.OptimalRouteScreen
 import com.felicksdev.onlymap.utils.MapConfig
 import com.felicksdev.onlymap.viewmodel.HomeScreenViewModel
@@ -50,7 +52,31 @@ fun NavigationHost(
     mainViewModel: MainViewModel
 ) {
     val cameraPositionState = remember { MapConfig.initialState }
-    NavHost(navController = navController, startDestination = HomeScreen.route) {
+    NavHost(navController = navController, startDestination = HomeScreen.route,
+        enterTransition = {
+            slideIntoContainer(
+                AnimatedContentTransitionScope.SlideDirection.Start,
+                animationSpec = tween(350)
+            )
+        },
+        exitTransition = {
+            slideOutOfContainer(
+                AnimatedContentTransitionScope.SlideDirection.Start,
+                animationSpec = tween(350)
+            )
+        },
+        popEnterTransition = {
+            slideIntoContainer(
+                AnimatedContentTransitionScope.SlideDirection.Start,
+                animationSpec = tween(350)
+            )
+        },
+        popExitTransition = {
+            slideOutOfContainer(
+                AnimatedContentTransitionScope.SlideDirection.Start,
+                animationSpec = tween(350)
+            )
+        }) {
         composable(HomeScreen.route) {
             HomeScreen(
                 viewModel = homeScreenViewModel,
@@ -69,7 +95,7 @@ fun NavigationHost(
             )
         }
         composable(ThirdScreen.route) {
-            ThirdScreen(
+            RoutesScreen(
                 viewModel = rutasViewModel,
                 navController = navController,
                 bottomPadding = bottomPadding
@@ -77,9 +103,10 @@ fun NavigationHost(
         }
         composable(RouteDetailScreen.route) {
             RouteDetailScreen(
-                ruta = rutasViewModel.routeSelected,
+                route = rutasViewModel.routeSelected,
                 viewModel = rutasViewModel,
-                navController = navController
+                navController = navController,
+//                plannerViewModel = plannerViewModel
             )
         }
         composable(Destinations.OptimalRoutesScreen.route) {
