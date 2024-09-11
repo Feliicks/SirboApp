@@ -2,7 +2,7 @@ package com.felicksdev.onlymap.navigation
 
 import ChooseLocationsScreen
 import LocationsSelectionScreen
-import RutasViewModel
+import RoutesViewModel
 import android.util.Log
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
@@ -46,7 +46,7 @@ fun NavigationHost(
     bottomPadding: PaddingValues,
     plannerViewModel: PlannerViewModel,
     navController: NavHostController,
-    rutasViewModel: RutasViewModel,
+    routesViewModel: RoutesViewModel,
     homeScreenViewModel: HomeScreenViewModel,
     locationViewModel: LocationViewModel,
     mainViewModel: MainViewModel
@@ -94,17 +94,19 @@ fun NavigationHost(
                 bottomPadding = bottomPadding
             )
         }
-        composable(ThirdScreen.route) {
+        composable(route = ThirdScreen.route) { backStackEntry ->
+//            val routeId = backStackEntry.arguments?.getString("routeId")
             RoutesScreen(
-                viewModel = rutasViewModel,
+//                routeId = routeId!!,
+                viewModel = routesViewModel,
                 navController = navController,
                 bottomPadding = bottomPadding
             )
         }
         composable(RouteDetailScreen.route) {
             RouteDetailScreen(
-                route = rutasViewModel.routeSelected,
-                viewModel = rutasViewModel,
+                route = routesViewModel.routeSelected,
+                viewModel = routesViewModel,
                 navController = navController,
 //                plannerViewModel = plannerViewModel
             )
@@ -113,7 +115,7 @@ fun NavigationHost(
             OptimalRouteScreen(
                 plannerViewModel = plannerViewModel,
                 locationViewModel = locationViewModel,
-                rutasViewModel = rutasViewModel,
+                routesViewModel = routesViewModel,
                 navController = navController,
             )
         }
@@ -121,7 +123,7 @@ fun NavigationHost(
             LocationsSelectionScreen(
                 navController = navController,
                 locationViewModel = locationViewModel,
-                routesViewModel = rutasViewModel
+                routesViewModel = routesViewModel
             )
         }
         composable(

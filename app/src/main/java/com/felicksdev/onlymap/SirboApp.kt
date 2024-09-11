@@ -1,6 +1,6 @@
 package com.felicksdev.onlymap
 
-import RutasViewModel
+import RoutesViewModel
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -16,7 +16,7 @@ import com.felicksdev.onlymap.viewmodel.PlannerViewModel
 @Composable
 fun SirboApp() {
     val navController = rememberNavController()
-    val rutasViewModel = RutasViewModel()
+    val routesViewModel = RoutesViewModel()
     val homeScreenViewModel = HomeScreenViewModel()
     val locationViewModel = LocationViewModel()
     val mainViewModel = MainViewModel()
@@ -35,7 +35,7 @@ fun SirboApp() {
             bottomPadding = bottomPadding,
             plannerViewModel = plannerViewModel,
             navController = navController,
-            rutasViewModel = rutasViewModel,
+            routesViewModel = routesViewModel,
             homeScreenViewModel = homeScreenViewModel,
             locationViewModel = locationViewModel,
             mainViewModel = mainViewModel

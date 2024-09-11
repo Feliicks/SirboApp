@@ -1,6 +1,6 @@
-package com.felicksdev.onlymap.data.models.otpModels
+package com.felicksdev.onlymap.data.models.otpModels.routes
 
-data class RoutesModelItem(
+data class RoutesItem(
     val id : String,
     val agencyName: String,
     val longName: String,

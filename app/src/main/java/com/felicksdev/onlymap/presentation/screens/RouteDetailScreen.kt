@@ -1,6 +1,7 @@
 package com.felicksdev.onlymap.presentation.screens
 
-import RutasViewModel
+import RoutesViewModel
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -18,6 +19,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,12 +28,15 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.felicksdev.onlymap.data.models.otpModels.RouteStopItem
-import com.felicksdev.onlymap.data.models.otpModels.RoutesModelItem
+import com.felicksdev.onlymap.data.models.otpModels.routes.PatternGeometry
+import com.felicksdev.onlymap.data.models.otpModels.routes.RoutesItem
 import com.felicksdev.onlymap.presentation.components.RouteDetailsTopBar
 import com.felicksdev.onlymap.utils.MapConfig
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import com.google.maps.android.PolyUtil
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
@@ -40,14 +46,19 @@ import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
 fun RouteDetailScreen(
-    route: RoutesModelItem,
-    viewModel: RutasViewModel,
+//    routeId: String,
+    route: RoutesItem,
+    viewModel: RoutesViewModel,
     navController: NavController
 ) {
+    val patterGeom = viewModel.selectedPatternGeometry.collectAsState()
+    val points = PolyUtil.decode(patterGeom.value.points)
+    val cameraPositionState = viewModel.cameraPosition.collectAsState()
 
-
+    Log.d("RouteDetailScreen", "Points: $points")
     LaunchedEffect(route.id) {
         viewModel.getRouteStops(route.id)
+        viewModel.getRouteGeometry(route.id)
     }
 
     val stopsList = viewModel.routeSelectePattern.stops
@@ -61,6 +72,8 @@ fun RouteDetailScreen(
         },
         content = { padding ->
             RouteDetailScreenContent(
+                cameraPositionState = cameraPositionState,
+                patternGeom = patterGeom,
                 route = route,
                 stopsList = stopsList,
                 padding = padding
@@ -71,10 +84,19 @@ fun RouteDetailScreen(
 
 @Composable
 fun RouteDetailScreenContent(
-    route: RoutesModelItem,
+    route: RoutesItem,
     stopsList: List<RouteStopItem>,
-    padding: PaddingValues
+    padding: PaddingValues,
+    patternGeom: State<PatternGeometry>,
+    cameraPositionState: State<CameraPosition>
 ) {
+
+    val points = PolyUtil.decode(patternGeom.value.points)
+
+    val cameraState = rememberCameraPositionState {
+        position = cameraPositionState.value
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -94,14 +116,12 @@ fun RouteDetailScreenContent(
         )
 
         Spacer(modifier = Modifier.height(16.dp))
-        val cameraState = rememberCameraPositionState {
-            position = MapConfig.initialState.position
-        }
         Map(
             stops = stopsList,
             mapConfiguration = MapConfig.mapProperties,
             mapUiConfiguration = MapConfig.mapUiConfig,
-            initialState = cameraState
+            initialState = cameraState,
+            points = points
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -120,33 +140,28 @@ fun Map(
     stops: List<RouteStopItem>,
     mapConfiguration: MapProperties,
     mapUiConfiguration: MapUiSettings,
-    initialState: CameraPositionState
+    initialState: CameraPositionState,
+    points: List<LatLng>
 ) {
-    val polyLines = stops.map { LatLng(it.lat, it.lon) }
+    LaunchedEffect(points) {
 
+        try {
+            // Crea los límites (LatLngBounds) a partir de la lista de puntos
+            val boundsBuilder = LatLngBounds.Builder()
+            points.forEach { boundsBuilder.include(it) }
+            val bounds = boundsBuilder.build()
 
-    LaunchedEffect(polyLines) {
-        if (polyLines.isNotEmpty()) {
-            try {
-                // Crea los límites (LatLngBounds) a partir de la lista de puntos
-                val boundsBuilder = LatLngBounds.Builder()
-                polyLines.forEach { boundsBuilder.include(it) }
-                val bounds = boundsBuilder.build()
-
-                // Ejecuta la animación de la cámara en una corrutina dentro de LaunchedEffect
-                initialState.animate(
-                    update = CameraUpdateFactory.newLatLngBounds(bounds, 100)
-                )
-            } catch (e: IllegalStateException) {
-                e.printStackTrace() // Maneja el error para evitar crasheos
-            }
-        } else {
-            // Si no hay puntos, podrías mantener una cámara por defecto
+            // Ejecuta la animación de la cámara en una corrutina dentro de LaunchedEffect
             initialState.animate(
-                update = CameraUpdateFactory.newLatLngZoom(LatLng(0.0, 0.0), 1f) // Ajusta según sea necesario
+                update = CameraUpdateFactory.newLatLngBounds(bounds, 80), // 50 es el padding
+//                durationMs = 1000 // Duración de la animación en milisegundos
             )
+        } catch (e: IllegalStateException) {
+            e.printStackTrace() // Maneja el error para evitar crasheos
         }
+
     }
+
 
     GoogleMap(
         uiSettings = mapUiConfiguration,
@@ -155,7 +170,7 @@ fun Map(
         onMapLoaded = {}
     ) {
         Polyline(
-            points = polyLines,
+            points = points,
             color = Color.Red,
             width = 5f
         )
@@ -185,12 +200,11 @@ fun ParadaItem(stop: RouteStopItem) {
 }
 
 
-
 @Preview(showBackground = true)
 @Composable
 fun PreviewRouteDetailScreen() {
     // Datos de prueba para la ruta
-    val fakeRoute = RoutesModelItem(
+    val fakeRoute = RoutesItem(
         id = "1",
         shortName = "R1",
         longName = "Ruta 1 - Centro",
@@ -201,7 +215,7 @@ fun PreviewRouteDetailScreen() {
 
     RouteDetailScreen(
         route = fakeRoute,
-        viewModel = RutasViewModel(),
+        viewModel = RoutesViewModel(),
         navController = rememberNavController()
     )
 }

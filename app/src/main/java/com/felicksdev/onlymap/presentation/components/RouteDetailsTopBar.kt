@@ -13,7 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
-import com.felicksdev.onlymap.data.models.otpModels.RoutesModelItem
+import com.felicksdev.onlymap.data.models.otpModels.routes.RoutesItem
 import com.felicksdev.onlymap.data.models.rutaTest
 
 fun extractRouteType(longName: String): String {
@@ -29,7 +29,7 @@ fun extractRouteDirection(longName: String): String {
 @Composable
 fun RouteDetailsTopBar(
     modifier: Modifier = Modifier,
-    route: RoutesModelItem,
+    route: RoutesItem,
     navController: NavController
 ) {
 

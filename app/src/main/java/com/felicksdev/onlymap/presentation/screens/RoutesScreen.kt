@@ -1,6 +1,6 @@
 package com.felicksdev.onlymap.presentation.screens
 
-import RutasViewModel
+import RoutesViewModel
 import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,8 +17,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Place
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
@@ -36,14 +36,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.felicksdev.onlymap.data.models.otpModels.RoutesModelItem
+import com.felicksdev.onlymap.data.models.otpModels.routes.RoutesItem
 import com.felicksdev.onlymap.data.models.rutaTest
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoutesScreen(
-    viewModel: RutasViewModel,
+    viewModel: RoutesViewModel,
     navController: NavController
 ) {
     val state = viewModel.state
@@ -56,8 +56,7 @@ fun RoutesScreen(
         onDispose { /* Cleanup, si es necesario */ }
     }
 
-    Surface(
-    ) {
+    Surface {
         //color = MaterialTheme.colorScheme.background
         Column {
             Log.d("RoutesScreen", "Rutas obtenidas ${viewModel.routesList}")
@@ -78,19 +77,19 @@ fun RoutesScreen(
                             //navController.navigate("fragment_addresses")
                         }
                     )
-                    Divider() // Agrega un separador entre elementos, si lo deseas
+                    HorizontalDivider() // Agrega un separador entre elementos, si lo deseas
                 }
             }
         }
     }
 }
+
 fun cortarCadena(cadena: String): String {
     var partes = cadena.split("→")
 
 //    println(partes.last())
-    return  partes.last()
+    return partes.last()
 }
-
 
 
 fun camelCase(string: String, delimiter: String = " ", separator: String = " "): String {
@@ -116,7 +115,7 @@ fun validateString(string: String): String {
 }
 
 @Composable
-fun RouteItem(ruta: RoutesModelItem, navigateToDetail: () -> Unit) {
+fun RouteItem(ruta: RoutesItem, navigateToDetail: () -> Unit) {
     OutlinedCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -140,11 +139,11 @@ fun RouteItem(ruta: RoutesModelItem, navigateToDetail: () -> Unit) {
 
                 ) {
                 Text(text = ruta.shortName, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(4.dp))
+//                Spacer(modifier = Modifier.height(2.dp))
                 //Text(text = "Línea ${ruta.id}", color = Color.Gray, fontSize = 14.sp)
                 //Text(text = validateString(ruta.tipo_vehiculo.tipo_vehiculo), color = Color.Gray, fontSize = 14.sp)
                 Text(
-                    text = ruta.mode ?: "No disponible",
+                    text = ruta.mode,
                     color = Color.Gray,
                     fontSize = 14.sp
                 )
@@ -157,7 +156,7 @@ fun RouteItem(ruta: RoutesModelItem, navigateToDetail: () -> Unit) {
                     .weight(1f)
                     .padding(5.dp)
             ) {
-                Text(text = "Hacia: ${cortarCadena (ruta.longName)}")
+                Text(text = "Hacia: ${cortarCadena(ruta.longName)}")
 
                 val recorridoArr = ruta.longName.split(", ")
 //                Text(text = "${validateString(recorridoArr[0])} - ${validateString(recorridoArr[recorridoArr.size - 1])}")

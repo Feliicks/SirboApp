@@ -63,10 +63,6 @@ fun HomeScreen(
                 navController = navController
             )
         },
-        bottomBar = {
-
-//            BottomDetail(scaffoldState = scaffoldState, legs = listOf(Leg(), Leg()))
-        }
     ) { padding ->
         val fullPading = bottomPadding.plus(padding)
         HomeScreenContent(
@@ -120,7 +116,8 @@ fun HomeScreenContent(
 
             MyMap(
                 cameraPositionState = cameraPositionState,
-                padding = innerPadding
+                padding = innerPadding,
+                itinerary = planResult?.itineraries?.get(0)
             )
 
         }

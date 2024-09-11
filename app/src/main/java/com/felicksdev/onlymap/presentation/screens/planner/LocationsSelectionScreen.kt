@@ -44,7 +44,7 @@ private fun LocationsSelectionScreenPreview() {
     LocationsSelectionScreen(
         locationViewModel = LocationViewModel(),
         navController = rememberNavController(),
-        routesViewModel = RutasViewModel()
+        routesViewModel = RoutesViewModel()
     )
 }
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -52,7 +52,7 @@ private fun LocationsSelectionScreenPreview() {
 fun LocationsSelectionScreen(
     locationViewModel: LocationViewModel,
     navController: NavController,
-    routesViewModel: RutasViewModel
+    routesViewModel: RoutesViewModel
 ) {
     // Inicializar el GeoCoder y obtener la dirección al llegar a la pantalla
     val context = LocalContext.current
@@ -104,7 +104,7 @@ fun LocationsSelectionScreen(
 fun LocationsOptions(
     navController: NavController,
     locationViewModel: LocationViewModel,
-    routesViewModel: RutasViewModel,
+    routesViewModel: RoutesViewModel,
 ) {
     Column(
         modifier = Modifier

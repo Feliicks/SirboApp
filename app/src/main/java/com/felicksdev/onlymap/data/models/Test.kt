@@ -1,7 +1,7 @@
 package com.felicksdev.onlymap.data.models
 
-import RutasViewModel
-import com.felicksdev.onlymap.data.models.otpModels.RoutesModelItem
+import RoutesViewModel
+import com.felicksdev.onlymap.data.models.otpModels.routes.RoutesItem
 import com.felicksdev.onlymap.data.models.otpModels.routing.FromLeg
 import com.felicksdev.onlymap.data.models.otpModels.routing.FromX
 import com.felicksdev.onlymap.data.models.otpModels.routing.Leg
@@ -12,7 +12,7 @@ import com.felicksdev.onlymap.data.models.otpModels.routing.ToX
 import com.felicksdev.onlymap.viewmodel.LocationViewModel
 import com.google.android.gms.maps.model.LatLng
 
-val rutaTest = RoutesModelItem(
+val rutaTest = RoutesItem(
     id = "893",
     agencyName = "default",
     longName = "MiniBus 893: Reyesano → Rio Abuná",
@@ -129,7 +129,7 @@ fun LocationViewModel.setTestData() {
     )
 }
 
-fun RutasViewModel.setTestRoutes() {
+fun RoutesViewModel.setTestRoutes() {
     // Simula datos de rutas óptimas para la vista previa
 //    optimalRouteLegs = com.felicksdev.onlymap.data.models.sampleLegs
 

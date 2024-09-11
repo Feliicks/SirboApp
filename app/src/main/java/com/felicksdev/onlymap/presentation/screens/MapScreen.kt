@@ -40,6 +40,7 @@ import com.felicksdev.onlymap.viewmodel.PlannerViewModel
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.maps.android.compose.CameraPositionState
+import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -54,7 +55,7 @@ fun MapScreen(
     navController: NavController,
     plannerViewModel: PlannerViewModel
 ) {
-
+    val state by plannerViewModel.plannerState.collectAsState()
     var debouncedLatLng by remember { mutableStateOf(cameraPositionState.position.target) }
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(cameraPositionState.isMoving) {
@@ -92,7 +93,10 @@ fun MapScreen(
                     // Verifica si ambos lugares están definidos
                     val isPlacesDefined = plannerViewModel.isPlacesDefined()
 //                    Log.d("ChooseLocationsScreen", "is places defined: $isPlacesDefined")
-                    Log.d("ChooseLocationsScreen", "is places test defined: ${plannerViewModel.isPlacesDefined()}")
+                    Log.d(
+                        "ChooseLocationsScreen",
+                        "is places test defined: ${plannerViewModel.isPlacesDefined()}"
+                    )
 
                     // Navega según el estado de isPlacesDefined
                     if (isPlacesDefined) {
@@ -113,7 +117,8 @@ fun MapScreen(
         MapContent(
             viewModel = viewModel,
             padding = padding,
-            cameraPositionState = cameraPositionState
+            cameraPositionState = cameraPositionState,
+            isPlacesDefined = state.isPlacesDefined
         )
         Column {
             Text(text = "Origen: ${viewModel.originLocationState.value!!.address}")
@@ -125,7 +130,8 @@ fun MapScreen(
 fun MapContent(
     viewModel: LocationViewModel,
     padding: PaddingValues,
-    cameraPositionState: CameraPositionState
+    cameraPositionState: CameraPositionState,
+    isPlacesDefined: Boolean,
 ) {
     val myCameraPositionState = remember { cameraPositionState }
     val startLocationState by viewModel.startLocation.collectAsState()
@@ -161,24 +167,26 @@ fun MapContent(
             .padding(padding)
     ) {
         MyMap(
-            cameraPositionState = myCameraPositionState
-        ) {
-//            Marker(
-//                state = MarkerState(position = cameraPosition),
-//                icon = markerIcon,
-//                visible = !cameraPositionState.isMoving
-//            )
-//            Marker(
-//                state = MarkerState(position = startLocationState.coordinates),
-//                icon = markerIcon,
-//                title = "Origen"
-//            )
-//            Marker(
-//                state = MarkerState(position = endLocationState.coordinates),
-//                icon = markerIcon,
-//                title = "Destino"
-//            )
-        }
+            isplacesDefined = isPlacesDefined,
+            cameraPositionState = myCameraPositionState,
+            markers = {
+//                Marker(
+//                    state = MarkerState(position = cameraPosition),
+//                    icon = markerIcon,
+//                    visible = !cameraPositionState.isMoving
+//                )
+                Marker(
+                    state = MarkerState(position = startLocationState.coordinates),
+
+                    title = "Origen"
+                )
+                Marker(
+                    state = MarkerState(position = endLocationState.coordinates),
+
+                    title = "Destino"
+                )
+            }
+        )
         Column(
             modifier = Modifier.fillMaxSize(),
 //                .padding(16.dp),

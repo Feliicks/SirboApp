@@ -1,6 +1,6 @@
 package com.felicksdev.onlymap.presentation.screens
 
-import RutasViewModel
+import RoutesViewModel
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,10 +49,10 @@ import kotlinx.coroutines.launch
 fun OptimalRoutesScreen(
     mainViewModel: MainViewModel,
     locationViewModel: LocationViewModel,
-    rutasViewModel: RutasViewModel,
+    routesViewModel: RoutesViewModel,
     navController: NavController,
 ) {
-    val errorState by rutasViewModel.errorState.collectAsState()
+    val errorState by routesViewModel.errorState.collectAsState()
     Log.d("MapScreen", "El estado de error es ${errorState}")
     val scope = rememberCoroutineScope()
     val isSheetOpen = rememberSaveable {
@@ -71,7 +71,7 @@ fun OptimalRoutesScreen(
 
     LaunchedEffect(key1 = originLocation) {
         //Hacer peticion al servidor yguradar lista de rutas en ajá
-        rutasViewModel.getOptimalRoutes(originLocation, destinationLocation)
+        routesViewModel.getOptimalRoutes(originLocation, destinationLocation)
     }
 
 
@@ -88,7 +88,7 @@ fun OptimalRoutesScreen(
             cameraPositionState = cameraPositionState
         ) {
 
-            optimalRoutesLeg = rutasViewModel.optimalRouteLegs
+            optimalRoutesLeg = routesViewModel.optimalRouteLegs
             Log.d("OptimalRoutesScreen", "Se tiene ${optimalRoutesLeg.size} legs")
             if (optimalRoutesLeg.isNotEmpty()) {
                 Log.d("OptimalRoutesScreen", "optimalRoutesLeg: $optimalRoutesLeg")
@@ -171,14 +171,14 @@ fun OptimalRoutesScreen(
             }
             if (errorState != null) {
                 AlertDialog(
-                    onDismissRequest = { rutasViewModel.clearError() },
+                    onDismissRequest = { routesViewModel.clearError() },
                     title = { Text(text = "Error") },
                     text = {
                         Text(text = errorState ?: "Error desconocido")
 
                     },
                     confirmButton = {
-                        Button(onClick = { rutasViewModel.clearError() }) {
+                        Button(onClick = { routesViewModel.clearError() }) {
                             Text("OK")
                         }
                     }
@@ -199,7 +199,7 @@ fun PreviewOptimalRoutesScreen() {
     OptimalRoutesScreen(
         mainViewModel = MainViewModel(),
         locationViewModel = LocationViewModel(),
-        rutasViewModel = RutasViewModel(),
+        routesViewModel = RoutesViewModel(),
         navController = navController,
     )
 }

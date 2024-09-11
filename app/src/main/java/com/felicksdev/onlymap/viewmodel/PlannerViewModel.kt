@@ -77,6 +77,7 @@ class PlannerViewModel : ViewModel() {
     }
 
     fun reset() {
+        _planResult.value = null
         _plannerState.update { currentState ->
             currentState.copy(
                 fromPlace = null,

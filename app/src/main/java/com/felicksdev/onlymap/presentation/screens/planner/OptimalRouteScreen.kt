@@ -2,7 +2,7 @@
 
 package com.felicksdev.onlymap.presentation.screens.planner
 
-import RutasViewModel
+import RoutesViewModel
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -56,7 +56,7 @@ fun OptimalRouteScreen(
     plannerViewModel: PlannerViewModel,
     navController: NavController,
     locationViewModel: LocationViewModel,
-    rutasViewModel: RutasViewModel,
+    routesViewModel: RoutesViewModel,
 ) {
     Scaffold(
         topBar = {
@@ -74,7 +74,7 @@ fun OptimalRouteScreen(
     ) { padding ->
         OptimalRoutesScreenContent(
             locationViewModel = locationViewModel,
-            rutasViewModel = rutasViewModel,
+            routesViewModel = routesViewModel,
             padding = padding
         )
     }
@@ -84,10 +84,10 @@ fun OptimalRouteScreen(
 @Composable
 fun OptimalRoutesScreenContent(
     locationViewModel: LocationViewModel,
-    rutasViewModel: RutasViewModel,
+    routesViewModel: RoutesViewModel,
     padding: PaddingValues
 ) {
-    val errorState by rutasViewModel.errorState.collectAsState()
+    val errorState by routesViewModel.errorState.collectAsState()
     Log.d("MapScreen", "El estado de error es ${errorState}")
     val scope = rememberCoroutineScope()
     val isSheetOpen = rememberSaveable {
@@ -106,7 +106,7 @@ fun OptimalRoutesScreenContent(
 
     LaunchedEffect(key1 = originLocation) {
         //Hacer peticion al servidor yguradar lista de rutas en ajá
-        rutasViewModel.getOptimalRoutes(originLocation, destinationLocation)
+        routesViewModel.getOptimalRoutes(originLocation, destinationLocation)
     }
 
 
@@ -124,7 +124,7 @@ fun OptimalRoutesScreenContent(
             cameraPositionState = cameraPositionState
         ) {
 
-            optimalRoutesLeg = rutasViewModel.optimalRouteLegs
+            optimalRoutesLeg = routesViewModel.optimalRouteLegs
             Log.d("OptimalRoutesScreen", "Se tiene ${optimalRoutesLeg.size} legs")
             if (optimalRoutesLeg.isNotEmpty()) {
                 Log.d("OptimalRoutesScreen", "optimalRoutesLeg: $optimalRoutesLeg")
@@ -193,14 +193,14 @@ fun OptimalRoutesScreenContent(
             }
             if (errorState != null) {
                 AlertDialog(
-                    onDismissRequest = { rutasViewModel.clearError() },
+                    onDismissRequest = { routesViewModel.clearError() },
                     title = { Text(text = "Error") },
                     text = {
                         Text(text = errorState ?: "Error desconocido")
 
                     },
                     confirmButton = {
-                        Button(onClick = { rutasViewModel.clearError() }) {
+                        Button(onClick = { routesViewModel.clearError() }) {
                             Text("OK")
                         }
                     }
@@ -216,7 +216,7 @@ fun OptimalRoutesScreenContent(
 private fun OptimalRouteScreenPreview() {
     OptimalRouteScreen(
         locationViewModel = LocationViewModel(),
-        rutasViewModel = RutasViewModel(),
+        routesViewModel = RoutesViewModel(),
         plannerViewModel = PlannerViewModel(),
         navController = rememberNavController()
     )

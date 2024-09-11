@@ -1,6 +1,6 @@
 package com.felicksdev.onlymap.presentation.screens.main
 
-import RutasViewModel
+import RoutesViewModel
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,7 +12,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.felicksdev.onlymap.navigation.Destinations.RouteDetailScreen
 import com.felicksdev.onlymap.navigation.plus
@@ -23,16 +28,15 @@ import com.felicksdev.onlymap.presentation.screens.SearchBar
 @Composable
 fun RoutesScreenContent(
     bottomPadding: PaddingValues,
-    viewModel: RutasViewModel,
+    viewModel: RoutesViewModel,
     navController: NavController
 ) {
-    val listRutas = viewModel.routesList
+    val listRutas by viewModel.routesList.collectAsState()
+//    val listRutas = viewModel.routesList
+    //Hacer fetch a index Routes aqui
     Log.d("ThirdScreen", "Rutas obtenidas ${listRutas}")
-
     Column(modifier = Modifier.padding(bottomPadding)) {
-
         SearchBar()
-        Text(text = "Hello, this is the Routes screen!")
         LazyColumn {
             items(listRutas) { ruta ->
                 RouteItem(
@@ -45,7 +49,12 @@ fun RoutesScreenContent(
                             "Routes Screen Ruta seleccina ",
                             "Ruta establecida en el viewmodel sss ${viewModel.routeSelected}"
                         )
+                        Log.d(
+                            "Routes Screen Ruta seleccina ",
+                            "Ruta establecida en el viewmodel sss ${ruta}"
+                        )
                         if (viewModel.routeSelected != null) {
+//                            navController.navigate(RouteDetailScreen.route + "/${ruta.id}")
                             navController.navigate(RouteDetailScreen.route)
 //                                navController.navigate(RouteDetailScreen.routeDetailScreenRoute)
                         }
@@ -60,16 +69,15 @@ fun RoutesScreenContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoutesScreen(
-    viewModel: RutasViewModel,
+    viewModel: RoutesViewModel,
     navController: NavController,
     bottomPadding: PaddingValues
 ) {
-
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "Explorar lineas de transporte")
+                    Text(text = "Busca lineas de transporte")
                 }
             )
         }
@@ -84,13 +92,13 @@ fun RoutesScreen(
     }
 }
 
-//@Preview(showSystemUi = true)
-//@Composable
-//fun ThirdScreenPreview(modifier: Modifier = Modifier) {
-//    ThirdScreen(
-//        viewModel = RutasViewModel(),
-//        defaultPadding = PaddingValues(0.dp),
-//        navController = NavController(LocalContext.current)
-//    )
-//}
+@Preview(showSystemUi = true)
+@Composable
+fun ThirdScreenPreview(modifier: Modifier = Modifier) {
+    RoutesScreen(
+        viewModel = RoutesViewModel(),
+        bottomPadding = PaddingValues(0.dp),
+        navController = NavController(LocalContext.current)
+    )
+}
 

@@ -9,12 +9,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
-import com.felicksdev.onlymap.data.models.otpModels.RoutesModelItem
+import com.felicksdev.onlymap.data.models.otpModels.routes.RoutesItem
 
 @ExperimentalMaterial3Api
 @Composable
 fun RouteDetailsTopBar(
-    route: RoutesModelItem,
+    route: RoutesItem,
     navController: NavController
 ) {
     TopAppBar(
