@@ -354,7 +354,7 @@ fun SmallLocationFormField(
                 trailing?.let { icon ->
                     IconButton(
                         onClick = { onTrailingClick() },
-                        modifier = Modifier.size(50.dp)
+                        modifier = Modifier.size(45.dp)
                     ) {
                         Icon(
                             imageVector = icon,
@@ -477,21 +477,6 @@ fun PreviewLocationFormField() {
             trailing = Icons.Default.Close,
             plannerViewModel = PlannerViewModel()
 
-        )
-    }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewRouterPlannerBar() {
-    val previewViewModel = PlannerViewModel()
-
-    MaterialTheme {
-        RouterPlannerBar(
-            plannerViewModel = previewViewModel,
-            onMenuClick = { /* Acción del menú */ },
-            navController = rememberNavController()
         )
     }
 }
