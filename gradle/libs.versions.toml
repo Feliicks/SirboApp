@@ -27,6 +27,12 @@ fragmentKtx = "1.6.2"
 activityKtx = "1.8.1"
 livedataKtx = "2.8.5"
 mapsCompose = "4.0.0"
+googleAccompanist = "0.36.0"
+
+daggerHilt ="2.51.1"
+hiltCompose = "1.2.0"
+
+
 [libraries]
 # Testing
 junit = { module = "junit:junit", version.ref = "junit" }
@@ -60,9 +66,19 @@ activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activ
 livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "livedataKtx" }
 maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose" }
 compose-navigation = {module = "androidx.navigation:navigation-compose", version.ref = "navVersion"}
+google-accompanist = { module = "com.google.accompanist:accompanist-permissions", version.ref = "googleAccompanist" }
+
+
+dagger-hilt-android = {module ="com.google.dagger:hilt-android", version.ref = "daggerHilt"}
+dagger-hilt-compiler = {module = "com.google.dagger:hilt-android-compiler", version.ref = "daggerHilt"}
+dagger-hilt-compose  = {module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltCompose"}
+
 [plugins]
+#devtools-ksp = { id = "com.google.devtools.ksp", version = "2.0.0-1.0.24" }
+dagger-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "daggerHilt" }
+
 android-application = { id = "com.android.application", version = "8.1.0" } # Asegúrate de poner la versión que uses
-android-library = { id = "com.android.library", version = "8.3.2" } # Asegúrate de poner la versión que uses
+android-library = { id = "com.android.library", version = "8.6.0" } # Asegúrate de poner la versión que uses
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" } # Asegúrate de poner la versión de Kotlin correcta
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 google-services = { id = "com.google.gms.google-services", version = "4.3.15" }

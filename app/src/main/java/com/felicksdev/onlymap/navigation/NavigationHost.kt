@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -32,7 +33,6 @@ import com.felicksdev.onlymap.presentation.screens.planner.OptimalRouteScreen
 import com.felicksdev.onlymap.utils.MapConfig
 import com.felicksdev.onlymap.viewmodel.HomeScreenViewModel
 import com.felicksdev.onlymap.viewmodel.LocationViewModel
-import com.felicksdev.onlymap.viewmodel.MainViewModel
 import com.felicksdev.onlymap.viewmodel.PlannerViewModel
 
 val MAIN_DESTINATIONS = listOf(
@@ -46,10 +46,10 @@ fun NavigationHost(
     bottomPadding: PaddingValues,
     plannerViewModel: PlannerViewModel,
     navController: NavHostController,
-    routesViewModel: RoutesViewModel,
+    routesViewModel: RoutesViewModel = hiltViewModel(),
     homeScreenViewModel: HomeScreenViewModel,
     locationViewModel: LocationViewModel,
-    mainViewModel: MainViewModel
+
 ) {
     val cameraPositionState = remember { MapConfig.initialState }
     NavHost(navController = navController, startDestination = HomeScreen.route,
@@ -97,8 +97,6 @@ fun NavigationHost(
         composable(route = ThirdScreen.route) { backStackEntry ->
 //            val routeId = backStackEntry.arguments?.getString("routeId")
             RoutesScreen(
-//                routeId = routeId!!,
-                viewModel = routesViewModel,
                 navController = navController,
                 bottomPadding = bottomPadding
             )
@@ -106,7 +104,7 @@ fun NavigationHost(
         composable(RouteDetailScreen.route) {
             RouteDetailScreen(
                 route = routesViewModel.routeSelected,
-                viewModel = routesViewModel,
+
                 navController = navController,
 //                plannerViewModel = plannerViewModel
             )
@@ -115,7 +113,7 @@ fun NavigationHost(
             OptimalRouteScreen(
                 plannerViewModel = plannerViewModel,
                 locationViewModel = locationViewModel,
-                routesViewModel = routesViewModel,
+
                 navController = navController,
             )
         }
@@ -123,7 +121,7 @@ fun NavigationHost(
             LocationsSelectionScreen(
                 navController = navController,
                 locationViewModel = locationViewModel,
-                routesViewModel = routesViewModel
+
             )
         }
         composable(

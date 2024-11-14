@@ -17,7 +17,9 @@ import com.felicksdev.onlymap.navigation.Destinations.SecondScreen
 import com.felicksdev.onlymap.navigation.Destinations.ThirdScreen
 import com.felicksdev.onlymap.presentation.components.bottomBars.BottomNavigationBar
 import com.felicksdev.onlymap.viewmodel.LocationViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity2 : AppCompatActivity() {
     // TODO  Validacion de que si el eusautio tiene permisos de ubicacion
 

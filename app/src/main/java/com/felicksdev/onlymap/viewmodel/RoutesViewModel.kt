@@ -1,3 +1,4 @@
+
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,12 +19,15 @@ import com.felicksdev.onlymap.services.network.RetrofitHelper
 import com.felicksdev.onlymap.utils.MapConfig
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class RoutesViewModel : ViewModel() {
+
+class RoutesViewModel @Inject constructor() : ViewModel() {
 
     var state by mutableStateOf(RutaState())
         private set
@@ -117,7 +121,7 @@ class RoutesViewModel : ViewModel() {
     private fun obtenerRutas() {
         viewModelScope.launch {
             try {
-                val resultado = RetrofitHelper.getRetrofit().indexRoutes()
+                val resultado = RetrofitHelper.otpRetrofit().indexRoutes()
 
                 _routesList.value = resultado.body() ?: Routes()
                 Log.d("RutasViewModel", "Rutas obtenidas $routesList")
@@ -137,7 +141,7 @@ class RoutesViewModel : ViewModel() {
     fun getRouteGeometry(patternId: String) {
         viewModelScope.launch {
             try {
-                val resultado = RetrofitHelper.getRetrofit().getGeomByPattern("$patternId::01")
+                val resultado = RetrofitHelper.otpRetrofit().getGeomByPattern("$patternId::01")
                 _selectedPatternGeometry.value = resultado.body() ?: PatternGeometry()
                 // Manejar el caso en que la llamada no fue exitosa
 
@@ -171,12 +175,12 @@ class RoutesViewModel : ViewModel() {
     fun getRouteStops(id: String) {
         viewModelScope.launch {
             try {
-                val resultado = RetrofitHelper.getRetrofit().getPatternByRouteId(id)
+                val resultado = RetrofitHelper.otpRetrofit().getPatternByRouteId(id)
                 Log.d("RutasViewModel", "primer rqe enviado es " + resultado)
                 if (resultado.isSuccessful) {
                     routePatterns = resultado.body() ?: emptyList()
                     Log.d("RutasViewModel", "paradas o obtenidas $routePatterns")
-                    var patternRespose = RetrofitHelper.getRetrofit()
+                    var patternRespose = RetrofitHelper.otpRetrofit()
                         .getPatternDetailsByPatternId(routePatterns[0].id)
                     Log.d("RutasViewModel", "segundo rqe enviado es " + patternRespose)
                     routeSelectePattern = patternRespose.body()!!
@@ -204,7 +208,7 @@ class RoutesViewModel : ViewModel() {
     fun getOptimalRoutes(fromLocation: AddressState, toLocation: AddressState) {
         viewModelScope.launch {
             try {
-                val resultado = RetrofitHelper.getRetrofit().getOptimalRoutes(
+                val resultado = RetrofitHelper.otpRetrofit().getOptimalRoutes(
                     fromLocation.coordinates.toApiString(), toLocation.coordinates.toApiString()
                 )
                 Log.d("RutasViewModel", "resultado de la ruta optima es " + resultado.body())

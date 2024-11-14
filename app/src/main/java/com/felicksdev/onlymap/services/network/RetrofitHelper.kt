@@ -11,7 +11,7 @@ object RetrofitHelper {
         .connectTimeout(20, TimeUnit.SECONDS)
         .readTimeout(60, TimeUnit.SECONDS)
         .build()
-    fun getRetrofit(): MyApiService {
+    fun otpRetrofit(): MyApiService {
         return Retrofit.Builder()
 //            .baseUrl("http://10.0.2.2:8080/")
             .baseUrl("http://192.168.1.216:8080/")
@@ -20,4 +20,13 @@ object RetrofitHelper {
             .build()
             .create(MyApiService::class.java)
     }
+    // Retrofit instance for Photon Komoot
+    private val photonRetrofit: Retrofit by lazy {
+        Retrofit.Builder()
+            .baseUrl("https://api.photon.komoot.io") // Cambia a tu URL
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
 }

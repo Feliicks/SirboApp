@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.felicksdev.onlymap.navigation.Destinations.RouteDetailScreen
 import com.felicksdev.onlymap.navigation.plus
@@ -28,7 +29,7 @@ import com.felicksdev.onlymap.presentation.screens.SearchBar
 @Composable
 fun RoutesScreenContent(
     bottomPadding: PaddingValues,
-    viewModel: RoutesViewModel,
+    viewModel: RoutesViewModel = hiltViewModel(),
     navController: NavController
 ) {
     val listRutas by viewModel.routesList.collectAsState()
@@ -69,7 +70,7 @@ fun RoutesScreenContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoutesScreen(
-    viewModel: RoutesViewModel,
+    viewModel: RoutesViewModel = hiltViewModel(),
     navController: NavController,
     bottomPadding: PaddingValues
 ) {

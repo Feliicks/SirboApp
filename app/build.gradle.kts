@@ -4,6 +4,13 @@ plugins {
     alias(libs.plugins.secrets.gradle)
     alias(libs.plugins.google.services)
     alias(libs.plugins.compose.compiler)
+
+//    DI
+    kotlin("kapt")
+//    alias(libs.plugins.devtools.ksp)
+    alias(libs.plugins.dagger.hilt.android)
+//    alias (libs.plugins.dagger.plugin)
+
 }
 android {
     namespace = "com.felicksdev.onlymap"
@@ -120,6 +127,8 @@ dependencies {
     implementation(libs.maps.compose)
     implementation(libs.compose.navigation)
 
+    implementation(libs.google.accompanist)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.test.junit)
     androidTestImplementation(libs.espresso.core)
@@ -128,4 +137,15 @@ dependencies {
     debugImplementation(libs.ui.tooling)
     debugImplementation(libs.ui.test.manifest)
 
+    // DI
+    implementation(libs.dagger.hilt.android)
+    implementation(libs.dagger.hilt.compose)
+//    ksp(libs.dagger.hilt.compiler)
+//    implementation(libs.dagger.hilt.compiler)
+    kapt(libs.dagger.hilt.compiler)
+
+
+}
+kapt {
+    correctErrorTypes = true
 }

@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.felicksdev.onlymap.data.models.otpModels.RouteStopItem
@@ -46,9 +47,8 @@ import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
 fun RouteDetailScreen(
-//    routeId: String,
     route: RoutesItem,
-    viewModel: RoutesViewModel,
+    viewModel: RoutesViewModel = hiltViewModel(),
     navController: NavController
 ) {
     val patterGeom = viewModel.selectedPatternGeometry.collectAsState()
@@ -215,7 +215,6 @@ fun PreviewRouteDetailScreen() {
 
     RouteDetailScreen(
         route = fakeRoute,
-        viewModel = RoutesViewModel(),
         navController = rememberNavController()
     )
 }

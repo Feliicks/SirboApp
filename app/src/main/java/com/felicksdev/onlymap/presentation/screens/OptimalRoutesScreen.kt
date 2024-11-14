@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.felicksdev.onlymap.data.models.AddressState
@@ -49,7 +50,7 @@ import kotlinx.coroutines.launch
 fun OptimalRoutesScreen(
     mainViewModel: MainViewModel,
     locationViewModel: LocationViewModel,
-    routesViewModel: RoutesViewModel,
+    routesViewModel: RoutesViewModel = hiltViewModel(),
     navController: NavController,
 ) {
     val errorState by routesViewModel.errorState.collectAsState()
@@ -199,7 +200,6 @@ fun PreviewOptimalRoutesScreen() {
     OptimalRoutesScreen(
         mainViewModel = MainViewModel(),
         locationViewModel = LocationViewModel(),
-        routesViewModel = RoutesViewModel(),
         navController = navController,
     )
 }

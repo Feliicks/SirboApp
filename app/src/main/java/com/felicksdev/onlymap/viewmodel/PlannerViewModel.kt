@@ -16,8 +16,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class PlannerViewModel : ViewModel() {
+//@HiltViewModel
+class PlannerViewModel @Inject constructor()
+: ViewModel() {
     private val _plannerState = MutableStateFlow(RoutePlanner())
     val plannerState: StateFlow<RoutePlanner> = _plannerState.asStateFlow()
 
@@ -93,7 +96,7 @@ class PlannerViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 _isLoading.value = true
-                val resultado = RetrofitHelper.getRetrofit().fetchItineraries(
+                val resultado = RetrofitHelper.otpRetrofit().fetchItineraries(
 //                    fromPlace = _plannerState.value.getFromCoordinates(),
 //                    toPlace = _plannerState.value.getToCoordinates()
                     fromPlace = "-16.49561, -68.15080",

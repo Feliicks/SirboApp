@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.felicksdev.onlymap.navigation.Destinations.LocationsSelectionScreen
@@ -52,7 +53,7 @@ private fun LocationsSelectionScreenPreview() {
 fun LocationsSelectionScreen(
     locationViewModel: LocationViewModel,
     navController: NavController,
-    routesViewModel: RoutesViewModel
+    routesViewModel: RoutesViewModel = hiltViewModel()
 ) {
     // Inicializar el GeoCoder y obtener la dirección al llegar a la pantalla
     val context = LocalContext.current
