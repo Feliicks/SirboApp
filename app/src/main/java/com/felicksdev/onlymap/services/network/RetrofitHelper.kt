@@ -1,5 +1,6 @@
 package com.felicksdev.onlymap.services.network
 
+import com.felicksdev.onlymap.data.api.OtpService
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -11,14 +12,14 @@ object RetrofitHelper {
         .connectTimeout(20, TimeUnit.SECONDS)
         .readTimeout(60, TimeUnit.SECONDS)
         .build()
-    fun otpRetrofit(): MyApiService {
+    fun otpRetrofit(): OtpService {
         return Retrofit.Builder()
 //            .baseUrl("http://10.0.2.2:8080/")
             .baseUrl("http://192.168.1.216:8080/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(MyApiService::class.java)
+            .create(OtpService::class.java)
     }
     // Retrofit instance for Photon Komoot
     private val photonRetrofit: Retrofit by lazy {

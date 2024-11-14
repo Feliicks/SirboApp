@@ -217,8 +217,7 @@ fun OptimalRoutesScreenContent(
 private fun OptimalRouteScreenPreview() {
     OptimalRouteScreen(
         locationViewModel = LocationViewModel(),
-        routesViewModel = RoutesViewModel(),
-        plannerViewModel = PlannerViewModel(),
+        plannerViewModel = hiltViewModel(),
         navController = rememberNavController()
     )
 }

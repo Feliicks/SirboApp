@@ -9,9 +9,15 @@ plugins  {
     alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.secrets.gradle) apply false
     alias(libs.plugins.compose.compiler) apply false
-    id("org.jetbrains.kotlin.kapt") version "2.0.0" apply false
+
+
+    alias(libs.plugins.ksp) apply false
+
+//    id("org.jetbrains.kotlin.kapt") version "2.0.0" apply false
 //    kotlin("kapt") apply false
 //    alias(libs.plugins.devtools.ksp) apply false
-    alias(libs.plugins.dagger.hilt.android) apply false
-    
+//    alias(libs.plugins.dagger.hilt.android) apply false
+    alias(libs.plugins.hilt) apply false
+
+
 }

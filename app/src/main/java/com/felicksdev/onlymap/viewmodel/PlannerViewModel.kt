@@ -5,12 +5,13 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.felicksdev.onlymap.TrufiLocation
+import com.felicksdev.onlymap.data.api.OtpService
 import com.felicksdev.onlymap.data.models.RoutePlanner
 import com.felicksdev.onlymap.data.models.otpModels.routing.Plan
-import com.felicksdev.onlymap.services.network.RetrofitHelper
 import com.felicksdev.onlymap.utils.MapConfig
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,8 +19,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-//@HiltViewModel
-class PlannerViewModel @Inject constructor()
+@HiltViewModel
+class PlannerViewModel @Inject constructor(
+    private val otpApiService: OtpService
+)
 : ViewModel() {
     private val _plannerState = MutableStateFlow(RoutePlanner())
     val plannerState: StateFlow<RoutePlanner> = _plannerState.asStateFlow()
@@ -96,7 +99,7 @@ class PlannerViewModel @Inject constructor()
         viewModelScope.launch {
             try {
                 _isLoading.value = true
-                val resultado = RetrofitHelper.otpRetrofit().fetchItineraries(
+                val resultado = otpApiService.fetchItineraries(
 //                    fromPlace = _plannerState.value.getFromCoordinates(),
 //                    toPlace = _plannerState.value.getToCoordinates()
                     fromPlace = "-16.49561, -68.15080",

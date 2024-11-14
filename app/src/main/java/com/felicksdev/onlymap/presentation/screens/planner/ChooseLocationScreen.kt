@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.felicksdev.onlymap.navigation.Destinations.MapScreen
@@ -56,7 +57,7 @@ private fun LocationsSelectionScreenPreview() {
     ChooseLocationsScreen(
         navController = rememberNavController(),
         isOrigin = true,
-        plannerViewModel = PlannerViewModel()
+        plannerViewModel = hiltViewModel()
     )
 }
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")

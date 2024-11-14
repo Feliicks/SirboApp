@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.0.0"
+kotlin = "2.0.20"
 compose = "1.7.0"
 navVersion = "2.8.0"
 coreKtx = "1.7.0"
@@ -31,7 +31,9 @@ googleAccompanist = "0.36.0"
 
 daggerHilt ="2.51.1"
 hiltCompose = "1.2.0"
-
+hilt = "2.52"
+androidxHiltNavigationCompose = "1.2.0"
+ksp = "2.0.20-1.0.25"
 
 [libraries]
 # Testing
@@ -68,15 +70,18 @@ maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = 
 compose-navigation = {module = "androidx.navigation:navigation-compose", version.ref = "navVersion"}
 google-accompanist = { module = "com.google.accompanist:accompanist-permissions", version.ref = "googleAccompanist" }
 
+androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidxHiltNavigationCompose" }
+hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
+ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 
-dagger-hilt-android = {module ="com.google.dagger:hilt-android", version.ref = "daggerHilt"}
-dagger-hilt-compiler = {module = "com.google.dagger:hilt-android-compiler", version.ref = "daggerHilt"}
-dagger-hilt-compose  = {module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltCompose"}
+#dagger-hilt-compiler = {module = "com.google.dagger:hilt-android-compiler", version.ref = "daggerHilt"}
 
 [plugins]
-#devtools-ksp = { id = "com.google.devtools.ksp", version = "2.0.0-1.0.24" }
-dagger-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "daggerHilt" }
-
+# hilt
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+###
 android-application = { id = "com.android.application", version = "8.1.0" } # Asegúrate de poner la versión que uses
 android-library = { id = "com.android.library", version = "8.6.0" } # Asegúrate de poner la versión que uses
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" } # Asegúrate de poner la versión de Kotlin correcta

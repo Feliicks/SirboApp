@@ -1,4 +1,4 @@
-package com.felicksdev.onlymap.services.network
+package com.felicksdev.onlymap.data.api
 
 import com.felicksdev.onlymap.data.models.Ruta
 import com.felicksdev.onlymap.data.models.RutaVehicular
@@ -14,7 +14,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.Url
 
-interface MyApiService {
+interface OtpService {
     @GET
     suspend fun getLinea(@Url url: String): Response<RutaVehicular>
 

@@ -3,11 +3,9 @@ package com.felicksdev.onlymap.viewmodel
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.felicksdev.onlymap.data.models.Ruta
-import com.felicksdev.onlymap.services.network.MyApiService
+import com.felicksdev.onlymap.data.api.OtpService
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.PolylineOptions
@@ -30,7 +28,7 @@ class HomeScreenViewModel : ViewModel() {
     fun loadRouteById(rutaId: Int) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val call = getRetrofit().create(MyApiService::class.java).getRuta("ruta/$rutaId")
+                val call = getRetrofit().create(OtpService::class.java).getRuta("ruta/$rutaId")
                 val ruta: Ruta? = call.body()
                 rutaData.value = ruta
                 Log.d("HomeScreenViewModel", "Ruta: $ruta")

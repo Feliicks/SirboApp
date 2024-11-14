@@ -45,7 +45,6 @@ private fun LocationsSelectionScreenPreview() {
     LocationsSelectionScreen(
         locationViewModel = LocationViewModel(),
         navController = rememberNavController(),
-        routesViewModel = RoutesViewModel()
     )
 }
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")

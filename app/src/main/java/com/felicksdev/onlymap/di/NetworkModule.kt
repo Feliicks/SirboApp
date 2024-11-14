@@ -1,6 +1,6 @@
 package com.felicksdev.onlymap.di
 
-import com.felicksdev.onlymap.services.network.MyApiService
+import com.felicksdev.onlymap.data.api.OtpService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -26,9 +26,9 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    fun provideOtpApi(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://api.example.com/") // Cambia a tu URL base
+            .baseUrl("http://192.168.1.222:8080") // Cambia a tu URL base
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -36,7 +36,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideMyApiService(retrofit: Retrofit): MyApiService {
-        return retrofit.create(MyApiService::class.java)
+    fun provideMyApiService(retrofit: Retrofit): OtpService {
+        return retrofit.create(OtpService::class.java)
     }
 }

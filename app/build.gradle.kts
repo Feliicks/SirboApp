@@ -6,10 +6,13 @@ plugins {
     alias(libs.plugins.compose.compiler)
 
 //    DI
-    kotlin("kapt")
+//    kotlin("kapt")
 //    alias(libs.plugins.devtools.ksp)
-    alias(libs.plugins.dagger.hilt.android)
+//    alias(libs.plugins.dagger.hilt.android)
 //    alias (libs.plugins.dagger.plugin)
+
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.ksp)
 
 }
 android {
@@ -137,15 +140,17 @@ dependencies {
     debugImplementation(libs.ui.tooling)
     debugImplementation(libs.ui.test.manifest)
 
-    // DI
-    implementation(libs.dagger.hilt.android)
-    implementation(libs.dagger.hilt.compose)
+//     DI DEPRECATED
+//    implementation(libs.dagger.hilt.android)
+//    implementation(libs.dagger.hilt.compose)
 //    ksp(libs.dagger.hilt.compiler)
 //    implementation(libs.dagger.hilt.compiler)
-    kapt(libs.dagger.hilt.compiler)
+//    kapt(libs.dagger.hilt.compiler)
+//DI
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.hilt.android)
 
+    ksp(libs.hilt.compiler)
+    kspTest(libs.hilt.compiler)
 
-}
-kapt {
-    correctErrorTypes = true
 }

@@ -97,7 +97,7 @@ fun RoutesScreen(
 @Composable
 fun ThirdScreenPreview(modifier: Modifier = Modifier) {
     RoutesScreen(
-        viewModel = RoutesViewModel(),
+
         bottomPadding = PaddingValues(0.dp),
         navController = NavController(LocalContext.current)
     )

@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.felicksdev.onlymap.navigation.plus
@@ -40,7 +41,7 @@ fun HomeScreen(
     viewModel: HomeScreenViewModel,
     navController: NavController,
     myCameraPositionState: CameraPositionState,
-    plannerViewModel: PlannerViewModel,
+    plannerViewModel: PlannerViewModel = hiltViewModel(),
     bottomPadding: PaddingValues
 ) {
 
@@ -137,7 +138,7 @@ fun PreviewHomeScreen() {
         viewModel = HomeScreenViewModel(), // Instancia de ViewModel de prueba
         navController = navController,
         myCameraPositionState = CameraPositionState(),
-        plannerViewModel = PlannerViewModel(),
+        plannerViewModel = hiltViewModel(),
         bottomPadding = PaddingValues()
     )
 }

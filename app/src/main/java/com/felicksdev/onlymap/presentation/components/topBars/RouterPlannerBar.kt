@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.felicksdev.onlymap.TrufiLocation
@@ -124,7 +125,7 @@ fun RouterPlannerBar(
 @Composable
 fun SmallRouterPlannerBar(
     modifier: Modifier = Modifier,
-    plannerViewModel: PlannerViewModel,
+    plannerViewModel: PlannerViewModel = hiltViewModel(),
     onMenuClick: () -> Unit = { },
     navController: NavController
 ) {
@@ -334,7 +335,7 @@ fun SmallLocationFormField(
     trailing: ImageVector? = null,
     fontSize: TextUnit = MaterialTheme.typography.bodyMedium.fontSize,
     navController: NavController,
-    plannerViewModel: PlannerViewModel,
+    plannerViewModel: PlannerViewModel = hiltViewModel(),
     onTrailingClick: () -> Unit = {}
 ) {
     var text = locationDetail?.description ?: ""
@@ -475,7 +476,6 @@ fun PreviewLocationFormField() {
                 .height(60.dp),
             leadingIcon = Icons.Default.LocationOn,
             trailing = Icons.Default.Close,
-            plannerViewModel = PlannerViewModel()
 
         )
     }
@@ -484,11 +484,9 @@ fun PreviewLocationFormField() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewSmallRouterPlannerBar() {
-    val previewViewModel = PlannerViewModel()
 
     MaterialTheme {
         SmallRouterPlannerBar(
-            plannerViewModel = previewViewModel,
             onMenuClick = { /* Acción del menú */ },
             navController = rememberNavController()
         )

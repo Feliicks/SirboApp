@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.felicksdev.onlymap.data.api.OtpService
 import com.felicksdev.onlymap.data.models.AddressState
 import com.felicksdev.onlymap.data.models.Ruta
 import com.felicksdev.onlymap.data.models.RutaState
@@ -26,8 +27,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
-class RoutesViewModel @Inject constructor() : ViewModel() {
+@HiltViewModel
+class RoutesViewModel @Inject constructor(
+    private val otpService: OtpService
+)  : ViewModel() {
 
     var state by mutableStateOf(RutaState())
         private set
@@ -121,7 +124,7 @@ class RoutesViewModel @Inject constructor() : ViewModel() {
     private fun obtenerRutas() {
         viewModelScope.launch {
             try {
-                val resultado = RetrofitHelper.otpRetrofit().indexRoutes()
+                val resultado = otpService.indexRoutes()
 
                 _routesList.value = resultado.body() ?: Routes()
                 Log.d("RutasViewModel", "Rutas obtenidas $routesList")
@@ -208,7 +211,7 @@ class RoutesViewModel @Inject constructor() : ViewModel() {
     fun getOptimalRoutes(fromLocation: AddressState, toLocation: AddressState) {
         viewModelScope.launch {
             try {
-                val resultado = RetrofitHelper.otpRetrofit().getOptimalRoutes(
+                val resultado = otpService.getOptimalRoutes(
                     fromLocation.coordinates.toApiString(), toLocation.coordinates.toApiString()
                 )
                 Log.d("RutasViewModel", "resultado de la ruta optima es " + resultado.body())

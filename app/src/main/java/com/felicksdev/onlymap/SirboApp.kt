@@ -19,7 +19,6 @@ fun SirboApp(
     val navController = rememberNavController()
     val homeScreenViewModel = HomeScreenViewModel()
     val locationViewModel = LocationViewModel()
-
     val plannerState = plannerViewModel.plannerState.collectAsState()
     Scaffold(bottomBar = {
         if (plannerState.value.isPlacesDefined)
