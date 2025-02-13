@@ -5,8 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
-import com.felicksdev.onlymap.navigation.NavigationHost
-import com.felicksdev.onlymap.presentation.components.bottomBars.BottomNavigationBar
+import com.felicksdev.onlymap.ui.navigation.NavigationHost
+import com.felicksdev.onlymap.ui.presentation.components.bottomBars.BottomNavigationBar
 import com.felicksdev.onlymap.viewmodel.HomeScreenViewModel
 import com.felicksdev.onlymap.viewmodel.LocationViewModel
 import com.felicksdev.onlymap.viewmodel.PlannerViewModel

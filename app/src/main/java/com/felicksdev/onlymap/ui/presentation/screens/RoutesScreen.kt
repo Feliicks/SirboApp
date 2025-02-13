@@ -1,0 +1,220 @@
+package com.felicksdev.onlymap.ui.presentation.screens
+
+import android.util.Log
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Place
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.felicksdev.onlymap.data.models.otpModels.routes.RoutesItem
+import com.felicksdev.onlymap.data.models.rutaTest
+import com.felicksdev.onlymap.viewmodel.RoutesViewModel
+import java.util.Locale
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RoutesScreen(
+    viewModel: RoutesViewModel,
+    navController: NavController
+) {
+    val state = viewModel.state
+    val rutas = viewModel.routesList
+    DisposableEffect(Unit) {
+        // Código que se ejecuta cuando la pantalla se carga
+        Log.d("RoutesScreen", "La pantalla RoutesScreen se cargó")
+        Log.d("RoutesScreen", "Rutas obtenidas ${viewModel.routesList}")
+
+        onDispose { /* Cleanup, si es necesario */ }
+    }
+
+    Surface {
+        //color = MaterialTheme.colorScheme.background
+        Column {
+            Log.d("RoutesScreen", "Rutas obtenidas ${viewModel.routesList}")
+            TopAppBar(
+                title = {
+                    Text(text = "Routes")
+                }
+            )
+            // Agrega aquí tu contenido de Compose para el fragmento Routes
+            SearchBar()
+            LazyColumn {
+
+                items(state.rutas) { ruta ->
+                    RouteItem(
+                        ruta = ruta,
+                        navigateToDetail = {
+                            // Llama a la función de navegación del NavController aquí
+                            //navController.navigate("fragment_addresses")
+                        }
+                    )
+                    HorizontalDivider() // Agrega un separador entre elementos, si lo deseas
+                }
+            }
+        }
+    }
+}
+
+fun cortarCadena(cadena: String): String {
+    var partes = cadena.split("→")
+
+//    println(partes.last())
+    return partes.last()
+}
+
+
+fun camelCase(string: String, delimiter: String = " ", separator: String = " "): String {
+    return string.split(delimiter).joinToString(separator = separator) {
+        it.lowercase().replaceFirstChar { char -> char.titlecase() }
+    }
+}
+
+fun String.capitalizeWords(): String = split(" ").map { it.capitalize() }.joinToString(" ")
+fun String.capitalize(): String {
+    return this.replaceFirstChar {
+        if (it.isLowerCase()) it.titlecase(Locale.getDefault())
+        else it.toString()
+    }
+}
+
+fun validateString(string: String): String {
+    return if (string.isEmpty()) {
+        "No disponible"
+    } else {
+        camelCase(string).trim()
+    }
+}
+
+@Composable
+fun RouteItem(ruta: RoutesItem, navigateToDetail: () -> Unit) {
+    OutlinedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .padding(10.dp)
+            .clickable {
+                navigateToDetail()
+            }
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(15.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Columna izquierda
+            Column(
+                modifier = Modifier
+                    .weight(0.3f)
+                    .border(1.dp, Color.Black),
+                horizontalAlignment = Alignment.CenterHorizontally,
+
+                ) {
+                Text(text = ruta.shortName, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+//                Spacer(modifier = Modifier.height(2.dp))
+                //Text(text = "Línea ${ruta.id}", color = Color.Gray, fontSize = 14.sp)
+                //Text(text = validateString(ruta.tipo_vehiculo.tipo_vehiculo), color = Color.Gray, fontSize = 14.sp)
+                Text(
+                    text = ruta.mode,
+                    color = Color.Gray,
+                    fontSize = 14.sp
+                )
+
+            }
+
+            // Columna central
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(5.dp)
+            ) {
+                Text(text = "Hacia: ${cortarCadena(ruta.longName)}")
+
+                val recorridoArr = ruta.longName.split(", ")
+//                Text(text = "${validateString(recorridoArr[0])} - ${validateString(recorridoArr[recorridoArr.size - 1])}")
+                Text(text = ruta.longName)
+                //Text(text = "Recorrido: ${ruta.recorrido}")
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+            // Columna derecha
+            Column(
+                modifier = Modifier
+                    .weight(0.3f)
+                    .border(1.dp, Color.Black),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                // Ícono de tipo de ruta
+                Column(
+
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Place,
+                        contentDescription = null, // TODO: Agrega una descripción adecuada
+                        tint = Color.Gray,
+                        modifier = Modifier.size(30.dp),
+                    )
+                    Text(
+                        text = "Ver en el mapa",
+                        color = Color.Gray,
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
+
+
+            }
+
+        }
+    }
+}
+
+@Preview
+@Composable
+fun RouteItemPreview() {
+    RouteItem(rutaTest, navigateToDetail = {})
+}
+
+@Composable
+fun SearchBar() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        OutlinedTextField(
+            value = "NUMERO DE RUTA",
+            onValueChange = { },
+            label = { Text("NUMERO DE RUTA") }
+        )
+    }
+}
