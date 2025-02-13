@@ -1,4 +1,4 @@
-package com.felicksdev.onlymap.presentation.screens.main
+package com.felicksdev.onlymap.presentation.screens.mainScreens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues

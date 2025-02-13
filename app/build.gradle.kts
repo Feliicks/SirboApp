@@ -5,12 +5,6 @@ plugins {
     alias(libs.plugins.google.services)
     alias(libs.plugins.compose.compiler)
 
-//    DI
-//    kotlin("kapt")
-//    alias(libs.plugins.devtools.ksp)
-//    alias(libs.plugins.dagger.hilt.android)
-//    alias (libs.plugins.dagger.plugin)
-
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
 
@@ -129,7 +123,7 @@ dependencies {
     implementation(libs.livedata.ktx)
     implementation(libs.maps.compose)
     implementation(libs.compose.navigation)
-
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation(libs.google.accompanist)
 
     testImplementation(libs.junit)

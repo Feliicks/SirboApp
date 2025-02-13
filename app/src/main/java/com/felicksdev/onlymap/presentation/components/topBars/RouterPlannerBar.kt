@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
@@ -135,8 +136,6 @@ fun SmallRouterPlannerBar(
 
     val fromLocation = plannerState.fromPlace
 
-//    Log.d("SmallRouterPlannerBar", "From: $fromLocation")
-//    Log.d("SmallRouterPlannerBar", "To: $toLocation")
     Log.d("SmallRouterPlannerBar", "Estado: ${plannerViewModel.isPlacesDefined()}")
 
     Column(
@@ -372,26 +371,14 @@ fun SmallLocationFormField(
                 .weight(1f)
         ) {
             BasicTextField(
-                interactionSource = remember { MutableInteractionSource() }
-                    .also { interactionSource ->
-                        LaunchedEffect(interactionSource) {
-                            interactionSource.interactions.collect {
-                                if (it is PressInteraction.Release) {
-                                    navController.navigate(Destinations.ChooseLocations.route + isOrigin)
-                                    Log.d(
-                                        "CustomLocationFormField",
-                                        Destinations.ChooseLocations.route + isOrigin
-                                    )
-                                }
-                            }
-                        }
-                    },
+                enabled = false,
                 value = text,
                 onValueChange = { newValue ->
                     text = newValue
                     onSaved(locationDetail?.copy(description = newValue).toString())
                 },
                 modifier = modifier
+
                     .background(
                         color = MaterialTheme.colorScheme.surface,
                         shape = MaterialTheme.shapes.small
@@ -400,6 +387,12 @@ fun SmallLocationFormField(
                         BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)),
                         shape = MaterialTheme.shapes.small
                     )
+                    .clickable (
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ){
+                        navController.navigate(Destinations.ChooseLocations.route + isOrigin)
+                    }
                     .fillMaxWidth()
                     .padding(4.dp),
                 singleLine = true,

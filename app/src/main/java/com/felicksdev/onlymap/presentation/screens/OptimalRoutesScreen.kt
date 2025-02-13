@@ -1,6 +1,5 @@
 package com.felicksdev.onlymap.presentation.screens
 
-import RoutesViewModel
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,6 +35,7 @@ import com.felicksdev.onlymap.data.models.AddressState
 import com.felicksdev.onlymap.data.models.otpModels.routing.Leg
 import com.felicksdev.onlymap.viewmodel.LocationViewModel
 import com.felicksdev.onlymap.viewmodel.MainViewModel
+import com.felicksdev.onlymap.viewmodel.RoutesViewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.maps.android.PolyUtil
 import com.google.maps.android.compose.GoogleMap

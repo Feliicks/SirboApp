@@ -1,3 +1,4 @@
+package com.felicksdev.onlymap.viewmodel
 
 import android.util.Log
 import androidx.compose.runtime.getValue
@@ -16,7 +17,6 @@ import com.felicksdev.onlymap.data.models.otpModels.routes.PatternGeometry
 import com.felicksdev.onlymap.data.models.otpModels.routes.Routes
 import com.felicksdev.onlymap.data.models.otpModels.routes.RoutesItem
 import com.felicksdev.onlymap.data.models.otpModels.routing.Leg
-import com.felicksdev.onlymap.services.network.RetrofitHelper
 import com.felicksdev.onlymap.utils.MapConfig
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -30,7 +30,7 @@ import javax.inject.Inject
 @HiltViewModel
 class RoutesViewModel @Inject constructor(
     private val otpService: OtpService
-)  : ViewModel() {
+) : ViewModel() {
 
     var state by mutableStateOf(RutaState())
         private set
@@ -76,38 +76,19 @@ class RoutesViewModel @Inject constructor(
         _errorState.value = newData
     }
 
-    private val _routeSelected = mutableStateOf(
-        RoutesItem(
-            id = "", shortName = "", longName = "", mode = "", agencyName = ""
-        )
-    )
+    private val _routeSelected = MutableStateFlow<RoutesItem>(RoutesItem())
+    val routeSelected: MutableStateFlow<RoutesItem> = _routeSelected
 
-    //    var routeSelected: RoutesModelItem = _routeSelected.value
-    var routeSelected: RoutesItem by _routeSelected
-//    var routeSelected: RoutesModelItem by mutableStateOf(
-//        RoutesModelItem(
-//            id = "",
-//            shortName = "",
-//            longName = "",
-//            mode = "",
-//            agencyName = ""
-//        )
-//    )
 
     var routePatterns by mutableStateOf(listOf<Pattern>())
         private set
-    var routeSelectePattern by mutableStateOf(
-        PatterDetail(
-            id = "", desc = "", routeId = "", stops = emptyList()
-        )
-    )
-        private set
+
+    var _routeSelectePattern = MutableStateFlow<PatterDetail>(PatterDetail())
+    var routeSelectePattern: MutableStateFlow<PatterDetail> = _routeSelectePattern
+
     var optimalRouteLegs by mutableStateOf<List<Leg>>(emptyList())
         private set
 
-    init {
-        obtenerRutas()
-    }
 
     fun onRouteItemSelected(ruta: Ruta) {
         viewModelScope.launch {
@@ -121,7 +102,12 @@ class RoutesViewModel @Inject constructor(
         }
     }
 
-    private fun obtenerRutas() {
+
+    fun setRouteSelected(ruta: RoutesItem) {
+        _routeSelected.value = ruta
+    }
+
+    fun obtenerRutas() {
         viewModelScope.launch {
             try {
                 val resultado = otpService.indexRoutes()
@@ -130,11 +116,7 @@ class RoutesViewModel @Inject constructor(
                 Log.d("RutasViewModel", "Rutas obtenidas $routesList")
                 Log.d("RutasViewModel", "Obtuve todas las rutas exitosamente")
 
-                // Manejar el caso en que la llamada no fue exitosa
-
             } catch (e: Exception) {
-//                manerjar error state
-                // Manejar errores, por ejemplo, emitir un estado de error
                 Log.e("RutasViewModel", "Error al obtener las rutas", e)
             }
         }
@@ -144,7 +126,7 @@ class RoutesViewModel @Inject constructor(
     fun getRouteGeometry(patternId: String) {
         viewModelScope.launch {
             try {
-                val resultado = RetrofitHelper.otpRetrofit().getGeomByPattern("$patternId::01")
+                val resultado = otpService.getGeomByPattern("$patternId::01")
                 _selectedPatternGeometry.value = resultado.body() ?: PatternGeometry()
                 // Manejar el caso en que la llamada no fue exitosa
 
@@ -175,18 +157,33 @@ class RoutesViewModel @Inject constructor(
 //    }
 //    / Inicializa patternSelectedId como una lista mutable de Pattern
 
-    fun getRouteStops(id: String) {
+
+    fun getRouteDetails(id: String) {
         viewModelScope.launch {
             try {
-                val resultado = RetrofitHelper.otpRetrofit().getPatternByRouteId(id)
+                val resultado = otpService.getRouteDetail(id)
+                _routeSelected.value = resultado
+                Log.d("RutasViewModel", "Detalle de ruta" + resultado)
+            } catch (e: Exception) {
+                // Manejar errores, por ejemplo, emitir un estado de error
+                Log.e("RutasViewModel", "Error al Obtner detalle de ruta", e)
+            }
+        }
+    }
+
+    fun getRouteStops(id: String) {
+        Log.d("RutasViewModel", "Pasando id ruta" + id)
+        viewModelScope.launch {
+            try {
+                val resultado = otpService.getPatternByRouteId(id)
                 Log.d("RutasViewModel", "primer rqe enviado es " + resultado)
                 if (resultado.isSuccessful) {
                     routePatterns = resultado.body() ?: emptyList()
                     Log.d("RutasViewModel", "paradas o obtenidas $routePatterns")
-                    var patternRespose = RetrofitHelper.otpRetrofit()
+                    var patternRespose = otpService
                         .getPatternDetailsByPatternId(routePatterns[0].id)
                     Log.d("RutasViewModel", "segundo rqe enviado es " + patternRespose)
-                    routeSelectePattern = patternRespose.body()!!
+                    _routeSelectePattern.value = patternRespose.body()!!
 
                     Log.d("RutasViewModel", "paradas o obtenidas $routeSelectePattern")
 

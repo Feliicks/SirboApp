@@ -7,6 +7,7 @@ import com.felicksdev.onlymap.data.models.otpModels.Pattern
 import com.felicksdev.onlymap.data.models.otpModels.RouteStopItem
 import com.felicksdev.onlymap.data.models.otpModels.routes.PatternGeometry
 import com.felicksdev.onlymap.data.models.otpModels.routes.Routes
+import com.felicksdev.onlymap.data.models.otpModels.routes.RoutesItem
 import com.felicksdev.onlymap.data.models.otpModels.routing.RoutingResponse
 import retrofit2.Response
 import retrofit2.http.GET
@@ -36,7 +37,7 @@ interface OtpService {
 
     @GET("otp/routers/default/plan")
     suspend fun getOptimalRoutes(
-        @Query("fromPlace") fromPlace: String,
+        @Query("fromPlacez") fromPlace: String,
         @Query("toPlace") toPlace: String,
         @Query("mode") mode: String = "TRANSIT,WALK",
         @Query("maxWalkDistance") maxWalkDistance: Int = 5000
@@ -50,6 +51,11 @@ interface OtpService {
         @Query("mode") mode: String = "TRANSIT,WALK",
         @Query("maxWalkDistance") maxWalkDistance: Int = 5000
     ): Response<RoutingResponse>
+
+    @GET("otp/routers/default/index/routes/{id}")
+    suspend fun getRouteDetail(
+        @Path("id") routeId: String,
+    ): RoutesItem
 
 
     @GET("otp/routers/default/index/patterns/{id}")

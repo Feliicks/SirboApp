@@ -1,6 +1,6 @@
 package com.felicksdev.onlymap.data.models
 
-import RoutesViewModel
+import com.felicksdev.onlymap.viewmodel.RoutesViewModel
 import com.felicksdev.onlymap.data.models.otpModels.routes.RoutesItem
 import com.felicksdev.onlymap.data.models.otpModels.routing.FromLeg
 import com.felicksdev.onlymap.data.models.otpModels.routing.FromX

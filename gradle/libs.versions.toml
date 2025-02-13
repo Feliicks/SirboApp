@@ -83,7 +83,7 @@ hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 ###
 android-application = { id = "com.android.application", version = "8.1.0" } # Asegúrate de poner la versión que uses
-android-library = { id = "com.android.library", version = "8.6.0" } # Asegúrate de poner la versión que uses
+android-library = { id = "com.android.library", version = "8.7.3" } # Asegúrate de poner la versión que uses
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" } # Asegúrate de poner la versión de Kotlin correcta
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 google-services = { id = "com.google.gms.google-services", version = "4.3.15" }

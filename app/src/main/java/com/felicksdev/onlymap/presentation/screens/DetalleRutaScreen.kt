@@ -1,6 +1,5 @@
 package com.felicksdev.onlymap.presentation.screens
 
-import RoutesViewModel
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,8 +18,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,6 +32,7 @@ import com.felicksdev.onlymap.data.models.otpModels.routes.PatternGeometry
 import com.felicksdev.onlymap.data.models.otpModels.routes.RoutesItem
 import com.felicksdev.onlymap.presentation.components.RouteDetailsTopBar
 import com.felicksdev.onlymap.utils.MapConfig
+import com.felicksdev.onlymap.viewmodel.RoutesViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -45,24 +45,28 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 
+const val TAG = "RouteDetailScreen"
+
 @Composable
-fun RouteDetailScreen(
-    route: RoutesItem,
+fun DetalleRutaScreen(
+    idRuta: String,
     viewModel: RoutesViewModel = hiltViewModel(),
     navController: NavController
 ) {
-    val patterGeom = viewModel.selectedPatternGeometry.collectAsState()
-    val points = PolyUtil.decode(patterGeom.value.points)
-    val cameraPositionState = viewModel.cameraPosition.collectAsState()
 
-    Log.d("RouteDetailScreen", "Points: $points")
-    LaunchedEffect(route.id) {
-        viewModel.getRouteStops(route.id)
-        viewModel.getRouteGeometry(route.id)
+    Log.d(TAG, "Route en el viewmodel: $idRuta")
+
+    val patterGeom by viewModel.selectedPatternGeometry.collectAsState()
+    val cameraPositionState by viewModel.cameraPosition.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.getRouteDetails(idRuta)
+        viewModel.getRouteStops(idRuta)
+        viewModel.getRouteGeometry(idRuta)
     }
 
-    val stopsList = viewModel.routeSelectePattern.stops
-
+    val route by viewModel.routeSelected.collectAsState()
+    val stopsList by viewModel.routeSelectePattern.collectAsState()
     Scaffold(
         topBar = {
             RouteDetailsTopBar(
@@ -75,7 +79,7 @@ fun RouteDetailScreen(
                 cameraPositionState = cameraPositionState,
                 patternGeom = patterGeom,
                 route = route,
-                stopsList = stopsList,
+                stopsList = stopsList.stops,
                 padding = padding
             )
         }
@@ -87,14 +91,14 @@ fun RouteDetailScreenContent(
     route: RoutesItem,
     stopsList: List<RouteStopItem>,
     padding: PaddingValues,
-    patternGeom: State<PatternGeometry>,
-    cameraPositionState: State<CameraPosition>
+    patternGeom: PatternGeometry,
+    cameraPositionState: CameraPosition
 ) {
 
-    val points = PolyUtil.decode(patternGeom.value.points)
+    val points = PolyUtil.decode(patternGeom.points)
 
     val cameraState = rememberCameraPositionState {
-        position = cameraPositionState.value
+        position = cameraPositionState
     }
 
     Column(
@@ -143,6 +147,20 @@ fun Map(
     initialState: CameraPositionState,
     points: List<LatLng>
 ) {
+    // 🔥 Obtener el nivel de zoom actual desde CameraPositionState
+    val zoom = initialState.position.zoom
+
+    // 🔥 Parámetros clave para modificar el efecto de escalado de la línea
+    val baseWidth = 5f       // ⚙️ Grosor base de la línea en zoom intermedio
+    val zoomFactor = 10f     // ⚙️ Factor para suavizar el cambio de grosor según el zoom
+    val minWidth =
+        13f        // ⚙️ Grosor mínimo permitido (ajustar si la línea es muy fina en zoom bajo)
+    val maxWidth =
+        23f       // ⚙️ Grosor máximo permitido (ajustar si la línea es demasiado gruesa en zoom alto)
+
+// 🔥 Calcular el grosor de la Polyline basado en el zoom actual
+    val scaledWidth = (baseWidth * (zoom / zoomFactor)).coerceIn(minWidth, maxWidth)
+
     LaunchedEffect(points) {
 
         try {
@@ -154,7 +172,7 @@ fun Map(
             // Ejecuta la animación de la cámara en una corrutina dentro de LaunchedEffect
             initialState.animate(
                 update = CameraUpdateFactory.newLatLngBounds(bounds, 80), // 50 es el padding
-//                durationMs = 1000 // Duración de la animación en milisegundos
+                //                durationMs = 1000 // Duración de la animación en milisegundos
             )
         } catch (e: IllegalStateException) {
             e.printStackTrace() // Maneja el error para evitar crasheos
@@ -172,15 +190,8 @@ fun Map(
         Polyline(
             points = points,
             color = Color.Red,
-            width = 5f
+            width = scaledWidth
         )
-
-//        stops.forEach { stop ->
-//            Marker(
-//                state = MarkerState(position = LatLng(stop.lat, stop.lon)),
-//                title = stop.name
-//            )
-//        }
     }
 }
 
@@ -213,8 +224,8 @@ fun PreviewRouteDetailScreen() {
     )
 
 
-    RouteDetailScreen(
-        route = fakeRoute,
+    DetalleRutaScreen(
+        idRuta = "1",
         navController = rememberNavController()
     )
 }

@@ -17,7 +17,9 @@ object MapConfig {
     init {
         mapProperties = MapProperties(
             mapType = MapType.NORMAL,
-            isMyLocationEnabled = true
+            isMyLocationEnabled = true,
+            minZoomPreference = 5f,
+            maxZoomPreference = 18f
         )
         mapUiConfig = MapUiSettings(
             myLocationButtonEnabled = true

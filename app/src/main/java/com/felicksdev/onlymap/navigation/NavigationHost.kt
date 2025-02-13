@@ -2,7 +2,6 @@ package com.felicksdev.onlymap.navigation
 
 import ChooseLocationsScreen
 import LocationsSelectionScreen
-import RoutesViewModel
 import android.util.Log
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
@@ -25,15 +24,16 @@ import com.felicksdev.onlymap.navigation.Destinations.RouteDetailScreen
 import com.felicksdev.onlymap.navigation.Destinations.SecondScreen
 import com.felicksdev.onlymap.navigation.Destinations.ThirdScreen
 import com.felicksdev.onlymap.presentation.screens.MapScreen
-import com.felicksdev.onlymap.presentation.screens.RouteDetailScreen
-import com.felicksdev.onlymap.presentation.screens.main.HomeScreen
-import com.felicksdev.onlymap.presentation.screens.main.RoutesScreen
-import com.felicksdev.onlymap.presentation.screens.main.SecondScreen
+import com.felicksdev.onlymap.presentation.screens.DetalleRutaScreen
+import com.felicksdev.onlymap.presentation.screens.mainScreens.HomeScreen
+import com.felicksdev.onlymap.presentation.screens.mainScreens.ListaRutasScreen
+import com.felicksdev.onlymap.presentation.screens.mainScreens.SecondScreen
 import com.felicksdev.onlymap.presentation.screens.planner.OptimalRouteScreen
 import com.felicksdev.onlymap.utils.MapConfig
 import com.felicksdev.onlymap.viewmodel.HomeScreenViewModel
 import com.felicksdev.onlymap.viewmodel.LocationViewModel
 import com.felicksdev.onlymap.viewmodel.PlannerViewModel
+import com.felicksdev.onlymap.viewmodel.RoutesViewModel
 
 val MAIN_DESTINATIONS = listOf(
     SecondScreen,
@@ -50,7 +50,7 @@ fun NavigationHost(
     homeScreenViewModel: HomeScreenViewModel,
     locationViewModel: LocationViewModel,
 
-) {
+    ) {
     val cameraPositionState = remember { MapConfig.initialState }
     NavHost(navController = navController, startDestination = HomeScreen.route,
         enterTransition = {
@@ -96,17 +96,18 @@ fun NavigationHost(
         }
         composable(route = ThirdScreen.route) { backStackEntry ->
 //            val routeId = backStackEntry.arguments?.getString("routeId")
-            RoutesScreen(
+            ListaRutasScreen(
                 navController = navController,
                 bottomPadding = bottomPadding
             )
         }
-        composable(RouteDetailScreen.route) {
-            RouteDetailScreen(
-                route = routesViewModel.routeSelected,
-
+        composable(RouteDetailScreen.route+"{id}") { backStrackEntry ->
+            val id = backStrackEntry.arguments?.getString("id").toString()
+            val TAG = "NavigationHost"
+            Log.d(TAG, "id de ruta en nav: $id")
+            DetalleRutaScreen(
+                idRuta = id,
                 navController = navController,
-//                plannerViewModel = plannerViewModel
             )
         }
         composable(Destinations.OptimalRoutesScreen.route) {
@@ -122,7 +123,7 @@ fun NavigationHost(
                 navController = navController,
                 locationViewModel = locationViewModel,
 
-            )
+                )
         }
         composable(
             route = MapScreen.route + "{isOrigin}",

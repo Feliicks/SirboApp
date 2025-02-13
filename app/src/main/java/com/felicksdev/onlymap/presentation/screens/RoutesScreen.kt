@@ -1,6 +1,5 @@
 package com.felicksdev.onlymap.presentation.screens
 
-import RoutesViewModel
 import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -38,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.felicksdev.onlymap.data.models.otpModels.routes.RoutesItem
 import com.felicksdev.onlymap.data.models.rutaTest
+import com.felicksdev.onlymap.viewmodel.RoutesViewModel
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)

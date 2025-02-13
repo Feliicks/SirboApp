@@ -24,6 +24,9 @@ class PlannerViewModel @Inject constructor(
     private val otpApiService: OtpService
 )
 : ViewModel() {
+
+
+
     private val _plannerState = MutableStateFlow(RoutePlanner())
     val plannerState: StateFlow<RoutePlanner> = _plannerState.asStateFlow()
 

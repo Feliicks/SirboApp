@@ -12,10 +12,10 @@ import com.felicksdev.onlymap.viewmodel.LocationViewModel
 import com.felicksdev.onlymap.viewmodel.PlannerViewModel
 
 @Composable
-fun SirboApp(
-    plannerViewModel: PlannerViewModel = hiltViewModel()
-) {
+fun SirboApp() {
+    val plannerViewModel: PlannerViewModel = hiltViewModel()
 //    Se puede eliminar sintacia usano DI
+
     val navController = rememberNavController()
     val homeScreenViewModel = HomeScreenViewModel()
     val locationViewModel = LocationViewModel()

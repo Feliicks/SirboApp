@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package com.felicksdev.onlymap.presentation.screens.main
+package com.felicksdev.onlymap.presentation.screens.mainScreens
 
 
 import androidx.compose.foundation.layout.Arrangement
@@ -102,7 +102,6 @@ fun HomeScreenContent(
             // Contenido del BottomSheet
             Column(
                 modifier = Modifier
-
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {

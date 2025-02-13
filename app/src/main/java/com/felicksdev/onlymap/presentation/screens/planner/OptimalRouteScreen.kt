@@ -2,7 +2,7 @@
 
 package com.felicksdev.onlymap.presentation.screens.planner
 
-import RoutesViewModel
+import com.felicksdev.onlymap.viewmodel.RoutesViewModel
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
