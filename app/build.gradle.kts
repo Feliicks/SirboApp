@@ -29,7 +29,10 @@ android {
     buildTypes {
         getByName("debug") {
             isMinifyEnabled = false
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 
@@ -124,6 +127,7 @@ dependencies {
     implementation(libs.maps.compose)
     implementation(libs.compose.navigation)
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation("io.morfly.compose:advanced-bottomsheet-material3:0.1.0")
     implementation(libs.google.accompanist)
 
     testImplementation(libs.junit)

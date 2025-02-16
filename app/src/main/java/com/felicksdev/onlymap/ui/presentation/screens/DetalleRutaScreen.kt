@@ -1,39 +1,39 @@
 package com.felicksdev.onlymap.ui.presentation.screens
 
+import android.annotation.SuppressLint
+import android.content.res.Configuration
 import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -61,10 +61,20 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
+import io.morfly.compose.bottomsheet.material3.BottomSheetScaffold
+import io.morfly.compose.bottomsheet.material3.layoutHeightDp
+import io.morfly.compose.bottomsheet.material3.rememberBottomSheetState
+import io.morfly.compose.bottomsheet.material3.requireSheetVisibleHeightDp
 
 const val TAG = "RouteDetailScreen"
 
-@OptIn(ExperimentalMaterial3Api::class)
+
+private const val DefaultMapZoom = 13f
+private val MapUiOffsetLimit = 100.dp
+
+
+@SuppressLint("UnusedBoxWithConstraintsScope")
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun DetalleRutaScreen(
     idRuta: String,
@@ -91,62 +101,126 @@ fun DetalleRutaScreen(
     )
     val stops = stopsList.stops.map { it.name }
 
-    // 🔹 Scaffold Principal con `TopAppBar`
-    Scaffold(
-        topBar = {
-            RouteDetailsTopBar(route = route, navController = navController)
+    var isInitialState by rememberSaveable { mutableStateOf(true) }
+
+    val bottomSheet = rememberBottomSheetState(
+        initialValue = com.felicksdev.onlymap.ui.common.SheetValue.PartiallyExpanded,
+        defineValues = {
+            // Bottom sheet height is 100 dp.
+            com.felicksdev.onlymap.ui.common.SheetValue.Collapsed at  height(100.dp)
+            if (isInitialState) {
+                // Offset is 60% which means the bottom sheet takes 40% of the screen.
+                com.felicksdev.onlymap.ui.common.SheetValue.PartiallyExpanded at offset(percent = 60)
+            }
+            // Bottom sheet height is equal to the height of its content.
+            com.felicksdev.onlymap.ui.common.SheetValue.Expanded at contentHeight
+        },
+        confirmValueChange = {
+            if (isInitialState) {
+                isInitialState = false
+                refreshValues()
+            }
+            true
         }
-    ) { innerPadding ->
-        // 🔹 BottomSheetScaffold dentro de Scaffold
-        BottomSheetScaffold(
-            scaffoldState = sheetState,
-            sheetPeekHeight = 100.dp, // 🔥 Altura mínima cuando está colapsado
-            sheetContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-            sheetContent = {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(
-                            min = 100.dp,
-                            max = (LocalConfiguration.current.screenHeightDp.dp / 2)
-                        )
-                ) {
-                    // 🔹 Lista de Paradas
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp)
-                    ) {
-                        itemsIndexed(stops) { index, stop ->
-                            RouteStopItem(
-                                stopName = stop,
-                                isFirst = index == 0,
-                                isLast = index == stops.size - 1
-                            )
-                        }
+    )
+    val scaffoldState =
+        io.morfly.compose.bottomsheet.material3.rememberBottomSheetScaffoldState(bottomSheet)
+
+
+
+
+        Scaffold(
+            topBar = {
+                RouteDetailsTopBar(route = route, navController = navController)
+            }
+        ) { innerPadding ->
+            // 🔹 BottomSheetScaffold dentro de Scaffold
+            BottomSheetScaffold(
+                scaffoldState = scaffoldState,
+                sheetContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                sheetContent = {
+                    if (true) {
+                        BottomSheetContent(stops)
                     }
                 }
+            ) { it ->
+                val bottomPadding by remember {
+                    derivedStateOf { bottomSheet.requireSheetVisibleHeightDp() }
+                }
+                RouteDetailScreenContent(
+                    bottomPadding = bottomPadding,
+                    cameraPositionState = cameraPositionState,
+                    patternGeom = patterGeom,
+                    route = route,
+                    stopsList = stopsList.stops,
+                    padding = innerPadding, // 🔥 Ajustamos el padding correctamente
+                    layoutHeight = bottomSheet.layoutHeightDp
+                )
+                Log.d("CustomFinalizedDemoScreen", "bottom padding: ${bottomPadding}")
             }
-        ) { padding ->
-            RouteDetailScreenContent(
-                cameraPositionState = cameraPositionState,
-                patternGeom = patterGeom,
-                route = route,
-                stopsList = stopsList.stops,
-                padding = innerPadding // 🔥 Ajustamos el padding correctamente
+        }
+
+}
+
+@Composable
+private fun BottomSheetContent(stops: List<String>) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(
+                min = 100.dp,
+                max = (LocalConfiguration.current.screenHeightDp.dp / 2)
             )
+    ) {
+        // 🔹 Lista de Paradas
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        ) {
+            itemsIndexed(stops) { index, stop ->
+                RouteStopItem(
+                    stopName = stop,
+                    isFirst = index == 0,
+                    isLast = index == stops.size - 1
+                )
+            }
         }
     }
 }
 
+@Composable
+private fun rememberMapPadding(bottomPadding: Dp, maxBottomPadding: Dp): PaddingValues {
+    val configuration = LocalConfiguration.current
+    val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+    return if (isPortrait) {
+        rememberPortraitMapPadding(bottomPadding, maxBottomPadding)
+    } else {
+        remember { PaddingValues() }
+    }
+}
+@Composable
+private fun rememberPortraitMapPadding(bottomPadding: Dp, maxBottomPadding: Dp): PaddingValues {
+    return remember(bottomPadding, maxBottomPadding) {
+        PaddingValues(
+            start = 16.dp,
+            end = 16.dp,
+            bottom = bottomPadding.takeIf { it < maxBottomPadding } ?: maxBottomPadding
+        )
+    }
+}
 @Composable
 fun RouteDetailScreenContent(
     route: RoutesItem,
     stopsList: List<RouteStopItem>,
     padding: PaddingValues,
     patternGeom: PatternGeometry,
-    cameraPositionState: CameraPosition
+    cameraPositionState: CameraPosition,
+    layoutHeight: Dp = Dp.Unspecified,
+    bottomPadding: Dp = 0.dp,
 ) {
+    val maxBottomPadding = remember(layoutHeight) { layoutHeight - MapUiOffsetLimit }
+    val mapPadding = rememberMapPadding(bottomPadding, maxBottomPadding)
 
     val points = remember(patternGeom.points) { PolyUtil.decode(patternGeom.points) }
 
@@ -164,7 +238,8 @@ fun RouteDetailScreenContent(
             mapConfiguration = MapConfig.mapProperties,
             mapUiConfiguration = MapConfig.mapUiConfig,
             initialState = cameraState,
-            points = points
+            points = points,
+            contentPadding = mapPadding,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -177,7 +252,8 @@ fun Map(
     mapConfiguration: MapProperties,
     mapUiConfiguration: MapUiSettings,
     initialState: CameraPositionState,
-    points: List<LatLng>
+    points: List<LatLng>,
+    contentPadding : PaddingValues
 ) {
     val zoom = initialState.position.zoom
     val baseWidth = 5f
@@ -203,7 +279,9 @@ fun Map(
         uiSettings = mapUiConfiguration,
         properties = mapConfiguration,
         cameraPositionState = initialState,
-        onMapLoaded = {}
+        onMapLoaded = {},
+        contentPadding = contentPadding,
+
     ) {
         Polyline(
             points = points,
@@ -233,20 +311,6 @@ fun Map(
     }
 }
 
-@Composable
-fun ParadaItem(stop: RouteStopItem) {
-    Row(modifier = Modifier.padding(8.dp)) {
-        Icon(
-            imageVector = Icons.Filled.LocationOn,
-            contentDescription = "Parada",
-            modifier = Modifier.size(24.dp)
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Column {
-            Text(text = stop.name, style = MaterialTheme.typography.bodyMedium)
-        }
-    }
-}
 
 
 @Preview(showBackground = true)
