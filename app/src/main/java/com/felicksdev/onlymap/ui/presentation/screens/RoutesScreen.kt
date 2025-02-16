@@ -212,7 +212,6 @@ fun RouteItemPreview() {
 
 @Composable
 fun SearchBar(query: String, onQueryChanged: (String) -> Unit) {
-    Log.d("Ñ", "Query: $query")
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChanged,

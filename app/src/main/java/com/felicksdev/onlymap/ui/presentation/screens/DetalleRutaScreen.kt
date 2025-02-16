@@ -107,7 +107,7 @@ fun DetalleRutaScreen(
         initialValue = com.felicksdev.onlymap.ui.common.SheetValue.PartiallyExpanded,
         defineValues = {
             // Bottom sheet height is 100 dp.
-            com.felicksdev.onlymap.ui.common.SheetValue.Collapsed at  height(100.dp)
+            com.felicksdev.onlymap.ui.common.SheetValue.Collapsed at height(100.dp)
             if (isInitialState) {
                 // Offset is 60% which means the bottom sheet takes 40% of the screen.
                 com.felicksdev.onlymap.ui.common.SheetValue.PartiallyExpanded at offset(percent = 60)
@@ -129,36 +129,36 @@ fun DetalleRutaScreen(
 
 
 
-        Scaffold(
-            topBar = {
-                RouteDetailsTopBar(route = route, navController = navController)
-            }
-        ) { innerPadding ->
-            // 🔹 BottomSheetScaffold dentro de Scaffold
-            BottomSheetScaffold(
-                scaffoldState = scaffoldState,
-                sheetContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                sheetContent = {
-                    if (true) {
-                        BottomSheetContent(stops)
-                    }
-                }
-            ) { it ->
-                val bottomPadding by remember {
-                    derivedStateOf { bottomSheet.requireSheetVisibleHeightDp() }
-                }
-                RouteDetailScreenContent(
-                    bottomPadding = bottomPadding,
-                    cameraPositionState = cameraPositionState,
-                    patternGeom = patterGeom,
-                    route = route,
-                    stopsList = stopsList.stops,
-                    padding = innerPadding, // 🔥 Ajustamos el padding correctamente
-                    layoutHeight = bottomSheet.layoutHeightDp
-                )
-                Log.d("CustomFinalizedDemoScreen", "bottom padding: ${bottomPadding}")
-            }
+    Scaffold(
+        topBar = {
+            RouteDetailsTopBar(route = route, navController = navController)
         }
+    ) { innerPadding ->
+        // 🔹 BottomSheetScaffold dentro de Scaffold
+        BottomSheetScaffold(
+            scaffoldState = scaffoldState,
+            sheetContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            sheetContent = {
+                if (true) {
+                    BottomSheetContent(stops)
+                }
+            }
+        ) { it ->
+            val bottomPadding by remember {
+                derivedStateOf { bottomSheet.requireSheetVisibleHeightDp() }
+            }
+            RouteDetailScreenContent(
+                bottomPadding = bottomPadding,
+                cameraPositionState = cameraPositionState,
+                patternGeom = patterGeom,
+                route = route,
+                stopsList = stopsList.stops,
+                padding = innerPadding, // 🔥 Ajustamos el padding correctamente
+                layoutHeight = bottomSheet.layoutHeightDp
+            )
+            Log.d("CustomFinalizedDemoScreen", "bottom padding: ${bottomPadding}")
+        }
+    }
 
 }
 
@@ -199,6 +199,7 @@ private fun rememberMapPadding(bottomPadding: Dp, maxBottomPadding: Dp): Padding
         remember { PaddingValues() }
     }
 }
+
 @Composable
 private fun rememberPortraitMapPadding(bottomPadding: Dp, maxBottomPadding: Dp): PaddingValues {
     return remember(bottomPadding, maxBottomPadding) {
@@ -209,6 +210,7 @@ private fun rememberPortraitMapPadding(bottomPadding: Dp, maxBottomPadding: Dp):
         )
     }
 }
+
 @Composable
 fun RouteDetailScreenContent(
     route: RoutesItem,
@@ -253,7 +255,7 @@ fun Map(
     mapUiConfiguration: MapUiSettings,
     initialState: CameraPositionState,
     points: List<LatLng>,
-    contentPadding : PaddingValues
+    contentPadding: PaddingValues
 ) {
     val zoom = initialState.position.zoom
     val baseWidth = 5f
@@ -282,7 +284,7 @@ fun Map(
         onMapLoaded = {},
         contentPadding = contentPadding,
 
-    ) {
+        ) {
         Polyline(
             points = points,
             color = MaterialTheme.colorScheme.primary,
@@ -310,7 +312,6 @@ fun Map(
         }
     }
 }
-
 
 
 @Preview(showBackground = true)

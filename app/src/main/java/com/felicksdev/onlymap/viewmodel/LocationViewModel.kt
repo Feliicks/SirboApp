@@ -13,23 +13,30 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.felicksdev.onlymap.data.api.PhotonService
 import com.felicksdev.onlymap.data.models.AddressState
 import com.felicksdev.onlymap.data.models.LocationInfo
+import com.felicksdev.onlymap.data.models.photonModels.toDomain
+import com.felicksdev.onlymap.domain.Place
+import com.felicksdev.onlymap.domain.LocationProperties
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import retrofit2.HttpException
+import java.io.IOException
+import javax.inject.Inject
 
-
-class LocationViewModel
-    (
-
+@HiltViewModel
+class LocationViewModel @Inject constructor(
+    private val photonService: PhotonService
 ) : ViewModel() {
     //
 //    Localizacion Actualizada
@@ -42,10 +49,12 @@ class LocationViewModel
 
     val originLocationState = mutableStateOf(AddressState())
     val destinationLocationState = mutableStateOf(AddressState())
+
     //
     val currentAddressState = mutableStateOf(AddressState())
     lateinit var fusedLocationClient: FusedLocationProviderClient
-//    lateinit var geoCoder: Geocoder
+
+    //    lateinit var geoCoder: Geocoder
     var locationState by mutableStateOf<LocationState>(LocationState.NoPermission)
 
 //    private val _destinoLocation = MutableLiveData<LocationInfo>()
@@ -53,6 +62,20 @@ class LocationViewModel
 //
 //    private val _originLocation = MutableLiveData<LocationInfo>()
 //    val originLocation: LiveData<LocationInfo> = _originLocation
+
+    // Definición del estado para el error
+    private val _recentLocations = MutableStateFlow<List<Place>>(emptyList())
+    val recentLocations: StateFlow<List<Place>> = _recentLocations
+
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery
+
+    private val _searchResults = MutableStateFlow<List<Place>>(emptyList())
+    val searchResults: StateFlow<List<Place>> = _searchResults
+
+    private val _recentPlaces = MutableStateFlow<List<Place>>(emptyList())
+    val recentPlaces: StateFlow<List<Place>> = _recentPlaces
+
 
     private val _destinationLocation = MutableLiveData<LocationInfo>()
     val destinationLocation: LiveData<LocationInfo> = _destinationLocation
@@ -89,13 +112,33 @@ class LocationViewModel
     private val _currentLocation = MutableLiveData<LatLng>()
     val currentLocation: LiveData<LatLng> = _currentLocation
 
-
-
+    private val _currentAddress = MutableStateFlow<LocationProperties>(LocationProperties())
+    val currentAddress: MutableStateFlow<LocationProperties> = _currentAddress
 
 
     private lateinit var geocoder: Geocoder
     fun initializeGeoCoder(context: Context) {
         geocoder = Geocoder(context)
+    }
+
+    fun updateSearchQuery(query: String) {
+        _searchQuery.value = query
+        if (query.isNotEmpty()) {
+            searchLocations(query)
+        } else {
+            _searchResults.value = emptyList()
+        }
+    }
+
+    private fun searchLocations(query: String) {
+        viewModelScope.launch {
+//            val results = locationRepository.searchPlaces(query)
+//            _searchResults.value = results
+        }
+    }
+
+    fun selectLocation(place: Place) {
+        // Guardar la ubicación seleccionada
     }
 
     // Función para obtener el LocationInfo basado en la selección
@@ -131,6 +174,7 @@ class LocationViewModel
             }
         }
     }
+
     fun updateLocationAddresses() {
         viewModelScope.launch {
             try {
@@ -163,13 +207,14 @@ class LocationViewModel
     }
 
 
-    fun setMapMarkerLocation (currentLocation : LatLng){
+    fun setMapMarkerLocation(currentLocation: LatLng) {
         if (_destinoFieldSelected.value!!)
-            _endLocation.value= _endLocation.value.copy(coordinates = currentLocation)
+            _endLocation.value = _endLocation.value.copy(coordinates = currentLocation)
 
         if (_origenFieldSelected.value!!)
             _startLocation.value = _startLocation.value.copy(coordinates = currentLocation)
     }
+
     // Actualiza el estado de ubicación basado en si es un destino o un origen
     fun updateLocationState(isDestino: Boolean, addressState: AddressState) {
         if (isDestino) {
@@ -181,6 +226,54 @@ class LocationViewModel
     }
 
 
+    fun getAddress(coords: LatLng) {
+        viewModelScope.launch {
+            try {
+                val response = photonService.getAdressByLocation(
+                    coords.latitude,
+                    coords.longitude
+                ) // Asegurar orden correcto
+
+                if (response.isSuccessful) {
+                    val body = response.body()
+
+                    if (body != null) {
+
+                        val feature =
+                            body.features.firstOrNull() // Puede ser null si la API no encuentra nada
+                        Log.d("getAddress", "Respuesta de la API: $feature")
+
+                        if (feature != null) {
+                            val address = feature.properties.toDomain()
+                            Log.d("getAddress", "Dirección obtenida: $address")
+                            _currentAddress.value = address
+                        } else {
+                            Log.e("getAddress", "Error: No se encontró una dirección válida")
+//                            _currentAddress.value = "Dirección no encontrada"
+                        }
+                    } else {
+                        Log.e("getAddress", "Error: Respuesta de la API es null")
+//                        _currentAddress.value = "Error al obtener la dirección"
+                    }
+                } else {
+                    Log.e(
+                        "getAddress",
+                        "Error en la API. Código: ${response.code()} - ${response.message()}"
+                    )
+//                    _currentAddress.value = "No se pudo obtener la dirección"
+                }
+            } catch (e: IOException) { // Error de red
+                Log.e("getAddress", "Error de red: ${e.message}", e)
+//                _currentAddress.value = "Error de conexión"
+            } catch (e: HttpException) { // Error HTTP
+                Log.e("getAddress", "Error HTTP: ${e.message}", e)
+//                _currentAddress.value = "Error en el servidor"
+            } catch (e: Exception) { // Otros errores inesperados
+                Log.e("getAddress", "Excepción inesperada: ${e.message}", e)
+//                _currentAddress.value = "Error desconocido"
+            }
+        }
+    }
 
 
     fun getInitLocation(context: Context) {
@@ -342,7 +435,6 @@ class LocationViewModel
     }
 
 
-
     fun onLocationFieldsChange(origen: String, destino: String) {
         _originAddressText.value = origen
         _originAddressText.value = destino
@@ -414,7 +506,4 @@ class LocationViewModel
         return true
     }
 
-    fun getCurrentLocation(): LatLng {
-        return currentLocation.value!!
-    }
 }

@@ -2,7 +2,6 @@
 
 package com.felicksdev.onlymap.ui.presentation.screens.planner
 
-import com.felicksdev.onlymap.viewmodel.RoutesViewModel
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,6 +40,7 @@ import com.felicksdev.onlymap.data.models.otpModels.routing.Leg
 import com.felicksdev.onlymap.ui.presentation.components.topBars.RouterPlannerBar
 import com.felicksdev.onlymap.viewmodel.LocationViewModel
 import com.felicksdev.onlymap.viewmodel.PlannerViewModel
+import com.felicksdev.onlymap.viewmodel.RoutesViewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.maps.android.PolyUtil
 import com.google.maps.android.compose.GoogleMap
@@ -216,7 +216,7 @@ fun OptimalRoutesScreenContent(
 @Composable
 private fun OptimalRouteScreenPreview() {
     OptimalRouteScreen(
-        locationViewModel = LocationViewModel(),
+        locationViewModel = hiltViewModel(),
         plannerViewModel = hiltViewModel(),
         navController = rememberNavController()
     )

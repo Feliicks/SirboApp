@@ -10,7 +10,6 @@ plugins  {
     alias(libs.plugins.secrets.gradle) apply false
     alias(libs.plugins.compose.compiler) apply false
 
-
     alias(libs.plugins.ksp) apply false
 
 //    id("org.jetbrains.kotlin.kapt") version "2.0.0" apply false

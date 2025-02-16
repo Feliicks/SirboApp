@@ -199,7 +199,7 @@ fun PreviewOptimalRoutesScreen() {
 
     OptimalRoutesScreen(
         mainViewModel = MainViewModel(),
-        locationViewModel = LocationViewModel(),
+        locationViewModel = hiltViewModel(),
         navController = navController,
     )
 }

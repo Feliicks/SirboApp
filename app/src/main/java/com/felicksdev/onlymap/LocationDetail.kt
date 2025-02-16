@@ -1,7 +1,6 @@
 package com.felicksdev.onlymap
 
-// Data class representing a location
-data class TrufiLocation(
+data class LocationDetail(
     val description: String = "",
     val address: String = "",
     val latitude: Double = 0.0,

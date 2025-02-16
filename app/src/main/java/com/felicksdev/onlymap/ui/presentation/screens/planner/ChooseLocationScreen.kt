@@ -34,84 +34,71 @@ import com.felicksdev.onlymap.ui.presentation.components.topBars.TopBar
 import com.felicksdev.onlymap.viewmodel.PlannerViewModel
 
 
-@Preview
-@Composable
-private fun LocationsSelectionScreenPreview() {
-    ChooseLocationsScreen(
-        navController = rememberNavController(),
-        isOrigin = true,
-        plannerViewModel = null
-    )
-}
-
 @Composable
 fun ChooseLocationsScreen(
     isOrigin: Boolean,
     navController: NavController,
     onNavigate: (String) -> Unit = {},
-    plannerViewModel: PlannerViewModel? = hiltViewModel()
+    plannerViewModel: PlannerViewModel = hiltViewModel()
 ) {
-//    val errorState by plannerViewModel.errorState.collectAsState()
-    val errorState by plannerViewModel!!.errorState.collectAsState()
+    val errorState by plannerViewModel.errorState.collectAsState()
+    val isPlacesDefined = plannerViewModel.isPlacesDefined()
+
+    ChooseLocationsScreenContent(
+        isOrigin = isOrigin,
+        navController = navController,
+        onSetLocation = { plannerViewModel.testSetLocations() },
+        onNavigate = {
+            if (isPlacesDefined) {
+                navController.navigate(OptimalRoutesScreen.route)
+                Log.d("ChooseLocationsScreen", "Ambos lugares están definidos")
+            } else {
+                Log.d("ChooseLocationsScreen", "Faltan lugares por definir")
+                // Aquí podrías lanzar un snackbar o diálogo de error
+            }
+        }
+    )
+}
+
+@Composable
+fun ChooseLocationsScreenContent(
+    isOrigin: Boolean,
+    navController: NavController,
+    onSetLocation: () -> Unit,
+    onNavigate: () -> Unit
+) {
     Scaffold(
         topBar = {
             TopBar(
                 text = "Seleccione " + if (isOrigin) "origen" else "destino",
                 navController = navController
             )
-        },
-        content = { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Column {
-                    Box {
-                        Text(
-                            text = "Selecciona una ubicación",
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-                    }
-                    SuggestionList(
-                        onClick = {
-                            plannerViewModel!!.testSetLocations()
-                        },
-                        onNavigate = {
-                            //                      si ambos objeos estan llenos entonces
-//                      navegar a la siguiente pantalla de planificaiocn
-//                routesViewModel.getOptimalRoutes( originLocation ,destinationLocation)
-                            // Todo  hacer el fetch aqui
-//                Hacer valdiacion si ambos places estan definidos
-                            if (plannerViewModel!!.isPlacesDefined()) {
-                                navController.navigate(OptimalRoutesScreen.route)
-
-                                Log.d(
-                                    "ChooseLocationsScreen",
-                                    "${plannerViewModel!!.isPlacesDefined()}Both places are defined"
-                                )
-                            } else {
-                                Log.d(
-                                    "ChooseLocationsScreen",
-                                    "${plannerViewModel!!.isPlacesDefined()}Both places are not defined"
-                                )
-                                // Mostrar dialogo de error
-//                    alertstate.true //
-//                    alrer.text = "Por favor selecciona un origen y destino"
-
-                            }
-                        },
-                        navController = navController,
-                        isOrigin = isOrigin
-                    )
-                }
-
-            }
         }
-    )
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box {
+                Text(
+                    text = "Selecciona una ubicación",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+
+            SuggestionList(
+                onClick = onSetLocation,
+                onNavigate = onNavigate,
+                navController = navController,
+                isOrigin = isOrigin
+            )
+        }
+    }
 }
+
 
 @Composable
 fun SuggestionList(
@@ -120,43 +107,33 @@ fun SuggestionList(
     onClick: () -> Unit = {},
     onNavigate: () -> Unit
 ) {
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
+    Column(modifier = Modifier.fillMaxSize()) {
         LocationOptionItem(
             locationIcon = Icons.Default.MyLocation,
             locationText = "Mi ubicación",
-            onLocationSelected = {
-                //Logica para  obtener la ubicacion actual
-                Log.d("LocationsOptions", "Mi ubicación")
-            },
+            onLocationSelected = { Log.d("LocationsOptions", "Mi ubicación") }
         )
+
         LocationOptionItem(
             locationIcon = Icons.Default.LocationOn,
             locationText = "Seleccionar ubicación en el mapa",
             onLocationSelected = {
-                // Logica para abrir mapa
                 try {
                     navController.navigate(MapScreen.route + isOrigin)
                 } catch (e: Exception) {
-                    Log.d(
-                        "LocationOptionItem", "Error al abrir pantalla ${e.message}"
-                    )
+                    Log.d("LocationOptionItem", "Error al abrir pantalla ${e.message}")
                 }
-            },
+            }
         )
+
         Button(
             onClick = onNavigate,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(50.dp),
-            enabled = true
+                .height(50.dp)
         ) {
             Row(
-                modifier = Modifier
-                    .padding(horizontal = 8.dp),
+                modifier = Modifier.padding(horizontal = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Siguiente", color = Color.White)
@@ -165,9 +142,10 @@ fun SuggestionList(
                     contentDescription = null
                 )
             }
-
         }
+
         Spacer(modifier = Modifier.height(16.dp))
+
         Button(
             modifier = Modifier
                 .fillMaxWidth()
@@ -175,9 +153,19 @@ fun SuggestionList(
             onClick = onClick
         ) {
             Text("setViewModel", color = Color.White)
-
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewChooseLocationsScreenContent() {
+    ChooseLocationsScreenContent(
+        isOrigin = true,
+        navController = rememberNavController(),
+        onSetLocation = { /* Simulación de testSetLocations() */ },
+        onNavigate = { /* Simulación de navegación */ }
+    )
 }
 
 

@@ -2,7 +2,6 @@ package com.felicksdev.onlymap
 
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.felicksdev.onlymap.ui.navigation.NavigationHost
@@ -15,17 +14,17 @@ import com.felicksdev.onlymap.viewmodel.PlannerViewModel
 @Composable
 fun SirboApp() {
     val plannerViewModel: PlannerViewModel = hiltViewModel()
+    val locationViewModel: LocationViewModel = hiltViewModel()
 //    Se puede eliminar sintacia usano DI
 
     val navController = rememberNavController()
     val homeScreenViewModel = HomeScreenViewModel()
-    val locationViewModel = LocationViewModel()
-    val plannerState = plannerViewModel.plannerState.collectAsState()
+//    val plannerState = plannerViewModel.plannerState.collectAsState()
     OnlyMapTheme(
 
     ) {
         Scaffold(bottomBar = {
-            if (plannerState.value.isPlacesDefined)
+            if (plannerViewModel.isPlacesDefined())
                 CustomBottomSheet()
             else
                 BottomNavigationBar(navController = navController)

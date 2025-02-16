@@ -21,7 +21,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun ChooseOnMapTopBar(modifier: Modifier = Modifier, navController: NavController) {
+fun ChooseLocationOnMapTopBar(modifier: Modifier = Modifier, navController: NavController) {
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -59,7 +59,7 @@ fun ChooseOnMapTopBar(modifier: Modifier = Modifier, navController: NavControlle
 @Preview
 @Composable
 private fun BarPreview() {
-    ChooseOnMapTopBar(
+    ChooseLocationOnMapTopBar(
         navController = rememberNavController()
     )
 }

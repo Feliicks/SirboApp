@@ -1,6 +1,5 @@
 package com.felicksdev.onlymap.ui.navigation
 
-import ChooseLocationsScreen
 import LocationsSelectionScreen
 import android.util.Log
 import androidx.compose.animation.AnimatedContentTransitionScope
@@ -22,10 +21,11 @@ import com.felicksdev.onlymap.ui.navigation.Destinations.LocationsSelectionScree
 import com.felicksdev.onlymap.ui.navigation.Destinations.MapScreen
 import com.felicksdev.onlymap.ui.navigation.Destinations.SecondScreen
 import com.felicksdev.onlymap.ui.presentation.screens.DetalleRutaScreen
-import com.felicksdev.onlymap.ui.presentation.screens.MapScreen
+import com.felicksdev.onlymap.ui.presentation.screens.ChooseLocationOnMapScreen
 import com.felicksdev.onlymap.ui.presentation.screens.mainScreens.HomeScreen
 import com.felicksdev.onlymap.ui.presentation.screens.mainScreens.ListaRutasScreen
 import com.felicksdev.onlymap.ui.presentation.screens.mainScreens.SecondScreen
+import com.felicksdev.onlymap.ui.presentation.screens.planner.AlternativeChooseLocationScreen
 import com.felicksdev.onlymap.ui.presentation.screens.planner.OptimalRouteScreen
 import com.felicksdev.onlymap.utils.MapConfig
 import com.felicksdev.onlymap.viewmodel.HomeScreenViewModel
@@ -100,7 +100,7 @@ fun NavigationHost(
                 bottomPadding = bottomPadding
             )
         }
-        composable(Destinations.RouteDetailScreen.route+"{id}") { backStrackEntry ->
+        composable(Destinations.RouteDetailScreen.route + "{id}") { backStrackEntry ->
             val id = backStrackEntry.arguments?.getString("id").toString()
             val TAG = "NavigationHost"
             Log.d(TAG, "id de ruta en nav: $id")
@@ -121,8 +121,8 @@ fun NavigationHost(
             LocationsSelectionScreen(
                 navController = navController,
                 locationViewModel = locationViewModel,
+            )
 
-                )
         }
         composable(
             route = MapScreen.route + "{isOrigin}",
@@ -131,7 +131,7 @@ fun NavigationHost(
             })
         ) { navBackStack ->
             val isOrigin = navBackStack.arguments?.getBoolean("isOrigin")
-            MapScreen(
+            ChooseLocationOnMapScreen(
                 isOrigin = isOrigin!!,
                 viewModel = locationViewModel,
                 cameraPositionState = cameraPositionState,
@@ -149,11 +149,18 @@ fun NavigationHost(
         ) { backStackEntry ->
             val isOrigin = backStackEntry.arguments?.getBoolean("isOrigin")
             Log.d("NavigationHost", "isOrigin: $isOrigin")
-            ChooseLocationsScreen(
+//            ChooseLocationsScreen(
+//                isOrigin = isOrigin!!,
+//                navController = navController,
+//                plannerViewModel = plannerViewModel
+//            )
+
+            AlternativeChooseLocationScreen(
                 isOrigin = isOrigin!!,
                 navController = navController,
                 plannerViewModel = plannerViewModel
             )
+
         }
 
     }

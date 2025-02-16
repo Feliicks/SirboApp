@@ -1,3 +1,5 @@
+import org.gradle.api.JavaVersion.VERSION_11
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -37,12 +39,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = VERSION_11
+        targetCompatibility = VERSION_11
     }
 
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 
     buildFeatures {
@@ -130,6 +132,8 @@ dependencies {
     implementation("io.morfly.compose:advanced-bottomsheet-material3:0.1.0")
     implementation(libs.google.accompanist)
 
+
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.test.junit)
     androidTestImplementation(libs.espresso.core)
@@ -150,5 +154,10 @@ dependencies {
 
     ksp(libs.hilt.compiler)
     kspTest(libs.hilt.compiler)
+
+    // Room
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
 
 }

@@ -1,4 +1,3 @@
-
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.layout.Box
@@ -44,10 +43,11 @@ import com.felicksdev.onlymap.viewmodel.RoutesViewModel
 @Composable
 private fun LocationsSelectionScreenPreview() {
     LocationsSelectionScreen(
-        locationViewModel = LocationViewModel(),
+        locationViewModel = hiltViewModel(),
         navController = rememberNavController(),
     )
 }
+
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun LocationsSelectionScreen(
@@ -93,7 +93,7 @@ fun LocationsSelectionScreen(
                         locationViewModel = locationViewModel,
                         routesViewModel = routesViewModel,
 
-                    )
+                        )
                 }
 
             }
