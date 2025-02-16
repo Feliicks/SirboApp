@@ -4,8 +4,8 @@ import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.felicksdev.onlymap.data.models.Ruta
 import com.felicksdev.onlymap.data.api.OtpService
+import com.felicksdev.onlymap.data.models.Ruta
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.PolylineOptions
@@ -17,6 +17,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class HomeScreenViewModel : ViewModel() {
+
+
     val rutaData: MutableState<Ruta?> = mutableStateOf(null)
     private fun getRetrofit(): Retrofit {
         return Retrofit.Builder()

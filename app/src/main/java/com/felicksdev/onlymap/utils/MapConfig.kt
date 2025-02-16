@@ -22,7 +22,8 @@ object MapConfig {
             maxZoomPreference = 18f
         )
         mapUiConfig = MapUiSettings(
-            myLocationButtonEnabled = true
+            myLocationButtonEnabled = true,
+            zoomControlsEnabled = true
         )
         val lpLocation = LatLng(-16.489689, -68.15693)
         initialState = CameraPositionState(

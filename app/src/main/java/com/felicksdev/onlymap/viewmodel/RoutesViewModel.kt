@@ -14,7 +14,6 @@ import com.felicksdev.onlymap.data.models.otpModels.PatterDetail
 import com.felicksdev.onlymap.data.models.otpModels.Pattern
 import com.felicksdev.onlymap.data.models.otpModels.RouteStopItem
 import com.felicksdev.onlymap.data.models.otpModels.routes.PatternGeometry
-import com.felicksdev.onlymap.data.models.otpModels.routes.Routes
 import com.felicksdev.onlymap.data.models.otpModels.routes.RoutesItem
 import com.felicksdev.onlymap.data.models.otpModels.routing.Leg
 import com.felicksdev.onlymap.utils.MapConfig
@@ -25,6 +24,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.net.SocketTimeoutException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,11 +35,14 @@ class RoutesViewModel @Inject constructor(
     var state by mutableStateOf(RutaState())
         private set
 
-    //    var routesList by mutableStateOf<List<RoutesModelItem>>(emptyList())
-//        private set
-    private val _routesList = MutableStateFlow(Routes())
-    val routesList: StateFlow<Routes> = _routesList.asStateFlow()
+    private val _allRoutesList = MutableStateFlow<List<RoutesItem>>(emptyList())
+    val allRoutesList: StateFlow<List<RoutesItem>> = _allRoutesList
 
+    private val _filteredRoutesList = MutableStateFlow<List<RoutesItem>>(emptyList())
+    val filteredRoutesList: StateFlow<List<RoutesItem>> = _filteredRoutesList
+
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
     private val _selectedPatternGeometry = MutableStateFlow(PatternGeometry())
     val selectedPatternGeometry: StateFlow<PatternGeometry> = _selectedPatternGeometry.asStateFlow()
@@ -79,6 +82,8 @@ class RoutesViewModel @Inject constructor(
     private val _routeSelected = MutableStateFlow<RoutesItem>(RoutesItem())
     val routeSelected: MutableStateFlow<RoutesItem> = _routeSelected
 
+    private val _errorMessage = MutableStateFlow<String?>(null) // Estado para manejar errores
+    val errorMessage: MutableStateFlow<String?> = _errorMessage
 
     var routePatterns by mutableStateOf(listOf<Pattern>())
         private set
@@ -89,6 +94,29 @@ class RoutesViewModel @Inject constructor(
     var optimalRouteLegs by mutableStateOf<List<Leg>>(emptyList())
         private set
 
+    private val _isLoading = MutableStateFlow<Boolean>(false) // Estado para manejar errores
+    val isLoading: MutableStateFlow<Boolean> = _isLoading
+
+
+    fun setSearchQuery(query: String) {
+        _searchQuery.value = query
+        filtrarRutas(query) // 🔥 Llamamos a la función de filtrado local
+    }
+
+    private fun filtrarRutas(query: String) {
+        Log.d("RutasViewModel", "Filtrando rutas con query: $query")
+        val filtered = if (query.isEmpty()) {
+            _allRoutesList.value // ✅ Ahora accedemos a la lista interna
+        } else {
+            _allRoutesList.value.filter {
+                it.shortName.contains(query, ignoreCase = true) || it.longName.contains(
+                    query,
+                    ignoreCase = true
+                )
+            }
+        }
+        _filteredRoutesList.value = filtered // ✅ Creamos un nuevo `Routes`
+    }
 
     fun onRouteItemSelected(ruta: Ruta) {
         viewModelScope.launch {
@@ -108,16 +136,26 @@ class RoutesViewModel @Inject constructor(
     }
 
     fun obtenerRutas() {
+        _isLoading.value = true
         viewModelScope.launch {
             try {
                 val resultado = otpService.indexRoutes()
 
-                _routesList.value = resultado.body() ?: Routes()
-                Log.d("RutasViewModel", "Rutas obtenidas $routesList")
+                _allRoutesList.value = resultado.body() ?: emptyList()
+                _filteredRoutesList.value = resultado.body() ?: emptyList()
+
+                Log.d("RutasViewModel", "Rutas obtenidas $allRoutesList")
                 Log.d("RutasViewModel", "Obtuve todas las rutas exitosamente")
+
+            } catch (e: SocketTimeoutException) {
+                Log.e("RutasViewModel", "Error de conexión: ${e.message}")
+                _errorMessage.value = "No se pudo conectar con el servidor. Verifica la red."
 
             } catch (e: Exception) {
                 Log.e("RutasViewModel", "Error al obtener las rutas", e)
+                _errorMessage.value = "Ocurrió un error: ${e.message}"
+            } finally {
+                _isLoading.value = false // 🔥 Asegura que la barra de carga se desactiva SIEMPRE
             }
         }
     }

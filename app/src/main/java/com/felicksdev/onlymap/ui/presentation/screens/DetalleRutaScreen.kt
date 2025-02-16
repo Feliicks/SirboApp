@@ -6,34 +6,49 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.felicksdev.onlymap.R
 import com.felicksdev.onlymap.data.models.otpModels.RouteStopItem
 import com.felicksdev.onlymap.data.models.otpModels.routes.PatternGeometry
 import com.felicksdev.onlymap.data.models.otpModels.routes.RoutesItem
 import com.felicksdev.onlymap.ui.presentation.components.RouteDetailsTopBar
+import com.felicksdev.onlymap.ui.presentation.components.RouteStopItem
+import com.felicksdev.onlymap.utils.BitMapUtils
 import com.felicksdev.onlymap.utils.MapConfig
 import com.felicksdev.onlymap.viewmodel.RoutesViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
@@ -42,11 +57,14 @@ import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.rememberMarkerState
 
 const val TAG = "RouteDetailScreen"
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetalleRutaScreen(
     idRuta: String,
@@ -67,23 +85,58 @@ fun DetalleRutaScreen(
 
     val route by viewModel.routeSelected.collectAsState()
     val stopsList by viewModel.routeSelectePattern.collectAsState()
+    // 🔹 Estado del Bottom Sheet
+    val sheetState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState(initialValue = SheetValue.PartiallyExpanded)
+    )
+    val stops = stopsList.stops.map { it.name }
+
+    // 🔹 Scaffold Principal con `TopAppBar`
     Scaffold(
         topBar = {
-            RouteDetailsTopBar(
-                route = route,
-                navController = navController
-            )
-        },
-        content = { padding ->
+            RouteDetailsTopBar(route = route, navController = navController)
+        }
+    ) { innerPadding ->
+        // 🔹 BottomSheetScaffold dentro de Scaffold
+        BottomSheetScaffold(
+            scaffoldState = sheetState,
+            sheetPeekHeight = 100.dp, // 🔥 Altura mínima cuando está colapsado
+            sheetContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            sheetContent = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(
+                            min = 100.dp,
+                            max = (LocalConfiguration.current.screenHeightDp.dp / 2)
+                        )
+                ) {
+                    // 🔹 Lista de Paradas
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    ) {
+                        itemsIndexed(stops) { index, stop ->
+                            RouteStopItem(
+                                stopName = stop,
+                                isFirst = index == 0,
+                                isLast = index == stops.size - 1
+                            )
+                        }
+                    }
+                }
+            }
+        ) { padding ->
             RouteDetailScreenContent(
                 cameraPositionState = cameraPositionState,
                 patternGeom = patterGeom,
                 route = route,
                 stopsList = stopsList.stops,
-                padding = padding
+                padding = innerPadding // 🔥 Ajustamos el padding correctamente
             )
         }
-    )
+    }
 }
 
 @Composable
@@ -95,7 +148,7 @@ fun RouteDetailScreenContent(
     cameraPositionState: CameraPosition
 ) {
 
-    val points = PolyUtil.decode(patternGeom.points)
+    val points = remember(patternGeom.points) { PolyUtil.decode(patternGeom.points) }
 
     val cameraState = rememberCameraPositionState {
         position = cameraPositionState
@@ -106,20 +159,6 @@ fun RouteDetailScreenContent(
             .fillMaxSize()
             .padding(padding)
     ) {
-        Text(
-            text = "Ruta: ${route.shortName}",
-            style = MaterialTheme.typography.bodySmall
-        )
-        Text(
-            text = "Duración: 55 minutos", // Este valor debería venir de los datos correctos
-            style = MaterialTheme.typography.bodySmall
-        )
-        Text(
-            text = "Distancia: 5 km", // Este valor también debe ser dinámico
-            style = MaterialTheme.typography.bodySmall
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
         Map(
             stops = stopsList,
             mapConfiguration = MapConfig.mapProperties,
@@ -129,13 +168,6 @@ fun RouteDetailScreenContent(
         )
 
         Spacer(modifier = Modifier.height(16.dp))
-
-        // Aquí podrías agregar una lista de paradas u otra información adicional
-//        LazyColumn {
-//            items(stopsList) { stop ->
-//                ParadaItem(stop)
-//            }
-//        }
     }
 }
 
@@ -147,39 +179,25 @@ fun Map(
     initialState: CameraPositionState,
     points: List<LatLng>
 ) {
-    // 🔥 Obtener el nivel de zoom actual desde CameraPositionState
     val zoom = initialState.position.zoom
-
-    // 🔥 Parámetros clave para modificar el efecto de escalado de la línea
-    val baseWidth = 5f       // ⚙️ Grosor base de la línea en zoom intermedio
-    val zoomFactor = 10f     // ⚙️ Factor para suavizar el cambio de grosor según el zoom
-    val minWidth =
-        13f        // ⚙️ Grosor mínimo permitido (ajustar si la línea es muy fina en zoom bajo)
-    val maxWidth =
-        23f       // ⚙️ Grosor máximo permitido (ajustar si la línea es demasiado gruesa en zoom alto)
-
-// 🔥 Calcular el grosor de la Polyline basado en el zoom actual
+    val baseWidth = 5f
+    val zoomFactor = 10f
+    val minWidth = 13f
+    val maxWidth = 23f
     val scaledWidth = (baseWidth * (zoom / zoomFactor)).coerceIn(minWidth, maxWidth)
 
     LaunchedEffect(points) {
-
         try {
-            // Crea los límites (LatLngBounds) a partir de la lista de puntos
             val boundsBuilder = LatLngBounds.Builder()
             points.forEach { boundsBuilder.include(it) }
             val bounds = boundsBuilder.build()
-
-            // Ejecuta la animación de la cámara en una corrutina dentro de LaunchedEffect
             initialState.animate(
-                update = CameraUpdateFactory.newLatLngBounds(bounds, 80), // 50 es el padding
-                //                durationMs = 1000 // Duración de la animación en milisegundos
+                update = CameraUpdateFactory.newLatLngBounds(bounds, 80)
             )
         } catch (e: IllegalStateException) {
-            e.printStackTrace() // Maneja el error para evitar crasheos
+            e.printStackTrace()
         }
-
     }
-
 
     GoogleMap(
         uiSettings = mapUiConfiguration,
@@ -189,9 +207,29 @@ fun Map(
     ) {
         Polyline(
             points = points,
-            color = Color.Red,
+            color = MaterialTheme.colorScheme.primary,
             width = scaledWidth
         )
+        // 🔥 Agregar icono al inicio de la ruta1
+        if (points.isNotEmpty()) {
+            Marker(
+                state = rememberMarkerState(position = points.first()), // 🔹 Primer punto
+                title = "Inicio de Ruta",
+                icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN) // 🚩 Verde
+            )
+        }
+
+        // 🔥 Agregar icono al final de la ruta
+        if (points.isNotEmpty()) {
+            Marker(
+                state = rememberMarkerState(position = points.last()), // 🔹 Último punto
+                title = "Fin de Ruta",
+                icon = BitMapUtils.bitmapDescriptor(
+                    context = LocalContext.current,
+                    vectorResId = R.drawable.ic_location_on,
+                ) // 🚩 Rojo
+            )
+        }
     }
 }
 

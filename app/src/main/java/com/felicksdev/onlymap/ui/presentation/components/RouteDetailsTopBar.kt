@@ -96,6 +96,7 @@ fun RouteDetailsTopBar(
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.surface,
+//            containerColor = Colors.Red,
             scrolledContainerColor = MaterialTheme.colorScheme.surfaceVariant, // 🔥 Cambia de color al hacer scroll
             navigationIconContentColor = MaterialTheme.colorScheme.primary,
             titleContentColor = MaterialTheme.colorScheme.onSurface,

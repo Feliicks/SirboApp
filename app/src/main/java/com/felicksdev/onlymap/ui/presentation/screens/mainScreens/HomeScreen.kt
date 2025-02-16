@@ -12,6 +12,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberBottomSheetScaffoldState
@@ -19,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,6 +34,7 @@ import com.felicksdev.onlymap.ui.presentation.components.bottomBars.SheetContent
 import com.felicksdev.onlymap.ui.presentation.components.topBars.SmallRouterPlannerBar
 import com.felicksdev.onlymap.viewmodel.HomeScreenViewModel
 import com.felicksdev.onlymap.viewmodel.PlannerViewModel
+import com.felicksdev.onlymap.viewmodel.RoutesViewModel
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.rememberCameraPositionState
 
@@ -42,21 +45,24 @@ fun HomeScreen(
     navController: NavController,
     myCameraPositionState: CameraPositionState,
     plannerViewModel: PlannerViewModel = hiltViewModel(),
-    bottomPadding: PaddingValues
+    bottomPadding: PaddingValues,
+    routesViewModel: RoutesViewModel
 ) {
-
     LaunchedEffect(Unit) {
-//        si plan es definido y vvalido entonces cargar una loading screen hazstal respuesta de fetchplan
         if (plannerViewModel.isPlacesDefined()) {
             plannerViewModel.fetchPlan()
         }
     }
+
+
     val errorState by plannerViewModel.errorState.collectAsState()
     val isLoading by plannerViewModel.isLoading.collectAsState()
     val cameraPositionState = plannerViewModel.cameraPosition.collectAsState()
     val cameraState = rememberCameraPositionState {
         position = cameraPositionState.value
     }
+
+
     Scaffold(
         topBar = {
             SmallRouterPlannerBar(
@@ -119,7 +125,7 @@ fun HomeScreenContent(
 //                padding = innerPadding.plus(padding),
 //                padding =  plannerViewModel.isPlacesDefined().let { innerPadding } ?: padding,
 //                padding =   (plannerViewModel.isPlacesDefined())?: innerPadding else padding,
-                padding =  if (plannerViewModel.isPlacesDefined()) innerPadding else padding,
+                padding = if (plannerViewModel.isPlacesDefined()) innerPadding else padding,
                 itinerary = planResult?.itineraries?.get(0)
             )
 
@@ -138,7 +144,8 @@ fun PreviewHomeScreen() {
         navController = navController,
         myCameraPositionState = CameraPositionState(),
         plannerViewModel = hiltViewModel(),
-        bottomPadding = PaddingValues()
+        bottomPadding = PaddingValues(),
+        routesViewModel = hiltViewModel()
     )
 }
 

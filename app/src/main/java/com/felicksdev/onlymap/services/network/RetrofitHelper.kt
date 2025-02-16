@@ -9,9 +9,10 @@ import java.util.concurrent.TimeUnit
 object RetrofitHelper {
 
     private val okHttpClient: OkHttpClient = OkHttpClient.Builder()
-        .connectTimeout(20, TimeUnit.SECONDS)
-        .readTimeout(60, TimeUnit.SECONDS)
+        .connectTimeout(5, TimeUnit.SECONDS)
+        .readTimeout(5, TimeUnit.SECONDS)
         .build()
+
     fun otpRetrofit(): OtpService {
         return Retrofit.Builder()
 //            .baseUrl("http://10.0.2.2:8080/")
@@ -21,6 +22,7 @@ object RetrofitHelper {
             .build()
             .create(OtpService::class.java)
     }
+
     // Retrofit instance for Photon Komoot
     private val photonRetrofit: Retrofit by lazy {
         Retrofit.Builder()

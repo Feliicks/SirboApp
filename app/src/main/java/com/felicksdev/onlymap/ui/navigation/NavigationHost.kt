@@ -21,8 +21,8 @@ import com.felicksdev.onlymap.ui.navigation.Destinations.HomeScreen
 import com.felicksdev.onlymap.ui.navigation.Destinations.LocationsSelectionScreen
 import com.felicksdev.onlymap.ui.navigation.Destinations.MapScreen
 import com.felicksdev.onlymap.ui.navigation.Destinations.SecondScreen
-import com.felicksdev.onlymap.ui.presentation.screens.MapScreen
 import com.felicksdev.onlymap.ui.presentation.screens.DetalleRutaScreen
+import com.felicksdev.onlymap.ui.presentation.screens.MapScreen
 import com.felicksdev.onlymap.ui.presentation.screens.mainScreens.HomeScreen
 import com.felicksdev.onlymap.ui.presentation.screens.mainScreens.ListaRutasScreen
 import com.felicksdev.onlymap.ui.presentation.screens.mainScreens.SecondScreen
@@ -81,7 +81,8 @@ fun NavigationHost(
                 navController = navController,
                 myCameraPositionState = cameraPositionState,
                 plannerViewModel = plannerViewModel,
-                bottomPadding = bottomPadding
+                bottomPadding = bottomPadding,
+                routesViewModel = routesViewModel
             )
         }
         composable(
