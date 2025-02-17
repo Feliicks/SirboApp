@@ -1,7 +1,10 @@
 package com.felicksdev.onlymap
 
+import android.util.Log
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.felicksdev.onlymap.ui.navigation.NavigationHost
@@ -19,15 +22,16 @@ fun SirboApp() {
 
     val navController = rememberNavController()
     val homeScreenViewModel = HomeScreenViewModel()
-//    val plannerState = plannerViewModel.plannerState.collectAsState()
-    OnlyMapTheme(
-
-    ) {
+    val isPlacesDefined by plannerViewModel.isLocationDefined.collectAsState()
+    OnlyMapTheme {
         Scaffold(bottomBar = {
-            if (plannerViewModel.isPlacesDefined())
+            if (isPlacesDefined) {
+                Log.d("SirboApp", "$isPlacesDefined Se muestra el bottom sheet")
                 CustomBottomSheet()
-            else
+            } else {
+                Log.d("SirboApp", " $isPlacesDefined Se muestra el navigation bar")
                 BottomNavigationBar(navController = navController)
+            }
         }) { bottomPadding ->
             NavigationHost(
                 bottomPadding = bottomPadding,

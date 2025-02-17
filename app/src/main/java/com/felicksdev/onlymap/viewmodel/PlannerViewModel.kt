@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.felicksdev.onlymap.LocationDetail
 import com.felicksdev.onlymap.data.api.OtpService
 import com.felicksdev.onlymap.data.models.otpModels.routing.Plan
+import com.felicksdev.onlymap.isSetted
 import com.felicksdev.onlymap.utils.MapConfig
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -36,6 +37,10 @@ class PlannerViewModel @Inject constructor(
     private val _fromLocation = MutableStateFlow<LocationDetail>(LocationDetail())
     val fromLocation: StateFlow<LocationDetail> = _fromLocation
 
+    private val _isLocationDefined = MutableStateFlow<Boolean>(false)
+    val isLocationDefined: StateFlow<Boolean> = _isLocationDefined
+
+
     // Después de hacer fetch
     private val _planResult = MutableStateFlow<Plan?>(null)
     val planResult: StateFlow<Plan?> = _planResult.asStateFlow()
@@ -53,14 +58,19 @@ class PlannerViewModel @Inject constructor(
 
     // Función para actualizar la posición de la cámara
     fun updateCameraPosition(newPosition: LatLng) {
-//        _cameraPosition.value = newPosition
+//        _cameraPosition.value = n ewPosition
     }
 
     fun setFromPlace(fromPlace: LocationDetail) {
-//        _plannerState.value = _plannerState.value.copy(fromPlace = fromPlace)
         Log.d("PlannerViewModel", "Setting from place: $fromPlace")
         _fromLocation.value = fromPlace
-        // Aquí puedes guardar el estado si es necesario
+        updatePlacesDefinedState()
+    }
+
+    private fun updatePlacesDefinedState() {
+        val isDefined = _fromLocation.value.isSetted() && _toLocation.value.isSetted()
+        Log.d("PlannerViewModel", "is placed defined $isDefined")
+        _isLocationDefined.value = isDefined
     }
 
     fun setToPlace(toPlace: LocationDetail) {
@@ -68,15 +78,10 @@ class PlannerViewModel @Inject constructor(
         Log.d("PlannerViewModel", "Setting to place: $toPlace")
         _toLocation.value = toPlace
         // Aquí puedes guardar el estado si es necesario
+        updatePlacesDefinedState()
     }
 
     fun swapLocations() {
-//        _plannerState.value = _plannerState.value.copy(
-//            fromPlace = _plannerState.value.toPlace,
-//            toPlace = _plannerState.value.fromPlace
-//        )
-
-
         val fromLocation = _fromLocation.value
         val toLocation = _toLocation.value
 
@@ -89,14 +94,13 @@ class PlannerViewModel @Inject constructor(
                 "No se pueden intercambiar ubicaciones: uno de los valores es nulo"
             )
         }
-
-
     }
 
     fun reset() {
         _planResult.value = null
         _fromLocation.value = LocationDetail()
         _toLocation.value = LocationDetail()
+        updatePlacesDefinedState()
         // Aquí puedes guardar el estado si es necesario
     }
 
@@ -126,7 +130,7 @@ class PlannerViewModel @Inject constructor(
                 val itiniarios = resultado.body()!!.plan.itineraries
                 _isLoading.value = false
 //                Log.d("PlannerViewModel", "resultado de la ruta optima es " + resultado.body())
-                Log.d("PlannerViewModel", "los itinerarios es  $itiniarios")
+                Log.d("PlannerViewModel", "los itinerarios es  ${itiniarios.size}")
 
             } catch (e: Exception) {
                 _isLoading.value = false
@@ -157,11 +161,15 @@ class PlannerViewModel @Inject constructor(
             latitude = -16.49561,
             longitude = -68.15080,
         )
+//        Log.d("PlannerViewModel", "${_fromLocation.value.isSetted()}")
         _toLocation.value = LocationDetail(
             description = "Destination",
             latitude = -16.49397,
             longitude = -68.13571
         )
+        updatePlacesDefinedState()
+//        Log.d("PlannerViewModel", "${_toLocation.value.isSetted()}")
+
     }
 
 

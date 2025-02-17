@@ -3,24 +3,23 @@
 package com.felicksdev.onlymap.ui.presentation.screens.mainScreens
 
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -34,7 +33,6 @@ import com.felicksdev.onlymap.ui.presentation.components.bottomBars.SheetContent
 import com.felicksdev.onlymap.ui.presentation.components.topBars.SmallRouterPlannerBar
 import com.felicksdev.onlymap.viewmodel.HomeScreenViewModel
 import com.felicksdev.onlymap.viewmodel.PlannerViewModel
-import com.felicksdev.onlymap.viewmodel.RoutesViewModel
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.rememberCameraPositionState
 
@@ -44,12 +42,14 @@ fun HomeScreen(
     viewModel: HomeScreenViewModel,
     navController: NavController,
     myCameraPositionState: CameraPositionState,
-    plannerViewModel: PlannerViewModel = hiltViewModel(),
+    plannerViewModel: PlannerViewModel,
     bottomPadding: PaddingValues,
-    routesViewModel: RoutesViewModel
 ) {
-    LaunchedEffect(Unit) {
-        if (plannerViewModel.isPlacesDefined()) {
+
+    val isPlacesDefined by plannerViewModel.isLocationDefined.collectAsState()
+
+    LaunchedEffect(isPlacesDefined) {
+        if (isPlacesDefined) {
             plannerViewModel.fetchPlan()
         }
     }
@@ -105,33 +105,26 @@ fun HomeScreenContent(
         scaffoldState = scaffoldState,
         sheetPeekHeight = 40.dp, // Altura mínima visible del BottomSheet
         sheetContent = {
-            // Contenido del BottomSheet
-            Column(
-                modifier = Modifier
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                // Aquí colocas el contenido del BottomSheet
-                planResult?.let { plan ->
-                    SheetContent(itineraries = plan.itineraries)
-                }
-            }
-        },
-        content = { innerPadding ->
-            // Contenido principal de la pantalla
-
-            MyMap(
-                cameraPositionState = cameraPositionState,
-//                padding = innerPadding.plus(padding),
-//                padding =  plannerViewModel.isPlacesDefined().let { innerPadding } ?: padding,
-//                padding =   (plannerViewModel.isPlacesDefined())?: innerPadding else padding,
-                padding = if (plannerViewModel.isPlacesDefined()) innerPadding else padding,
-                itinerary = planResult?.itineraries?.get(0)
-            )
-
+            planResult?.let { plan -> SheetContent(itineraries = plan.itineraries) }
         }
-    )
-
+    ) { innerPadding ->
+        MyMap(
+            cameraPositionState = cameraPositionState,
+            padding = if (plannerViewModel.isPlacesDefined()) innerPadding else padding,
+            itinerary = planResult?.itineraries?.getOrNull(0)
+        )
+    }
+}
+@Composable
+fun LoadingScreen(isLoading: Boolean) {
+    if (isLoading) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+    }
 }
 
 
@@ -145,25 +138,20 @@ fun PreviewHomeScreen() {
         myCameraPositionState = CameraPositionState(),
         plannerViewModel = hiltViewModel(),
         bottomPadding = PaddingValues(),
-        routesViewModel = hiltViewModel()
     )
 }
 
 @Composable
-fun ErrorDialog(
-    errorMessage: String,
-    onDismiss: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = { onDismiss() },
-        title = { Text(text = "Error") },
-        text = { Text(text = errorMessage) },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("OK")
-            }
-        }
-    )
+fun ErrorDialog(errorMessage: String?, onDismiss: () -> Unit) {
+    errorMessage?.let {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            confirmButton = {
+                Button(onClick = onDismiss) { Text("Aceptar") }
+            },
+            text = { Text(it) }
+        )
+    }
 }
 
 @Preview

@@ -20,8 +20,8 @@ import com.felicksdev.onlymap.ui.navigation.Destinations.HomeScreen
 import com.felicksdev.onlymap.ui.navigation.Destinations.LocationsSelectionScreen
 import com.felicksdev.onlymap.ui.navigation.Destinations.MapScreen
 import com.felicksdev.onlymap.ui.navigation.Destinations.SecondScreen
-import com.felicksdev.onlymap.ui.presentation.screens.DetalleRutaScreen
 import com.felicksdev.onlymap.ui.presentation.screens.ChooseLocationOnMapScreen
+import com.felicksdev.onlymap.ui.presentation.screens.DetalleRutaScreen
 import com.felicksdev.onlymap.ui.presentation.screens.mainScreens.HomeScreen
 import com.felicksdev.onlymap.ui.presentation.screens.mainScreens.ListaRutasScreen
 import com.felicksdev.onlymap.ui.presentation.screens.mainScreens.SecondScreen
@@ -42,7 +42,7 @@ val MAIN_DESTINATIONS = listOf(
 @Composable
 fun NavigationHost(
     bottomPadding: PaddingValues,
-    plannerViewModel: PlannerViewModel,
+    plannerViewModel: PlannerViewModel = hiltViewModel(),
     navController: NavHostController,
     routesViewModel: RoutesViewModel = hiltViewModel(),
     homeScreenViewModel: HomeScreenViewModel,
@@ -82,7 +82,6 @@ fun NavigationHost(
                 myCameraPositionState = cameraPositionState,
                 plannerViewModel = plannerViewModel,
                 bottomPadding = bottomPadding,
-                routesViewModel = routesViewModel
             )
         }
         composable(
@@ -94,7 +93,6 @@ fun NavigationHost(
             )
         }
         composable(route = Destinations.ThirdScreen.route) { backStackEntry ->
-//            val routeId = backStackEntry.arguments?.getString("routeId")
             ListaRutasScreen(
                 navController = navController,
                 bottomPadding = bottomPadding
