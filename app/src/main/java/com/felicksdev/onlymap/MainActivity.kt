@@ -17,7 +17,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @OptIn(ExperimentalPermissionsApi::class)
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    // TODO  Validacion de que si el eusautio tiene permisos de ubicacion
+    // TODO  Validacion de que si el usuario tiene permisos de ubicacion
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {

@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.felicksdev.onlymap.data.api.OtpService
+import com.felicksdev.onlymap.data.remote.OtpService
 import com.felicksdev.onlymap.data.models.Ruta
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds

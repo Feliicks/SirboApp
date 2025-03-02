@@ -81,7 +81,7 @@ fun NavigationHost(
                 navController = navController,
                 myCameraPositionState = cameraPositionState,
                 plannerViewModel = plannerViewModel,
-                bottomPadding = bottomPadding,
+                navBarPadding = bottomPadding,
             )
         }
         composable(

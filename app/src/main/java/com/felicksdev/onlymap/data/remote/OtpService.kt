@@ -1,4 +1,4 @@
-package com.felicksdev.onlymap.data.api
+package com.felicksdev.onlymap.data.remote
 
 import com.felicksdev.onlymap.data.models.Ruta
 import com.felicksdev.onlymap.data.models.RutaVehicular
@@ -35,16 +35,7 @@ interface OtpService {
     suspend fun getPatternDetailsByPatternId(@Path("patternId") patternId: String): Response<PatterDetail>
 
     @GET("otp/routers/default/plan")
-    suspend fun getOptimalRoutes(
-        @Query("fromPlacez") fromPlace: String,
-        @Query("toPlace") toPlace: String,
-        @Query("mode") mode: String = "TRANSIT,WALK",
-        @Query("maxWalkDistance") maxWalkDistance: Int = 5000
-    ): Response<RoutingResponse>
-
-
-    @GET("otp/routers/default/plan")
-    suspend fun fetchItineraries(
+    suspend fun fetchPlan(
         @Query("fromPlace") fromPlace: String,
         @Query("toPlace") toPlace: String,
         @Query("mode") mode: String = "TRANSIT,WALK",
@@ -56,6 +47,13 @@ interface OtpService {
         @Path("id") routeId: String,
     ): RoutesItem
 
+    @GET("otp/routers/default/plan")
+    suspend fun getOptimalRoutes(
+        @Query("fromPlace") fromPlace: String,
+        @Query("toPlace") toPlace: String,
+        @Query("mode") mode: String = "TRANSIT,WALK",
+        @Query("maxWalkDistance") maxWalkDistance: Int = 5000
+    ): Response<RoutingResponse>
 
     @GET("otp/routers/default/index/patterns/{id}")
     suspend fun getRoutePatterns(@Path("id") routeId: String): Response<RutaVehicular>

@@ -1,4 +1,4 @@
-package com.felicksdev.onlymap.data.api
+package com.felicksdev.onlymap.data.remote
 
 import com.felicksdev.onlymap.data.models.photonModels.ReverseResponse
 import retrofit2.Response

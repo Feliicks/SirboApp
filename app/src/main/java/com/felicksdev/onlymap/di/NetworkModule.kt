@@ -1,7 +1,7 @@
 package com.felicksdev.onlymap.di
 
-import com.felicksdev.onlymap.data.api.OtpService
-import com.felicksdev.onlymap.data.api.PhotonService
+import com.felicksdev.onlymap.data.remote.OtpService
+import com.felicksdev.onlymap.data.remote.PhotonService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,15 +17,19 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-    private const val OTP_BASE_URL = "http://192.168.1.201:8080"
-    private const val KOMOOT_BASE_URL = "http://192.168.1.201:2322"
+
+    private const val OTP_BASE_URL = "http://10.0.2.2:8023"
+
+    //    private const val OTP_BASE_URL = "http://192.168.1.201:8080"
+//    private const val KOMOOT_BASE_URL = "http://192.168.1.201:2322"
+    private const val KOMOOT_BASE_URL = "http://10.0.2.2:2322"
 
 
     @Provides
     @Singleton
     fun provideOkHttpClient(): OkHttpClient {
         val interceptor = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BASIC
+            level = HttpLoggingInterceptor.Level.BODY
         }
 
         return OkHttpClient.Builder()

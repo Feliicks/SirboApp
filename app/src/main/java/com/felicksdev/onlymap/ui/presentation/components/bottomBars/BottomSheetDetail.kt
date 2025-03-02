@@ -12,8 +12,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,25 +38,6 @@ fun BottomSheetDetail(
     ) {}
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun BottomItineraryBar(
-    itineraries: List<Itinerary>
-) {
-    val scaffoldState = rememberBottomSheetScaffoldState(
-        bottomSheetState = rememberModalBottomSheetState(false)
-    )
-    BottomSheetScaffold(
-        scaffoldState = scaffoldState,
-        sheetPeekHeight = 16.dp,
-        sheetContent = {
-            SheetContent(itineraries = itineraries)
-        },
-        content = {
-
-        }
-    )
-}
 
 @Composable
 fun ItineraryDetail(legs: List<Leg>) {
@@ -71,19 +50,19 @@ fun ItineraryDetail(legs: List<Leg>) {
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             Row {
-            legs.forEach { leg ->
-                Text(
-                    modifier = Modifier.padding(4.dp),
-                    text = when (leg.mode) {
-                        "BUS" -> "Pasa ${leg.routeShortName}"
-                        "WALK" -> "Caminar"
-                        else -> {
-                            "Modo de transporte no identificado"
-                        }
-                    },
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
+                legs.forEach { leg ->
+                    Text(
+                        modifier = Modifier.padding(4.dp),
+                        text = when (leg.mode) {
+                            "BUS" -> "Pasa ${leg.routeShortName}"
+                            "WALK" -> "Caminar"
+                            else -> {
+                                "Modo de transporte no identificado"
+                            }
+                        },
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
         }
     }
@@ -103,16 +82,11 @@ fun ItineraryInfo(itinerary: Itinerary) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun BottomItineraryPreview() {
-    BottomItineraryBar(sampleItineraries)
-}
-
 
 @Composable
 fun SheetContent(
-    itineraries: List<Itinerary>
+    itineraries: List<Itinerary>? = null,
+    onItinerarySelectes: (Itinerary) -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -120,10 +94,11 @@ fun SheetContent(
             .padding(16.dp)
     ) {
         HorizontalDivider()
-        itineraries.forEach { itinerary ->
-            ItineraryInfo(itinerary = itinerary)
-            ItineraryDetail(legs = itinerary.legs)
-//            Spacer(modifier = Modifier.height(8.dp))
+        itineraries.let { itineraries ->
+            itineraries?.forEach { it ->
+                ItineraryInfo(itinerary = it)
+                ItineraryDetail(legs = it.legs)
+            }
         }
         HorizontalDivider()
     }

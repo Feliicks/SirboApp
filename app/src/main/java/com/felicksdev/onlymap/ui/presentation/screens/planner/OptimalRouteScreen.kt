@@ -59,6 +59,7 @@ fun OptimalRouteScreen(
     locationViewModel: LocationViewModel,
     routesViewModel: RoutesViewModel = hiltViewModel(),
 ) {
+
     Scaffold(
         topBar = {
             RouterPlannerBar(

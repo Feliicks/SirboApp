@@ -45,6 +45,7 @@ import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.launch
 
+@Deprecated("Ya no se usa esta pantalla")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OptimalRoutesScreen(

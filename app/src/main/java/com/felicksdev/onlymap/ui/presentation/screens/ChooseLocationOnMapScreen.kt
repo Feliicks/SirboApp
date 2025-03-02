@@ -170,7 +170,7 @@ fun MapContent(
             .padding(padding)
     ) {
         MyMap(
-            isplacesDefined = isPlacesDefined,
+            isPlacesDefined = isPlacesDefined,
             cameraPositionState = myCameraPositionState,
             markers = {
                 Marker(

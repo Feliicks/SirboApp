@@ -131,7 +131,7 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation("io.morfly.compose:advanced-bottomsheet-material3:0.1.0")
     implementation(libs.google.accompanist)
-
+    implementation("com.google.accompanist:accompanist-permissions:0.32.0")
 
 
     testImplementation(libs.junit)

@@ -1,6 +1,6 @@
 package com.felicksdev.onlymap.services.network
 
-import com.felicksdev.onlymap.data.api.OtpService
+import com.felicksdev.onlymap.data.remote.OtpService
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

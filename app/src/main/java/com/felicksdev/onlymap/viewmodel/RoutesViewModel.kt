@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.felicksdev.onlymap.data.api.OtpService
 import com.felicksdev.onlymap.data.models.AddressState
 import com.felicksdev.onlymap.data.models.Ruta
 import com.felicksdev.onlymap.data.models.RutaState
@@ -16,6 +15,7 @@ import com.felicksdev.onlymap.data.models.otpModels.RouteStopItem
 import com.felicksdev.onlymap.data.models.otpModels.routes.PatternGeometry
 import com.felicksdev.onlymap.data.models.otpModels.routes.RoutesItem
 import com.felicksdev.onlymap.data.models.otpModels.routing.Leg
+import com.felicksdev.onlymap.domain.repository.PlanRespository
 import com.felicksdev.onlymap.utils.MapConfig
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -29,7 +29,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RoutesViewModel @Inject constructor(
-    private val otpService: OtpService
+//    private val otpService: OtpService
+    private val planRepository: PlanRespository
 ) : ViewModel() {
 
     var state by mutableStateOf(RutaState())
@@ -139,8 +140,10 @@ class RoutesViewModel @Inject constructor(
         _isLoading.value = true
         viewModelScope.launch {
             try {
-                val resultado = otpService.indexRoutes()
+                val resultado = planRepository.fetchRoutes()
 
+//                _allRoutesList.value = resultado
+//                _filteredRoutesList.value = resultado
                 _allRoutesList.value = resultado.body() ?: emptyList()
                 _filteredRoutesList.value = resultado.body() ?: emptyList()
 
@@ -164,42 +167,19 @@ class RoutesViewModel @Inject constructor(
     fun getRouteGeometry(patternId: String) {
         viewModelScope.launch {
             try {
-                val resultado = otpService.getGeomByPattern("$patternId::01")
+                val resultado = planRepository.getGeomByPattern("$patternId::01")
                 _selectedPatternGeometry.value = resultado.body() ?: PatternGeometry()
-                // Manejar el caso en que la llamada no fue exitosa
-
             } catch (e: Exception) {
 //                Actualizar error state
             }
         }
     }
-    //    fun getRouteStops(id : String) {
-//        viewModelScope.launch {
-//            try {
-//                val resultado = RetrofitHelper.getRetrofit().getRouteStops(id)
-////                Log.d("RutasViewModel", "el id enviado es  $id")
-//                if (resultado.isSuccessful) {
-//                    routeStops = resultado.body() ?: emptyList()
-//                    Log.d("RutasViewModel", "paradas o obtenidas $routeStops")
-//                    Log.d("RutasViewModel", "Obtuve todas las paradas exitosamente")
-//
-//                } else {
-//                    // Manejar el caso en que la llamada no fue exitosa
-//                    Log.e("RutasViewModel", "Resulta !issuccessfulError al obtener las rutas: ${resultado.message()}")
-//                }
-//            } catch (e: Exception) {
-//                // Manejar errores, por ejemplo, emitir un estado de error
-//                Log.e("RutasViewModel", "Error al obtener las rutas", e)
-//            }
-//        }
-//    }
-//    / Inicializa patternSelectedId como una lista mutable de Pattern
-
 
     fun getRouteDetails(id: String) {
         viewModelScope.launch {
             try {
-                val resultado = otpService.getRouteDetail(id)
+//                val resultado = otpService.getRouteDetail(id)
+                val resultado = planRepository.getRouteDetail(id)
                 _routeSelected.value = resultado
                 Log.d("RutasViewModel", "Detalle de ruta" + resultado)
             } catch (e: Exception) {
@@ -213,13 +193,15 @@ class RoutesViewModel @Inject constructor(
         Log.d("RutasViewModel", "Pasando id ruta" + id)
         viewModelScope.launch {
             try {
-                val resultado = otpService.getPatternByRouteId(id)
+//                val resultado = otpService.getPatternByRouteId(id)
+                val resultado = planRepository.getPatternByRouteId(id)
                 Log.d("RutasViewModel", "primer rqe enviado es " + resultado)
                 if (resultado.isSuccessful) {
                     routePatterns = resultado.body() ?: emptyList()
                     Log.d("RutasViewModel", "paradas o obtenidas $routePatterns")
-                    var patternRespose = otpService
-                        .getPatternDetailsByPatternId(routePatterns[0].id)
+//                    var patternRespose = otpService.getPatternDetailsByPatternId(routePatterns[0].id)
+                    var patternRespose =
+                        planRepository.getPatternDetailsByPatternId(routePatterns[0].id)
                     Log.d("RutasViewModel", "segundo rqe enviado es " + patternRespose)
                     _routeSelectePattern.value = patternRespose.body()!!
 
@@ -243,17 +225,41 @@ class RoutesViewModel @Inject constructor(
         return "${this.latitude},${this.longitude}"
     }
 
+    //    fun getOptimalRoutes(fromLocation: AddressState, toLocation: AddressState) {
+//        viewModelScope.launch {
+//            try {
+//                val resultado = planRepository.fetchPlan(
+//                    fromLocation.coordinates.toApiString(), toLocation.coordinates.toApiString()
+//                )
+//                Log.d("RutasViewModel", "resultado de la ruta optima es " + resultado.body())
+////            TODO:
+////             realiza la validacion en cuaso de existe el objeto error en lugar de otro de los itinerarios
+//                val rutas = resultado.body()?.plan!!.itineraries[0].legs
+//                optimalRouteLegs = resultado.body()?.plan!!.itineraries[0].legs
+//                Log.d("RutasViewModel", "los itinerarios es  $rutas")
+//            } catch (e: Exception) {
+//                Log.e("RutasViewModel", "Error al obtener las rutas", e)
+//                _errorState.value = "Ocurrió un error con el servidor ${e.message}"
+//            }
+//
+//        }
+//
+//    }
+    @Deprecated("A remover usar itinerarios en su lugar")
     fun getOptimalRoutes(fromLocation: AddressState, toLocation: AddressState) {
         viewModelScope.launch {
             try {
-                val resultado = otpService.getOptimalRoutes(
+//                val resultado = otpService.getOptimalRoutes(
+//                    fromLocation.coordinates.toApiString(), toLocation.coordinates.toApiString()
+//                )
+                val resultado = planRepository.getOptimalRoutes(
                     fromLocation.coordinates.toApiString(), toLocation.coordinates.toApiString()
                 )
                 Log.d("RutasViewModel", "resultado de la ruta optima es " + resultado.body())
 //            TODO:
 //             realiza la validacion en cuaso de existe el objeto error en lugar de otro de los itinerarios
-                val rutas = resultado.body()?.plan!!.itineraries[0].legs
-                optimalRouteLegs = resultado.body()?.plan!!.itineraries[0].legs
+                val rutas = resultado.body()?.plan!!.itineraries?.get(0)?.legs
+                optimalRouteLegs = resultado.body()?.plan!!.itineraries?.get(0)!!.legs
                 Log.d("RutasViewModel", "los itinerarios es  $rutas")
             } catch (e: Exception) {
                 Log.e("RutasViewModel", "Error al obtener las rutas", e)

@@ -13,7 +13,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.felicksdev.onlymap.data.api.PhotonService
+import com.felicksdev.onlymap.data.remote.PhotonService
 import com.felicksdev.onlymap.data.models.AddressState
 import com.felicksdev.onlymap.data.models.LocationInfo
 import com.felicksdev.onlymap.data.models.photonModels.toDomain
