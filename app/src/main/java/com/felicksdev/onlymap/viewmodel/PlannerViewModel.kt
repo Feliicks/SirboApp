@@ -46,6 +46,16 @@ class PlannerViewModel @Inject constructor(
     private val _itineraries = MutableStateFlow<List<Itinerary>>(emptyList())
     val itineraries: StateFlow<List<Itinerary>> = _itineraries
 
+    private val _itinerarySelectedIndex = MutableStateFlow<Int>(-1)
+    val itinerarySelectedIndex: StateFlow<Int> = _itinerarySelectedIndex
+
+    private val _selectedItinerary = MutableStateFlow<Itinerary>(Itinerary())
+    val selectedItinerary: StateFlow<Itinerary> = _selectedItinerary
+
+    fun setItinerarySelected(itinerary: Itinerary) {
+        _selectedItinerary.value = itinerary
+    }
+
     // Después de hacer fetch
     private val _planResult = MutableStateFlow<Plan?>(null)
     val planResult: StateFlow<Plan?> = _planResult.asStateFlow()
@@ -105,8 +115,8 @@ class PlannerViewModel @Inject constructor(
         _planResult.value = null
         _fromLocation.value = LocationDetail()
         _toLocation.value = LocationDetail()
+        _selectedItinerary.value = Itinerary()
         updatePlacesDefinedState()
-        // Aquí puedes guardar el estado si es necesario
     }
 
     fun fetchPlan() {
@@ -164,6 +174,7 @@ class PlannerViewModel @Inject constructor(
 
                 // 🛑 Verificar si el `plan` es nulo o no tiene itinerarios
                 val plan: Plan = planResponse.plan
+                _planResult.value = plan
                 if (plan.itineraries.isNullOrEmpty()) {
                     _errorState.value = "No se encontraron rutas disponibles."
                     Log.e("PlannerViewModel", "Error: No se recibieron itinerarios.")
@@ -171,7 +182,7 @@ class PlannerViewModel @Inject constructor(
                     return@launch
                 }
                 _itineraries.value = plan.itineraries
-                _planResult.value = plan
+                _selectedItinerary.value = plan.itineraries.first()
                 _isLoading.value = false
                 Log.d(
                     "PlannerViewModel",

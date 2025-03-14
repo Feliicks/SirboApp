@@ -39,7 +39,7 @@ fun BottomNavigationBar(
                             launchSingleTop = true
                         }
                     },
-                    alwaysShowLabel = false
+                    alwaysShowLabel = true
                 )
             }
         }

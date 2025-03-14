@@ -1,23 +1,25 @@
 package com.felicksdev.onlymap.data.models.otpModels.routing
 
 data class Itinerary(
-    val duration: Int,
-    val elevationGained: Double,
-    val elevationLost: Double,
-    val endTime: Long,
-    val legs: List<Leg>,
-    val startTime: Long,
-    val tooSloped: Boolean,
-    val transfers: Int,
-    val transitTime: Int,
-    val waitingTime: Int,
-    val walkDistance: Double,
-    val walkLimitExceeded: Boolean,
-    val walkTime: Int
-){
+    var duration: Int = 0,
+    var elevationGained: Double = 0.0,
+    var elevationLost: Double = 0.0,
+    var endTime: Long = 0,
+    var legs: List<Leg> = emptyList(),
+    var startTime: Long = 0,
+    var tooSloped: Boolean = false,
+    var transfers: Int = 0,
+    var transitTime: Int = 0,
+    var waitingTime: Int = 0,
+    var walkDistance: Double = 0.0,
+    var walkLimitExceeded: Boolean = false,
+    var walkTime: Int = 0
+) {
     fun getDurationInMinutes(): Int {
         return duration / 60
     }
+    fun distanceInKm(): String = "%.1f".format(walkDistance / 1000)
+
 }
 
 val sampleItineraries = listOf(
@@ -203,4 +205,5 @@ val sampleItineraries = listOf(
         )
     ),
     // Another itinerary...
+
 )

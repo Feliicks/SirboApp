@@ -48,7 +48,6 @@ import com.felicksdev.onlymap.utils.BitMapUtils
 import com.felicksdev.onlymap.utils.MapConfig
 import com.felicksdev.onlymap.viewmodel.RoutesViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
@@ -263,7 +262,11 @@ fun Map(
     val minWidth = 13f
     val maxWidth = 23f
     val scaledWidth = (baseWidth * (zoom / zoomFactor)).coerceIn(minWidth, maxWidth)
-
+    val customICon = BitMapUtils.vectorDrawableToBitmapDescriptor(
+        context = LocalContext.current,
+        drawableId = R.drawable.ic_disc_location_felicks,
+        sizeDp = 20
+    )
     LaunchedEffect(points) {
         try {
             val boundsBuilder = LatLngBounds.Builder()
@@ -295,7 +298,8 @@ fun Map(
             Marker(
                 state = rememberMarkerState(position = points.first()), // 🔹 Primer punto
                 title = "Inicio de Ruta",
-                icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN) // 🚩 Verde
+//                icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN) // 🚩 Verde
+                icon = customICon // 🚩 Verde
             )
         }
 

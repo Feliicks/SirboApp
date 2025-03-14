@@ -1,5 +1,7 @@
 package com.felicksdev.onlymap.utils
 
+import com.felicksdev.onlymap.data.models.TransportMode
+
 object StringUtils {
 
     fun extractRouteType(longName: String): String {
@@ -10,5 +12,13 @@ object StringUtils {
     fun extractRouteDirection(longName: String): String {
         val parts = longName.split(Regex("[:\\-]"))
         return if (parts.size > 1) parts[1] else longName
+    }
+
+    fun String.toTransportMode(): TransportMode {
+        return try {
+            TransportMode.valueOf(this.uppercase()) // Convierte "bus" -> "BUS"
+        } catch (e: IllegalArgumentException) {
+            TransportMode.UNKNOWN // Si no existe, usa un valor por defecto
+        }
     }
 }

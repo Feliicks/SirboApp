@@ -218,6 +218,12 @@ val surfaceContainerDarkHighContrast = Color(0xFF2F3036)
 val surfaceContainerHighDarkHighContrast = Color(0xFF3A3B41)
 val surfaceContainerHighestDarkHighContrast = Color(0xFF45464C)
 
+val BusColor = Color(0xFF1565C0)
+val WalkColor = Color(0xFF4CAF50)
+val MetroColor = Color(0xFFD32F2F)
+val TaxiColor = Color(0xFFFFEB3B)
+val DefaultColor = Color(0x74AAF3BE)
+
 
 
 

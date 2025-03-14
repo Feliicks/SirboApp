@@ -1,14 +1,14 @@
 package com.felicksdev.onlymap.data.models.otpModels.routing
 
 data class ToLeg(
-    val arrival: Long,
-    val lat: Double,
-    val lon: Double,
-    val name: String,
-    val vertexType: String,
-    val departure: Long,
-    val stopId: String,
-    val stopIndex: Int,
-    val stopSequence: Int,
-    val boardAlightType: String,
+    var arrival: Long = 0,
+    var lat: Double = 0.0,
+    var lon: Double = 0.0,
+    var name: String = "",
+    var vertexType: String = "",
+    var departure: Long = 0,
+    var stopId: String = "",
+    var stopIndex: Int = 0,
+    var stopSequence: Int = 0,
+    var boardAlightType: String = "",
 )

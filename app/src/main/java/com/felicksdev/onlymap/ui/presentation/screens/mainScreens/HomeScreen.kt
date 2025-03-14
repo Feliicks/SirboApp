@@ -3,6 +3,7 @@
 package com.felicksdev.onlymap.ui.presentation.screens.mainScreens
 
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -29,7 +30,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.felicksdev.onlymap.data.models.otpModels.routing.Itinerary
 import com.felicksdev.onlymap.data.models.otpModels.routing.Plan
+import com.felicksdev.onlymap.isSetted
+import com.felicksdev.onlymap.toLatLng
 import com.felicksdev.onlymap.ui.common.SheetValue
 import com.felicksdev.onlymap.ui.navigation.plus
 import com.felicksdev.onlymap.ui.presentation.components.LoadingScreen
@@ -39,6 +43,8 @@ import com.felicksdev.onlymap.ui.presentation.components.topBars.SmallRouterPlan
 import com.felicksdev.onlymap.viewmodel.HomeScreenViewModel
 import com.felicksdev.onlymap.viewmodel.PlannerViewModel
 import com.google.maps.android.compose.CameraPositionState
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import io.morfly.compose.bottomsheet.material3.layoutHeightDp
 import io.morfly.compose.bottomsheet.material3.rememberBottomSheetState
@@ -110,7 +116,12 @@ fun HomeScreenContent(
 
     val isPlacesDefined by plannerViewModel.isLocationDefined.collectAsState()
 
+    val itinerarySelected by plannerViewModel.selectedItinerary.collectAsState()
+
     var isInitialState by rememberSaveable { mutableStateOf(true) }
+
+    val fromLocation by plannerViewModel.fromLocation.collectAsState()
+    val toLocation by plannerViewModel.toLocation.collectAsState()
 
 
     val sheetState = rememberBottomSheetState(
@@ -140,7 +151,9 @@ fun HomeScreenContent(
         scaffoldState = scaffoldState,
         sheetContent = {
             planResult?.let {
-                BottomSheetContent(it)
+                BottomSheetContent(it, onItinerarySelected = { index ->
+                    plannerViewModel.setItinerarySelected(index)
+                })
             }
         }
     ) { innerPadding ->
@@ -151,15 +164,40 @@ fun HomeScreenContent(
             cameraPositionState = cameraPositionState,
             padding = if (isPlacesDefined) topPadding else topPadding.plus(bottomLayoutPadding),
             bottomPadding = bottomPadding,
-            itinerary = planResult?.itineraries?.getOrNull(0),
-            layoutHeight = sheetState.layoutHeightDp
+            itinerarySelected = itinerarySelected,
+            listItinerary = planResult?.itineraries ?: emptyList(),
+            layoutHeight = sheetState.layoutHeightDp,
+            markers = {
+                if (fromLocation.isSetted()) {
+                    // Dibujar marcador de origen
+                    Marker(
+                        state = MarkerState(
+                            position = fromLocation.toLatLng(),
+                        ),
+                        title = "Origen"
+                    )
+                }
+                if (toLocation.isSetted()) {
+                    // Dibujar marcador de origen
+                    Marker(
+                        state = MarkerState(
+                            position = toLocation.toLatLng(),
+                        ),
+                        title = "Origen"
+                    )
+                }
+
+            }
         )
     }
 }
 
 @Composable
-private fun BottomSheetContent(planResult: Plan) {
-    SheetContent(itineraries = planResult.itineraries)
+private fun BottomSheetContent(planResult: Plan, onItinerarySelected: (Itinerary) -> Unit) {
+    SheetContent(listItineraries = planResult.itineraries, onItinerarySelectedIndex = { it ->
+        Log.d("HomeScreen", "Itinerary selected: $it")
+        onItinerarySelected(it)
+    })
 }
 
 @Composable

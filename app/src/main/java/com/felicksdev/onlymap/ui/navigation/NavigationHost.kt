@@ -16,10 +16,11 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.felicksdev.onlymap.ui.navigation.Destinations.FavoritesScreen
 import com.felicksdev.onlymap.ui.navigation.Destinations.HomeScreen
+import com.felicksdev.onlymap.ui.navigation.Destinations.ListaDeRutasScreen
 import com.felicksdev.onlymap.ui.navigation.Destinations.LocationsSelectionScreen
 import com.felicksdev.onlymap.ui.navigation.Destinations.MapScreen
-import com.felicksdev.onlymap.ui.navigation.Destinations.SecondScreen
 import com.felicksdev.onlymap.ui.presentation.screens.ChooseLocationOnMapScreen
 import com.felicksdev.onlymap.ui.presentation.screens.DetalleRutaScreen
 import com.felicksdev.onlymap.ui.presentation.screens.mainScreens.HomeScreen
@@ -34,9 +35,9 @@ import com.felicksdev.onlymap.viewmodel.PlannerViewModel
 import com.felicksdev.onlymap.viewmodel.RoutesViewModel
 
 val MAIN_DESTINATIONS = listOf(
-    SecondScreen,
+    FavoritesScreen,
     HomeScreen,
-    Destinations.ThirdScreen
+    ListaDeRutasScreen
 )
 
 @Composable
@@ -85,14 +86,14 @@ fun NavigationHost(
             )
         }
         composable(
-            SecondScreen.route,
+            FavoritesScreen.route,
         ) { navBackstateEntry ->
             SecondScreen(
                 navController = navController,
                 bottomPadding = bottomPadding
             )
         }
-        composable(route = Destinations.ThirdScreen.route) { backStackEntry ->
+        composable(route = ListaDeRutasScreen.route) { backStackEntry ->
             ListaRutasScreen(
                 navController = navController,
                 bottomPadding = bottomPadding
