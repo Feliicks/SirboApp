@@ -56,8 +56,8 @@ class PlannerViewModel @Inject constructor(
     private val _itinerarySelectedIndex = MutableStateFlow<Int>(-1)
     val itinerarySelectedIndex: StateFlow<Int> = _itinerarySelectedIndex
 
-    private val _selectedItinerary = MutableStateFlow<Itinerary>(Itinerary())
-    val selectedItinerary: StateFlow<Itinerary> = _selectedItinerary
+    private val _selectedItinerary = MutableStateFlow<Itinerary?>(Itinerary())
+    val selectedItinerary: StateFlow<Itinerary?> = _selectedItinerary
 
     fun setItinerarySelected(itinerary: Itinerary) {
         _selectedItinerary.value = itinerary
@@ -206,12 +206,14 @@ class PlannerViewModel @Inject constructor(
                 _isLoading.value = true
                 val resultado = planRepository.fetchPlan(
                     from = "${fromLocation.latitude},${fromLocation.longitude}",
-                    to = "${toLocation.latitude},${toLocation.longitude}"
+                    to = "${toLocation.latitude},${toLocation.longitude}",
+                    config = _config.value
                 )
                 Log.d(
                     "PlannerViewModel",
                     "Resultado de la solicitud: ${Gson().toJson(resultado.body())}"
                 )
+
                 if (!resultado.isSuccessful) {
                     _errorState.value =
                         "Error del servidor: ${resultado.code()} - ${resultado.message()}"
@@ -225,13 +227,24 @@ class PlannerViewModel @Inject constructor(
 
                 // 🛑 Verificar si el body es nulo (caso de servidor apagado)
                 val planResponse = resultado.body()
+
                 if (planResponse == null) {
                     _errorState.value = "El servidor no respondió correctamente (respuesta vacía)."
                     Log.e("PlannerViewModel", "Error: la API devolvió un cuerpo vacío.")
                     _isLoading.value = false
+
                     return@launch
                 }
-
+// 🆕 Verificar si hubo error PATH_NOT_FOUND o noPath = true
+                if (planResponse.error?.noPath == true) {
+                    _errorState.value = "No se encontró una ruta disponible con los parámetros actuales. Intenta aumentar la distancia máxima para caminar o elige otra ubicación."
+                    Log.e("PlannerViewModel", "Error: no se encontró una ruta válida - ${planResponse.error?.msg}")
+                    _isLoading.value = false
+                    _planResult.value = null
+                    _itineraries.value = emptyList()
+                    _selectedItinerary.value = null
+                    return@launch
+                }
                 // 🛑 Verificar si el `plan` es nulo o no tiene itinerarios
                 val plan: Plan = planResponse.plan
                 _planResult.value = plan
@@ -246,7 +259,7 @@ class PlannerViewModel @Inject constructor(
                 _isLoading.value = false
                 Log.d(
                     "PlannerViewModel",
-                    "Plan obtenido con ${plan.itineraries!!.size} itinerarios."
+                    "Plan obtenido con ${plan.itineraries.size} itinerarios."
                 )
 
             } catch (e: UnknownHostException) {
@@ -256,7 +269,7 @@ class PlannerViewModel @Inject constructor(
                 _isLoading.value = false
 
             } catch (e: Exception) {
-                _errorState.value = "Error al obtener rutas: ${e.localizedMessage}"
+//                _errorState.value = "Error al obtener rutas: ${e.localizedMessage}"
                 Log.e("PlannerViewModel", "Excepción al obtener rutas", e)
                 _isLoading.value = false
             }
@@ -264,11 +277,66 @@ class PlannerViewModel @Inject constructor(
     }
 
 
+    fun fetchPlanWithConfig(config: OtpConfig) {
+        val fromLocation = _fromLocation.value
+        val toLocation = _toLocation.value
+
+        if (fromLocation == null || toLocation == null) {
+            _errorState.value = "Ubicación de origen o destino no establecida."
+            return
+        }
+
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val response = planRepository.fetchPlan(
+                    from = "${fromLocation.latitude},${fromLocation.longitude}",
+                    to = "${toLocation.latitude},${toLocation.longitude}",
+                    config = config
+                )
+
+                val planResponse = response.body()
+                if (!response.isSuccessful || planResponse == null) {
+                    _errorState.value = "Error del servidor o respuesta vacía."
+                    _planResult.value = null                   // 🔥 limpia la ruta
+                    _itineraries.value = emptyList()           // 🔥 limpia la lista
+                    return@launch
+                }
+
+                if (planResponse.error?.noPath == true) {
+                    _errorState.value = "No se encontró una ruta disponible con los parámetros actuales. Intenta aumentar la distancia máxima o elige otra ubicación."
+                    _planResult.value = null                   // 🔥 limpia la ruta
+                    _itineraries.value = emptyList()           // 🔥 limpia la list
+                    return@launch
+                }
+
+                val plan = planResponse.plan
+                if (plan.itineraries.isNullOrEmpty()) {
+                    _errorState.value = "No se encontraron rutas disponibles."
+                    _planResult.value = null                   // 🔥 limpia la ruta
+                    _itineraries.value = emptyList()           // 🔥 limpia la list
+                    return@launch
+                }
+
+                _itineraries.value = plan.itineraries
+                _selectedItinerary.value = plan.itineraries.first()
+                _planResult.value = plan
+                _errorState.value = null
+            } catch (e: Exception) {
+                _errorState.value = "Error: ${e.localizedMessage}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+
+
     // Función para limpiar el error después de mostrarlo
     fun clearError() {
         _errorState.value = null
     }
-
+@Deprecated("no es reactivo")
     fun isPlacesDefined(): Boolean {
         return _fromLocation.value.latitude != 0.0 && _fromLocation.value.longitude != 0.0 &&
                 _toLocation.value.latitude != 0.0 && _toLocation.value.longitude != 0.0

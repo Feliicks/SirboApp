@@ -21,6 +21,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -52,7 +53,6 @@ import io.morfly.compose.bottomsheet.material3.layoutHeightDp
 import io.morfly.compose.bottomsheet.material3.rememberBottomSheetState
 import io.morfly.compose.bottomsheet.material3.requireSheetVisibleHeightDp
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlanificaScreen(
     viewModel: HomeScreenViewModel,
@@ -61,7 +61,7 @@ fun PlanificaScreen(
     plannerViewModel: PlannerViewModel,
     navBarPadding: PaddingValues,
 ) {
-
+    val coroutineScope = rememberCoroutineScope()
     val isPlacesDefined by plannerViewModel.isLocationDefined.collectAsState()
 
     LaunchedEffect(isPlacesDefined) {
@@ -113,20 +113,21 @@ fun PlanificaScreen(
             )
         }
         if (showConfigDialog) {
-            Log.d("OtpDialog", "Mostrando el dialog de configuración OTP")
-
             OtpConfigDialog(
                 initialConfig = config,
                 onDismiss = { showConfigDialog = false },
                 onSave = {
                     plannerViewModel.saveConfig(context = context, config = it)
                     showConfigDialog = false
+                    if (isPlacesDefined) {
+                        plannerViewModel.fetchPlanWithConfig(it)
+                    }
                 },
                 onReset = {
                     plannerViewModel.resetConfig(context)
-//                    showConfigDialog = false
                 }
             )
+
         }
     }
 }

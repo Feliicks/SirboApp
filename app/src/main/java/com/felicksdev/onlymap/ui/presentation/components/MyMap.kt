@@ -9,7 +9,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -31,6 +34,7 @@ import com.google.android.gms.maps.model.Dash
 import com.google.android.gms.maps.model.Gap
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.model.PatternItem
 import com.google.maps.android.PolyUtil
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
@@ -39,6 +43,7 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberMarkerState
+import kotlinx.coroutines.delay
 
 private val MapUiOffsetLimit = 100.dp
 
@@ -62,7 +67,7 @@ fun adjustCameraToItineraryList(
 
 
 @Composable
-fun  MyMap(
+fun MyMap(
     bottomPadding: Dp = 0.dp,
     layoutHeight: Dp = Dp.Unspecified,
     modifier: Modifier = Modifier,
@@ -103,17 +108,19 @@ fun  MyMap(
         contentPadding = mapPadding
     ) {
         // Dibujar polilíneas con icono en la mitad
-        listItinerary?.let { lista ->
+        if (!listItinerary.isNullOrEmpty()) {
             drawItineraryWithMidIcon(
-                itineraries = lista,
+                itineraries = listItinerary,
                 selectedItinerary = itinerarySelected,
                 scaledWidth = scaledWidth
             )
         }
+
         // Renderizar los marcadores personalizados
         markers()
     }
 }
+
 
 /**
  * Dibuja las polilíneas del itinerario y coloca un ícono en la mitad de cada segmento (`Leg`).
@@ -162,7 +169,7 @@ private fun drawPolylineAndIcons(
         }
 
         // 📌 Dibujar la línea en el mapa
-        Polyline(
+        AnimatedPolyline(
             points = polylinePoints,
             color = polylineColor,
             width = scaledWidth + if (isSelected) 2 else 0, // Aumentar grosor si es seleccionado
@@ -183,6 +190,37 @@ private fun drawPolylineAndIcons(
         )
     }
 }
+
+
+@Composable
+fun AnimatedPolyline(
+    points: List<LatLng>,
+    color: Color,
+    width: Float,
+    pattern: List<PatternItem>? = null,
+    duration: Long = 500L // duración total de la animación
+) {
+    var animatedPoints by remember { mutableStateOf(listOf<LatLng>()) }
+
+    LaunchedEffect(points) {
+        animatedPoints = emptyList()
+        val step = if (points.isNotEmpty()) (duration / points.size) else 0L
+        points.forEachIndexed { i, point ->
+            delay(step)
+            animatedPoints = points.take(i + 1)
+        }
+    }
+
+    if (animatedPoints.size >= 2) {
+        Polyline(
+            points = animatedPoints,
+            color = color,
+            width = width,
+            pattern = pattern
+        )
+    }
+}
+
 
 /**
  * Obtiene el punto medio de una lista de coordenadas.

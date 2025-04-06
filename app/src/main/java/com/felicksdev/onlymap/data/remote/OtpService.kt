@@ -39,8 +39,11 @@ interface OtpService {
         @Query("fromPlace") fromPlace: String,
         @Query("toPlace") toPlace: String,
         @Query("mode") mode: String = "TRANSIT,WALK",
-        @Query("maxWalkDistance") maxWalkDistance: Int = 5000
+        @Query("maxWalkDistance") maxWalkDistance: Int = 5000,
+        @Query("maxTransfers") maxTransfers: Int = 1,
+        @Query("numItineraries") numItineraries: Int = 3
     ): Response<RoutingResponse>
+
 
     @GET("otp/routers/default/index/routes/{id}")
     suspend fun getRouteDetail(

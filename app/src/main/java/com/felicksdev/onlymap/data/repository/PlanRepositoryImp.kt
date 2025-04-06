@@ -1,24 +1,32 @@
 package com.felicksdev.onlymap.data.repository
 
-import android.util.Log
 import com.felicksdev.onlymap.data.models.otpModels.PatterDetail
 import com.felicksdev.onlymap.data.models.otpModels.Pattern
 import com.felicksdev.onlymap.data.models.otpModels.routes.PatternGeometry
 import com.felicksdev.onlymap.data.models.otpModels.routes.RoutesItem
 import com.felicksdev.onlymap.data.models.otpModels.routing.RoutingResponse
 import com.felicksdev.onlymap.data.remote.OtpService
+import com.felicksdev.onlymap.domain.models.OtpConfig
 import com.felicksdev.onlymap.domain.repository.PlanRespository
-import com.google.gson.Gson
 import retrofit2.Response
 import javax.inject.Inject
 
 class PlanRepositoryImp @Inject constructor(
     private val apiService: OtpService
 ) : PlanRespository {
-    override suspend fun fetchPlan(from: String, to: String): Response<RoutingResponse> {
-        val response = apiService.fetchPlan(from, to)
-        Log.d("PlanRepositoryImp", "fetchPlan: api response ${Gson().toJson(response.body())}")
-        return response
+    override suspend fun fetchPlan(
+        from: String,
+        to: String,
+        config: OtpConfig
+    ): Response<RoutingResponse> {
+        return apiService.fetchPlan(
+            fromPlace = from,
+            toPlace = to,
+            mode = config.mode,
+            maxWalkDistance = config.walkDistance,
+            maxTransfers = config.maxTransfers,
+            numItineraries = config.numItineraries
+        )
     }
 
     override suspend fun fetchRoutes(): Response<List<RoutesItem>> {

@@ -62,7 +62,7 @@ fun ItineraryItem(itinerary: Itinerary, onClick: () -> Unit) {
             Text(
                 text = "(${itinerary.distanceInKm()} km)",
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFFE91E63) // Rojo para la distancia
+                color = MaterialTheme.colorScheme.primary
             )
         }
 

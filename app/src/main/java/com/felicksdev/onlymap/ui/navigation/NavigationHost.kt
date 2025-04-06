@@ -23,8 +23,8 @@ import com.felicksdev.onlymap.ui.navigation.Destinations.LocationsSelectionScree
 import com.felicksdev.onlymap.ui.navigation.Destinations.MapScreen
 import com.felicksdev.onlymap.ui.presentation.screens.ChooseLocationOnMapScreen
 import com.felicksdev.onlymap.ui.presentation.screens.DetalleRutaScreen
-import com.felicksdev.onlymap.ui.presentation.screens.mainScreens.PlanificaScreen
 import com.felicksdev.onlymap.ui.presentation.screens.mainScreens.ListaRutasScreen
+import com.felicksdev.onlymap.ui.presentation.screens.mainScreens.PlanificaScreen
 import com.felicksdev.onlymap.ui.presentation.screens.mainScreens.SecondScreen
 import com.felicksdev.onlymap.ui.presentation.screens.planner.AlternativeChooseLocationScreen
 import com.felicksdev.onlymap.ui.presentation.screens.planner.OptimalRouteScreen
@@ -132,7 +132,7 @@ fun NavigationHost(
             val isOrigin = navBackStack.arguments?.getBoolean("isOrigin")
             ChooseLocationOnMapScreen(
                 isOrigin = isOrigin!!,
-                viewModel = locationViewModel,
+                locationViewModel = locationViewModel,
                 cameraPositionState = cameraPositionState,
                 navController = navController,
                 plannerViewModel = plannerViewModel

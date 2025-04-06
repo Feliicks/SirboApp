@@ -27,12 +27,14 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.felicksdev.onlymap.LocationDetail
 import com.felicksdev.onlymap.R
+import com.felicksdev.onlymap.domain.LocationProperties
 import com.felicksdev.onlymap.ui.navigation.Destinations
 import com.felicksdev.onlymap.ui.presentation.components.MyMap
 import com.felicksdev.onlymap.ui.presentation.components.bottomBars.BottomSearchBar
 import com.felicksdev.onlymap.ui.presentation.components.topBars.ChooseLocationOnMapTopBar
 import com.felicksdev.onlymap.viewmodel.LocationViewModel
 import com.felicksdev.onlymap.viewmodel.PlannerViewModel
+import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
@@ -44,87 +46,132 @@ import kotlinx.coroutines.withContext
 @Composable
 fun ChooseLocationOnMapScreen(
     isOrigin: Boolean,
-    viewModel: LocationViewModel,
-    cameraPositionState: CameraPositionState,
     navController: NavController,
     plannerViewModel: PlannerViewModel = hiltViewModel(),
-    locationViewModel: LocationViewModel = hiltViewModel()
+    locationViewModel: LocationViewModel = hiltViewModel(),
+    cameraPositionState: CameraPositionState
 ) {
-//    val state by plannerViewModel.plannerState.collectAsState()
-    var debouncedLatLng by remember { mutableStateOf(cameraPositionState.position.target) }
     val coroutineScope = rememberCoroutineScope()
-    val currenLocation by locationViewModel.currentAddress.collectAsState()
+    var debouncedLatLng by remember { mutableStateOf(cameraPositionState.position.target) }
+    val currentLocation by locationViewModel.currentAddress.collectAsState()
     val isPlacesDefined = plannerViewModel.isPlacesDefined()
-//    val currentLocation b
-    LaunchedEffect(cameraPositionState.isMoving) {
-        if (!cameraPositionState.isMoving) {
-            coroutineScope.launch {
-                withContext(Dispatchers.IO) {
-                    delay(500) // Espera en un hilo secundario
-                }
-                debouncedLatLng =
-                    cameraPositionState.position.target // Actualiza el estado en el hilo principal
-                locationViewModel.getAddress(debouncedLatLng)
-            }
+
+    HandleCameraPositionChange(
+        cameraPositionState = cameraPositionState,
+        onPositionSettled = { newLatLng ->
+            debouncedLatLng = newLatLng
+            locationViewModel.getAddress(newLatLng)
         }
-    }
+    )
+
     Scaffold(
-        topBar = { ChooseLocationOnMapTopBar(navController = navController) },
+        topBar = {
+            ChooseLocationOnMapTopBar(navController = navController)
+        },
         bottomBar = {
-            BottomSearchBar(
+            LocationBottomSearchBar(
                 isOrigin = isOrigin,
-                address = (if (currenLocation.street != null) {
-                    currenLocation.street
-                } else {
-                    listOfNotNull(
-                        currenLocation.name,
-                        currenLocation.district,
-                        currenLocation.state
-                    )
-                        .joinToString(", ")
-                }).toString(),
+                location = currentLocation,
                 latLng = debouncedLatLng,
                 onConfirm = {
-                    val location = LocationDetail(
-                        description = if (isOrigin) "Origin Map" else "Destination Map",
-                        latitude = debouncedLatLng.latitude,
-                        longitude = debouncedLatLng.longitude
+                    handleLocationConfirm(
+                        isOrigin = isOrigin,
+                        latLng = debouncedLatLng,
+                        address = currentLocation,
+                        plannerViewModel = plannerViewModel,
+                        navController = navController
                     )
-                    if (isOrigin) {
-                        plannerViewModel.setFromPlace(location)
-                    } else {
-                        plannerViewModel.setToPlace(location)
-                    }
-
-                    // Verifica si ambos lugares están definidos
-                    val isPlacesDefined = plannerViewModel.isPlacesDefined()
-                    Log.d(
-                        "ChooseLocationsScreen",
-                        "is places test defined: ${plannerViewModel.isPlacesDefined()}"
-                    )
-
-                    // Navega según el estado de isPlacesDefined
-                    if (isPlacesDefined) {
-                        navController.navigate(Destinations.HomeScreen.route) {
-                            popUpTo(Destinations.HomeScreen.route) { inclusive = true }
-                        }
-                    } else {
-                        navController.navigate(Destinations.HomeScreen.route) {
-                            popUpTo(Destinations.HomeScreen.route) { inclusive = true }
-                        }
-                    }
                 }
             )
         }
     ) { padding ->
         ChooseLocationOnMapScreenContent(
-            viewModel = viewModel,
+            viewModel = locationViewModel,
             padding = padding,
             cameraPositionState = cameraPositionState,
             isPlacesDefined = isPlacesDefined
         )
     }
 }
+
+
+
+
+@Composable
+fun LocationBottomSearchBar(
+    isOrigin: Boolean,
+    location: LocationProperties,
+    latLng: LatLng,
+    onConfirm: () -> Unit
+) {
+    val address = location.street ?: listOfNotNull(
+        location.name,
+        location.district,
+        location.state
+    ).joinToString(", ")
+
+    BottomSearchBar(
+        isOrigin = isOrigin,
+        address = address,
+        latLng = latLng,
+        onConfirm = onConfirm
+    )
+}
+
+
+@Composable
+fun HandleCameraPositionChange(
+    cameraPositionState: CameraPositionState,
+    onPositionSettled: (LatLng) -> Unit
+) {
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(cameraPositionState.isMoving) {
+        if (!cameraPositionState.isMoving) {
+            coroutineScope.launch {
+                withContext(Dispatchers.IO) {
+                    delay(500)
+                }
+                onPositionSettled(cameraPositionState.position.target)
+            }
+        }
+    }
+}
+
+fun handleLocationConfirm(
+    isOrigin: Boolean,
+    latLng: LatLng,
+    address: LocationProperties,
+    plannerViewModel: PlannerViewModel,
+    navController: NavController
+) {
+    val description = address.street ?: listOfNotNull(
+        address.name,
+        address.district,
+        address.state
+    ).joinToString(", ")
+
+    val location = LocationDetail(
+        description = description,
+        latitude = latLng.latitude,
+        longitude = latLng.longitude
+    )
+
+    if (isOrigin) {
+        plannerViewModel.setFromPlace(location)
+    } else {
+        plannerViewModel.setToPlace(location)
+    }
+
+    val isPlacesDefined = plannerViewModel.isPlacesDefined()
+    Log.d("ChooseLocationsScreen", "is places test defined: $isPlacesDefined")
+
+    navController.navigate(Destinations.HomeScreen.route) {
+        popUpTo(Destinations.HomeScreen.route) { inclusive = true }
+    }
+}
+
+
 
 @Composable
 private fun ChooseLocationOnMapScreenContent(
@@ -204,7 +251,8 @@ fun MapContent(
 private fun PreviewMapScreen() {
     ChooseLocationOnMapScreen(
         isOrigin = true,
-        viewModel = hiltViewModel(),
+        locationViewModel = hiltViewModel(),
+        plannerViewModel = hiltViewModel(),
         cameraPositionState = CameraPositionState(),
         navController = rememberNavController(),
     )

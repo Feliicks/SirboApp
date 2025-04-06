@@ -225,6 +225,24 @@ val TaxiColor = Color(0xFFFFEB3B)
 val DefaultColor = Color(0x74AAF3BE)
 
 
+///  NEUROPHISM
+
+val NeuBackground = Color(0xFFE0E5EC)
+val NeuSurface = Color(0xFFF0F3F7)
+val NeuPrimary = Color(0xFFB0BEC5)
+val NeuOnPrimary = Color(0xFF2E3A59)
+val NeuSecondary = Color(0xFFD1D9E6)
+val NeuOnSecondary = Color(0xFF384862) // <--- esta línea es la clave
+
+// 🎨 Paleta base estilo Flat Design para Sirbo
+val FlatBackground = Color(0xFFF5F5F5)
+val FlatSurface = Color(0xFFFFFFFF)
+val FlatPrimary = Color(0xFFFF6B6B) // Coral
+val FlatOnPrimary = Color.White
+val FlatSecondary = Color(0xFF4ECDC4) // Turquesa
+val FlatOnSecondary = Color.White
+val FlatTextPrimary = Color(0xFF1E1E1E)
+val FlatBorder = Color(0xFFE0E0E0)
 
 
 

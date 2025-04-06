@@ -2,6 +2,7 @@ package com.felicksdev.onlymap.ui.theme
 
 import android.app.Activity
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -255,6 +256,7 @@ data class ColorFamily(
 val unspecified_scheme = ColorFamily(
     Color.Unspecified, Color.Unspecified, Color.Unspecified, Color.Unspecified
 )
+@RequiresApi(Build.VERSION_CODES.CUPCAKE)
 @Composable
 fun OnlyMapTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
