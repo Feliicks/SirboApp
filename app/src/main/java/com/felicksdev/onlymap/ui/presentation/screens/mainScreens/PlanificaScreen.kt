@@ -25,6 +25,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -40,6 +41,7 @@ import com.felicksdev.onlymap.ui.presentation.components.LoadingScreen
 import com.felicksdev.onlymap.ui.presentation.components.MyMap
 import com.felicksdev.onlymap.ui.presentation.components.bottomBars.SheetContent
 import com.felicksdev.onlymap.ui.presentation.components.topBars.SmallRouterPlannerBar
+import com.felicksdev.onlymap.ui.presentation.dialogs.OtpConfigDialog
 import com.felicksdev.onlymap.viewmodel.HomeScreenViewModel
 import com.felicksdev.onlymap.viewmodel.PlannerViewModel
 import com.google.maps.android.compose.CameraPositionState
@@ -52,7 +54,7 @@ import io.morfly.compose.bottomsheet.material3.requireSheetVisibleHeightDp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(
+fun PlanificaScreen(
     viewModel: HomeScreenViewModel,
     navController: NavController,
     myCameraPositionState: CameraPositionState,
@@ -68,7 +70,6 @@ fun HomeScreen(
         }
     }
 
-
     val errorState by plannerViewModel.errorState.collectAsState()
     val isLoading by plannerViewModel.isLoading.collectAsState()
     val cameraPositionState = plannerViewModel.cameraPosition.collectAsState()
@@ -76,16 +77,26 @@ fun HomeScreen(
         position = cameraPositionState.value
     }
 
+    var showConfigDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val config by plannerViewModel.config.collectAsState()
+
+    LaunchedEffect(Unit) {
+        plannerViewModel.loadConfig(context)
+    }
 
     Scaffold(
         topBar = {
             SmallRouterPlannerBar(
                 plannerViewModel = plannerViewModel,
-                navController = navController
+                navController = navController,
+                onMenuClick = {
+                    showConfigDialog = true
+                }
             )
         },
     ) { padding ->
-        HomeScreenContent(
+        PlanificaScreenContent(
             bottomLayoutPadding = navBarPadding,
             topPadding = padding,
             cameraPositionState = cameraState,
@@ -101,12 +112,28 @@ fun HomeScreen(
                 onDismiss = { plannerViewModel.clearError() }
             )
         }
+        if (showConfigDialog) {
+            Log.d("OtpDialog", "Mostrando el dialog de configuración OTP")
+
+            OtpConfigDialog(
+                initialConfig = config,
+                onDismiss = { showConfigDialog = false },
+                onSave = {
+                    plannerViewModel.saveConfig(context = context, config = it)
+                    showConfigDialog = false
+                },
+                onReset = {
+                    plannerViewModel.resetConfig(context)
+//                    showConfigDialog = false
+                }
+            )
+        }
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HomeScreenContent(
+fun PlanificaScreenContent(
     bottomLayoutPadding: PaddingValues,
     topPadding: PaddingValues,
     cameraPositionState: CameraPositionState,
@@ -217,7 +244,7 @@ fun LoadingScreen(isLoading: Boolean) {
 @Composable
 fun PreviewHomeScreen() {
     val navController = rememberNavController()
-    HomeScreen(
+    PlanificaScreen(
         viewModel = HomeScreenViewModel(), // Instancia de ViewModel de prueba
         navController = navController,
         myCameraPositionState = CameraPositionState(),

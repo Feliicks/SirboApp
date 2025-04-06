@@ -18,11 +18,13 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    private const val OTP_BASE_URL = "http://10.0.2.2:8023"
+//    private const val OTP_BASE_URL = "http://10.0.2.2:8023"
+//    private const val KOMOOT_BASE_URL = "http://10.0.2.2:2380"
+    private const val OTP_BASE_URL = "http://192.168.2.3:8023"
+    private const val KOMOOT_BASE_URL = "http://192.168.2.3:2380"
 
     //    private const val OTP_BASE_URL = "http://192.168.1.201:8080"
 //    private const val KOMOOT_BASE_URL = "http://192.168.1.201:2322"
-    private const val KOMOOT_BASE_URL = "http://10.0.2.2:2322"
 
 
     @Provides

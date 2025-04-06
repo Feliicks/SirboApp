@@ -6,6 +6,8 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -19,9 +21,13 @@ fun BottomNavigationBar(
 ) {
     val items = MAIN_DESTINATIONS
     val currentRoute = currentRoute(navController = navController)
+    val haptic = LocalHapticFeedback.current
+
     if (items.any { it.route == currentRoute }) {
         NavigationBar {
             items.forEach { destination ->
+                val selected = currentRoute == destination.route
+
                 NavigationBarItem(
                     icon = {
                         Icon(
@@ -30,13 +36,19 @@ fun BottomNavigationBar(
                         )
                     },
                     label = { Text(text = destination.title) },
-                    selected = currentRoute == destination.route,
+                    selected = selected,
                     onClick = {
-                        navController.navigate(destination.route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
+                        if (!selected) {
+                            navController.navigate(destination.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
                             }
-                            launchSingleTop = true
+                        } else {
+                            // 👇 Hacer vibración ligera si ya estamos ahí
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         }
                     },
                     alwaysShowLabel = true
@@ -44,9 +56,10 @@ fun BottomNavigationBar(
             }
         }
     }
-
-
 }
+
+
+
 
 
 @Preview

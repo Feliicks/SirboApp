@@ -64,7 +64,7 @@ fun OptimalRouteScreen(
         topBar = {
             RouterPlannerBar(
                 plannerViewModel = plannerViewModel,
-                navController = navController
+                navController = navController,
             )
         },
         bottomBar = {
@@ -80,7 +80,6 @@ fun OptimalRouteScreen(
             padding = padding
         )
     }
-
 }
 
 @Composable

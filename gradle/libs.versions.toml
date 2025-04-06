@@ -1,4 +1,5 @@
 [versions]
+datastorePreferences = "1.1.4"
 kotlin = "2.0.21"
 compose = "1.7.0"
 navVersion = "2.8.0"
@@ -13,7 +14,7 @@ firebaseDatabaseKtx = "20.0.4"
 junit = "4.13.2"
 testJunitExt = "1.1.5"
 espressoCore = "3.5.1"
-material3 = "1.2.1"
+material3 = "1.3.1"
 materialIcons = "1.7.0"
 playServicesLocation = "21.0.1"
 playServicesMaps = "18.2.0"
@@ -39,6 +40,7 @@ roomKtx = "2.6.1"
 roomCompiler = "2.6.1"
 [libraries]
 # Testing
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 junit = { module = "junit:junit", version.ref = "junit" }
 test-junit = { module = "androidx.test.ext:junit", version.ref = "testJunitExt" }
 espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCore" }

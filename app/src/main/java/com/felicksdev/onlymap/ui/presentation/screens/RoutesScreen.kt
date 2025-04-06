@@ -217,7 +217,8 @@ fun SearchBar(query: String, onQueryChanged: (String) -> Unit) {
         onValueChange = onQueryChanged,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(vertical = 0.dp, horizontal = 16.dp),
+//            .padding(16.dp),
         leadingIcon = {
             Icon(imageVector = Icons.Default.Search, contentDescription = "Buscar")
         },

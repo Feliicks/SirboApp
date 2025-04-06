@@ -75,14 +75,7 @@ fun ListaRutasScreenContent(
             }
         }
     }
-
-
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(text = "Busca líneas de transporte") }
-            )
-        },
         snackbarHost = {
             SnackbarHost(
                 snackbarHostState,
@@ -143,8 +136,7 @@ fun ListaRutasScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-
-    val rutas by viewModel.filteredRoutesList.collectAsState()
+    val listaRutas by viewModel.filteredRoutesList.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
 
@@ -183,7 +175,7 @@ fun ListaRutasScreen(
     ) { padding ->
         val fullPading = padding.plus(bottomPadding)
         ListaRutasScreenContent(
-            rutas = rutas,
+            rutas = listaRutas,
             errorMessage = errorMessage,
             onNavigateToDetail = { ruta ->
                 viewModel.setRouteSelected(ruta)

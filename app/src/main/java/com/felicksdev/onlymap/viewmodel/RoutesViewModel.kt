@@ -141,14 +141,15 @@ class RoutesViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val resultado = planRepository.fetchRoutes()
+                val rutas = resultado.body() ?: emptyList()
 
-//                _allRoutesList.value = resultado
-//                _filteredRoutesList.value = resultado
-                _allRoutesList.value = resultado.body() ?: emptyList()
-                _filteredRoutesList.value = resultado.body() ?: emptyList()
+                // Ordenar por nombre corto
+                val rutasOrdenadas = rutas.sortedBy { it.shortName.lowercase() }
 
-                Log.d("RutasViewModel", "Rutas obtenidas $allRoutesList")
-                Log.d("RutasViewModel", "Obtuve todas las rutas exitosamente")
+                _allRoutesList.value = rutasOrdenadas
+                _filteredRoutesList.value = rutasOrdenadas
+
+                Log.d("RutasViewModel", "Total rutas obtenidas ${rutasOrdenadas.size}")
 
             } catch (e: SocketTimeoutException) {
                 Log.e("RutasViewModel", "Error de conexión: ${e.message}")
@@ -158,10 +159,11 @@ class RoutesViewModel @Inject constructor(
                 Log.e("RutasViewModel", "Error al obtener las rutas", e)
                 _errorMessage.value = "Ocurrió un error: ${e.message}"
             } finally {
-                _isLoading.value = false // 🔥 Asegura que la barra de carga se desactiva SIEMPRE
+                _isLoading.value = false
             }
         }
     }
+
 
 
     fun getRouteGeometry(patternId: String) {

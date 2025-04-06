@@ -1,12 +1,17 @@
 package com.felicksdev.onlymap.viewmodel
 
 
+import android.content.Context
 import android.util.Log
+import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.felicksdev.onlymap.LocationDetail
 import com.felicksdev.onlymap.data.models.otpModels.routing.Itinerary
 import com.felicksdev.onlymap.data.models.otpModels.routing.Plan
+import com.felicksdev.onlymap.data.preferences.OtpPreferenceKeys
+import com.felicksdev.onlymap.data.preferences.dataStore
+import com.felicksdev.onlymap.domain.models.OtpConfig
 import com.felicksdev.onlymap.domain.repository.PlanRespository
 import com.felicksdev.onlymap.isSetted
 import com.felicksdev.onlymap.utils.MapConfig
@@ -17,6 +22,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.net.UnknownHostException
 import javax.inject.Inject
@@ -25,7 +31,8 @@ import javax.inject.Inject
 class PlannerViewModel @Inject constructor(
     private val planRepository: PlanRespository
 ) : ViewModel() {
-
+    private val _config = MutableStateFlow(OtpConfig())
+    val config: StateFlow<OtpConfig> = _config
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
@@ -81,6 +88,59 @@ class PlannerViewModel @Inject constructor(
         _fromLocation.value = fromPlace
         updatePlacesDefinedState()
     }
+
+    fun loadConfig(context: Context) {
+        viewModelScope.launch {
+            context.dataStore.data.map { prefs ->
+                val config = OtpConfig(
+                    mode = prefs[OtpPreferenceKeys.MODE] ?: "TRANSIT,WALK",
+                    walkDistance = prefs[OtpPreferenceKeys.WALK_DISTANCE] ?: 1000,
+                    maxTransfers = prefs[OtpPreferenceKeys.MAX_TRANSFERS] ?: 1,
+                    numItineraries = prefs[OtpPreferenceKeys.NUM_ITINERARIES] ?: 3
+                )
+
+                // 🔍 LOG al cargar configuración
+                Log.d("OtpConfig", "Config cargada desde DataStore: $config")
+
+                config
+            }.collect { loadedConfig ->
+                _config.value = loadedConfig
+            }
+        }
+    }
+
+    fun saveConfig(context: Context, config: OtpConfig) {
+        viewModelScope.launch {
+            context.dataStore.edit { prefs ->
+                prefs[OtpPreferenceKeys.MODE] = config.mode
+                prefs[OtpPreferenceKeys.WALK_DISTANCE] = config.walkDistance
+                prefs[OtpPreferenceKeys.MAX_TRANSFERS] = config.maxTransfers
+                prefs[OtpPreferenceKeys.NUM_ITINERARIES] = config.numItineraries
+            }
+
+            // 🔍 Log al guardar configuración
+            Log.d("OtpConfig", "Configuración guardada: $config")
+
+            _config.value = config
+        }
+    }
+
+    fun resetConfig(context: Context) {
+        viewModelScope.launch {
+            context.dataStore.edit { prefs ->
+                prefs.remove(OtpPreferenceKeys.MODE)
+                prefs.remove(OtpPreferenceKeys.WALK_DISTANCE)
+                prefs.remove(OtpPreferenceKeys.MAX_TRANSFERS)
+                prefs.remove(OtpPreferenceKeys.NUM_ITINERARIES)
+            }
+
+            val defaultConfig = OtpConfig()
+            _config.value = defaultConfig
+
+            Log.d("OtpConfig", "Configuración restablecida a valores por defecto: $defaultConfig")
+        }
+    }
+
 
     private fun updatePlacesDefinedState() {
         val isDefined = _fromLocation.value.isSetted() && _toLocation.value.isSetted()
