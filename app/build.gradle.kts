@@ -12,11 +12,11 @@ plugins {
 
 }
 android {
-    namespace = "com.felicksdev.onlymap"
+    namespace = "com.felicks.sirbo"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.felicksdev.onlymap"
+        applicationId = "com.felicks.sirbo"
         minSdk = 24
         targetSdk = 33
         versionCode = 1

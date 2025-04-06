@@ -9,10 +9,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="com.felicksdev.onlymap" />
-                  <option name="mobileSdkAppId" value="1:1004072973664:android:3577d82357d1f1079b1a05" />
-                  <option name="projectId" value="sirbo-33bde" />
-                  <option name="projectNumber" value="1004072973664" />
+                  <option name="appId" value="PLACEHOLDER" />
+                  <option name="mobileSdkAppId" value="" />
+                  <option name="projectId" value="" />
+                  <option name="projectNumber" value="" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

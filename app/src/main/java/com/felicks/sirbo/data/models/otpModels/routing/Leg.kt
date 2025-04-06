@@ -1,0 +1,25 @@
+package com.felicks.sirbo.data.models.otpModels.routing
+
+data class Leg(
+    var agencyTimeZoneOffset: Int = 0,
+    var arrivalDelay: Int = 0,
+    var departureDelay: Int = 0,
+    var distance: Double = 0.0,
+    var duration: Double = 0.0,
+    var endTime: Long = 0,
+    var flexDrtAdvanceBookMin: Double = 0.0,
+    var from: FromLeg = FromLeg(),
+    var interlineWithPreviousLeg: Boolean = false,
+    var legGeometry: LegGeometry = LegGeometry(),
+    var routeShortName: String? = null,
+    var routeLongName: String? = null,
+    var mode: String = "",
+    var pathway: Boolean = false,
+    var realTime: Boolean = false,
+    var rentedBike: Boolean = false,
+    var route: String = "",
+    var startTime: Long = 0,
+    var steps: List<Step> = emptyList(),
+    var to: ToLeg = ToLeg(),
+    var transitLeg: Boolean = false,
+)
