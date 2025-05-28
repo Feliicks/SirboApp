@@ -9,10 +9,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.felicks.sirbo" />
+                  <option name="mobileSdkAppId" value="1:1004072973664:android:b41540eb8ba447739b1a05" />
+                  <option name="projectId" value="sirbo-33bde" />
+                  <option name="projectNumber" value="1004072973664" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

@@ -13,21 +13,30 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.felicks.sirbo.data.remote.PhotonService
+import com.felicks.sirbo.data.local.dao.RutaGuardadaDao
 import com.felicks.sirbo.data.models.AddressState
 import com.felicks.sirbo.data.models.LocationInfo
+import com.felicks.sirbo.data.models.RutaGuardadaDomain
 import com.felicks.sirbo.data.models.photonModels.toDomain
-import com.felicks.sirbo.domain.Place
+import com.felicks.sirbo.data.models.toDomain
+import com.felicks.sirbo.data.remote.PhotonService
+import com.felicks.sirbo.data.remote.photon.PhotonFeature
 import com.felicks.sirbo.domain.LocationProperties
+import com.felicks.sirbo.domain.Place
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
@@ -36,7 +45,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LocationViewModel @Inject constructor(
-    private val photonService: PhotonService
+    private val photonService: PhotonService,
+    private val rutaGuardadaDao: RutaGuardadaDao,
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
     //
 //    Localizacion Actualizada
@@ -70,11 +81,14 @@ class LocationViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery
 
-    private val _searchResults = MutableStateFlow<List<Place>>(emptyList())
-    val searchResults: StateFlow<List<Place>> = _searchResults
+//    private val _searchResults = MutableStateFlow<List<Place>>(emptyList())
+//    val searchResults: StateFlow<List<Place>> = _searchResults
 
-    private val _recentPlaces = MutableStateFlow<List<Place>>(emptyList())
-    val recentPlaces: StateFlow<List<Place>> = _recentPlaces
+    private val _searchResults = MutableStateFlow<List<PhotonFeature>>(emptyList())
+    val searchResults: StateFlow<List<PhotonFeature>> = _searchResults
+
+    private val _recentPlaces = MutableStateFlow<List<RutaGuardadaDomain>>(emptyList())
+    val recentPlaces: StateFlow<List<RutaGuardadaDomain>> = _recentPlaces
 
 
     private val _destinationLocation = MutableLiveData<LocationInfo>()
@@ -121,6 +135,15 @@ class LocationViewModel @Inject constructor(
         geocoder = Geocoder(context)
     }
 
+    fun getRutasRecientes() {
+        viewModelScope.launch {
+            val rutas = rutaGuardadaDao.obtenerUltimasCinco()
+            _recentPlaces.value = rutas.map { it.toDomain() }
+        }
+
+    }
+
+
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
         if (query.isNotEmpty()) {
@@ -129,11 +152,43 @@ class LocationViewModel @Inject constructor(
             _searchResults.value = emptyList()
         }
     }
+    init {
+        viewModelScope.launch {
+            _searchQuery
+                .debounce(1000) // ⏱ espera 1 segundo tras la última tecla
+                .distinctUntilChanged() // evita repetir llamadas si el texto no cambia
+                .filter { it.isNotBlank() } // no llamar si está vacío
+                .collectLatest { query ->
+                    searchLocations(query)
+                }
+        }
+    }
 
     private fun searchLocations(query: String) {
         viewModelScope.launch {
 //            val results = locationRepository.searchPlaces(query)
 //            _searchResults.value = results
+            photonService.searchPlaces(query).let { response ->
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body != null) {
+                        _searchResults.value = body.photonFeatures
+                        Log.e(
+                            "LocationViewModel",
+                            "Data: Respuesta de la API ${body}"
+                        )
+                    } else {
+                        Log.e("LocationViewModel", "Error: Respuesta de la API es null")
+                        _searchResults.value = emptyList()
+                    }
+                } else {
+                    Log.e(
+                        "LocationViewModel",
+                        "Error en la API. Código: ${response.code()} - ${response.message()}"
+                    )
+                    _searchResults.value = emptyList()
+                }
+            }
         }
     }
 

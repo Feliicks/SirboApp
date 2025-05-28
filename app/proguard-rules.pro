@@ -19,3 +19,34 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+# Keep generic signature of Call, Response (R8 full mode strips signatures from non-kept items).
+ -keep,allowobfuscation,allowshrinking interface retrofit2.Call
+ -keep,allowobfuscation,allowshrinking class retrofit2.Response
+
+ # With R8 full mode generic signatures are stripped for classes that are not
+ # kept. Suspend functions are wrapped in continuations where the type argument
+ # is used.
+ -keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation
+
+ # Conserva todo lo anotado con @Keep
+ -keep @androidx.annotation.Keep class * { *; }
+
+ # Para Gson y Retrofit
+ -keep class com.google.gson.** { *; }
+ -keep class retrofit2.** { *; }
+ -dontwarn retrofit2.**
+ -keepclassmembers class * {
+     @com.google.gson.annotations.SerializedName <fields>;
+ }
+ -keepattributes Signature
+ -keepattributes *Annotation*
+
+# Mantener clases de tus modelos
+-keep class com.felicks.sirbo.data.models.otpModels.** { *; }
+
+# Mantener clases usadas por Gson
+-keep class com.google.gson.stream.** { *; }
+-keep class com.google.gson.internal.** { *; }
+-keep class com.google.gson.reflect.TypeToken
+-keepattributes Signature
+-keepattributes *Annotation*

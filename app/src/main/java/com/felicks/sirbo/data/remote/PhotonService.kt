@@ -1,6 +1,7 @@
 package com.felicks.sirbo.data.remote
 
 import com.felicks.sirbo.data.models.photonModels.ReverseResponse
+import com.felicks.sirbo.data.remote.photon.PhotonResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -11,5 +12,11 @@ interface PhotonService {
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,
     ): Response<ReverseResponse>
+
+    @GET("/api")
+    suspend fun searchPlaces(
+        @Query("q") query: String,
+        @Query("limit") limit: Int = 5
+    ): Response<PhotonResponse>
 
 }

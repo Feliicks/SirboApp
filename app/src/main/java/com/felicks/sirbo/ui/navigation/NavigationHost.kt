@@ -17,10 +17,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.felicks.sirbo.ui.navigation.Destinations.FavoritesScreen
-import com.felicks.sirbo.ui.navigation.Destinations.HomeScreen
 import com.felicks.sirbo.ui.navigation.Destinations.ListaDeRutasScreen
 import com.felicks.sirbo.ui.navigation.Destinations.LocationsSelectionScreen
 import com.felicks.sirbo.ui.navigation.Destinations.MapScreen
+import com.felicks.sirbo.ui.navigation.Destinations.PlanificaScreen
 import com.felicks.sirbo.ui.presentation.screens.ChooseLocationOnMapScreen
 import com.felicks.sirbo.ui.presentation.screens.DetalleRutaScreen
 import com.felicks.sirbo.ui.presentation.screens.mainScreens.ListaRutasScreen
@@ -35,8 +35,8 @@ import com.felicks.sirbo.viewmodel.PlannerViewModel
 import com.felicks.sirbo.viewmodel.RoutesViewModel
 
 val MAIN_DESTINATIONS = listOf(
-    FavoritesScreen,
-    HomeScreen,
+//    FavoritesScreen,
+    PlanificaScreen,
     ListaDeRutasScreen
 )
 
@@ -51,7 +51,7 @@ fun NavigationHost(
 
     ) {
     val cameraPositionState = remember { MapConfig.initialState }
-    NavHost(navController = navController, startDestination = HomeScreen.route,
+    NavHost(navController = navController, startDestination = PlanificaScreen.route,
         enterTransition = {
             slideIntoContainer(
                 AnimatedContentTransitionScope.SlideDirection.Start,
@@ -76,7 +76,7 @@ fun NavigationHost(
                 animationSpec = tween(350)
             )
         }) {
-        composable(HomeScreen.route) {
+        composable(PlanificaScreen.route) {
             PlanificaScreen(
                 viewModel = homeScreenViewModel,
                 navController = navController,

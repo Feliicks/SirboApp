@@ -79,21 +79,21 @@ fun OtpConfigDialog(
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
-
-                // Transbordos
-                Text("Máx. transbordos")
-                NumberPicker(min = 0, max = 3, value = maxTransfers) {
-                    maxTransfers = it
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // N° de rutas
-                Text("N° de rutas sugeridas")
-                NumberPicker(min = 1, max = 5, value = numItineraries) {
-                    numItineraries = it
-                }
-                Spacer(modifier = Modifier.height(16.dp))
+//
+//                // Transbordos
+//                Text("Máx. transbordos")
+//                NumberPicker(min = 0, max = 3, value = maxTransfers) {
+//                    maxTransfers = it
+//                }
+//
+//                Spacer(modifier = Modifier.height(12.dp))
+//
+//                // N° de rutas
+//                Text("N° de rutas sugeridas")
+//                NumberPicker(min = 1, max = 5, value = numItineraries) {
+//                    numItineraries = it
+//                }
+//                Spacer(modifier = Modifier.height(16.dp))
 
                 TextButton(onClick = onReset) {
                     Text("Restablecer a valores por defecto")

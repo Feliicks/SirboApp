@@ -18,7 +18,8 @@ interface OtpService {
     @GET
     suspend fun getLinea(@Url url: String): Response<RutaVehicular>
 
-    @GET("otp/routers/default/index/routes/")
+//    @GET("otp/routers/default/index/routes/") //PASADO
+    @GET("/plan/rutas")
     suspend fun indexRoutes(): Response<List<RoutesItem>>
 
     @GET
@@ -27,14 +28,17 @@ interface OtpService {
 
     @GET("otp/routers/default/index/routes/{id}/stops")
     suspend fun getRouteStops(@Path("id") idRoute: String): Response<List<RouteStopItem>>
-
-    @GET("otp/routers/default/index/routes/{routeId}/patterns")
+    // detalle de paradas de la ruta
+//    @GET("otp/routers/default/index/routes/{routeId}/patterns")
+    @GET("plan/rutas/{routeId}/patterns")
     suspend fun getPatternByRouteId(@Path("routeId") routeId: String): Response<List<Pattern>>
 
-    @GET("otp/routers/default/index/patterns/{patternId}")
-    suspend fun getPatternDetailsByPatternId(@Path("patternId") patternId: String): Response<PatterDetail>
+//@GET("otp/routers/default/index/patterns/{patternId}")
+    @GET("plan/patterns/{patternId}")
+suspend fun getPatternDetailsByPatternId(@Path("patternId") patternId: String): Response<PatterDetail>
 
-    @GET("otp/routers/default/plan")
+//    @GET("otp/routers/default/plan")
+    @GET("/plan")
     suspend fun fetchPlan(
         @Query("fromPlace") fromPlace: String,
         @Query("toPlace") toPlace: String,
@@ -44,13 +48,15 @@ interface OtpService {
         @Query("numItineraries") numItineraries: Int = 3
     ): Response<RoutingResponse>
 
-
-    @GET("otp/routers/default/index/routes/{id}")
+    /// Seu sa para la cabecera en el dealle de ruta
+//    @GET("otp/routers/default/index/routes/{id}")
+    @GET("plan/rutas/{id}")
     suspend fun getRouteDetail(
         @Path("id") routeId: String,
     ): RoutesItem
 
     @GET("otp/routers/default/plan")
+//    @GET("plan")
     suspend fun getOptimalRoutes(
         @Query("fromPlace") fromPlace: String,
         @Query("toPlace") toPlace: String,
@@ -61,8 +67,9 @@ interface OtpService {
     @GET("otp/routers/default/index/patterns/{id}")
     suspend fun getRoutePatterns(@Path("id") routeId: String): Response<RutaVehicular>
 
-
-    @GET("otp/routers/default/index/patterns/{patternId}/geometry")
+    // GEOEMTRIA DE UNA RUTA ESPECIFICA
+//    @GET("otp/routers/default/index/patterns/{patternId}/geometry")
+    @GET("plan/patterns/{patternId}/geometry")
     suspend fun getGeomByPattern(@Path("patternId") patternId: String): Response<PatternGeometry>
 
 }

@@ -1,7 +1,8 @@
 package com.felicks.sirbo.data.models.otpModels.routing
 
+import androidx.annotation.Keep
 import com.felicks.sirbo.data.models.error.ErrorDetails
-
+@Keep
 data class Plan(
     val date: Long,
     val from: From,

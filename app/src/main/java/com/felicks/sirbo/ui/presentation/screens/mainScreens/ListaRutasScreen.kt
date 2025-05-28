@@ -1,6 +1,9 @@
 package com.felicks.sirbo.ui.presentation.screens.mainScreens
 
 import android.util.Log
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,10 +33,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,7 +55,7 @@ import com.felicks.sirbo.viewmodel.RoutesViewModel
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ListaRutasScreenContent(
     rutas: List<RoutesItem>,
@@ -63,6 +70,13 @@ fun ListaRutasScreenContent(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+    val rutasAnimadas = remember { mutableStateListOf<RoutesItem>() }
+
+// Actualiza la lista animada cada vez que cambian las rutas
+    LaunchedEffect(rutas) {
+        rutasAnimadas.clear()
+        rutasAnimadas.addAll(rutas)
+    }
 
     // Mostrar el Snackbar cuando hay un error
     LaunchedEffect(errorMessage) {
@@ -91,7 +105,7 @@ fun ListaRutasScreenContent(
             })
             Box(
                 modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+//                contentAlignment = Alignment.CenterHorizontally
             ) {
 
                 when {
@@ -109,20 +123,53 @@ fun ListaRutasScreenContent(
                     }
 
                     else -> {
-                        LazyColumn(modifier = Modifier.padding()) {
-                            items(rutas) { ruta ->
-                                RouteItem(
+                        LazyColumn {
+                            items(
+                                items = rutasAnimadas,
+                                key = { it.id }
+                            ) { ruta ->
+                                AnimatedRouteItem(
                                     ruta = ruta,
                                     navigateToDetail = { onNavigateToDetail(ruta) }
                                 )
                             }
                         }
+
+
                     }
                 }
             }
 
         }
     }
+}
+
+@Composable
+fun AnimatedRouteItem(
+    ruta: RoutesItem,
+    modifier: Modifier = Modifier,
+    navigateToDetail: () -> Unit
+) {
+    // Estados para opacidad y desplazamiento
+    var alpha2 by remember { mutableStateOf(0f) }
+    var offsetY by remember { mutableStateOf(16f) }
+    var offsetX by remember { mutableStateOf(100f) }
+    // Lanzar animación al ingresar
+    LaunchedEffect(Unit) {
+        animate(
+            initialValue = 100f,
+            targetValue = 0f,
+            animationSpec = tween(300)
+        ) { value, _ -> offsetX = value }
+    }
+
+    RouteItem(
+        ruta = ruta,
+        navigateToDetail = navigateToDetail,
+        modifier = modifier.graphicsLayer {
+            translationX = offsetX
+        }
+    )
 }
 
 

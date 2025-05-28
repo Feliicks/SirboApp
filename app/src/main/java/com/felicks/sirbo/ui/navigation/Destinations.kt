@@ -11,7 +11,7 @@ sealed class Destinations(
     val title: String,
     val icon: ImageVector
 ) {
-    object HomeScreen : Destinations(
+    object PlanificaScreen : Destinations(
         "home_screen",
         "Planifica",
         Icons.Filled.Route

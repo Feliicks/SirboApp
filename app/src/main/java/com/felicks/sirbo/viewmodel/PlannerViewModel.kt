@@ -1,35 +1,48 @@
 package com.felicks.sirbo.viewmodel
 
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.felicks.sirbo.LocationDetail
+import com.felicks.sirbo.data.local.dao.RutaGuardadaDao
+import com.felicks.sirbo.data.models.RutaGuardadaDomain
 import com.felicks.sirbo.data.models.otpModels.routing.Itinerary
 import com.felicks.sirbo.data.models.otpModels.routing.Plan
+import com.felicks.sirbo.data.models.toEntity
 import com.felicks.sirbo.data.preferences.OtpPreferenceKeys
 import com.felicks.sirbo.data.preferences.dataStore
+import com.felicks.sirbo.domain.Place
 import com.felicks.sirbo.domain.models.OtpConfig
 import com.felicks.sirbo.domain.repository.PlanRespository
 import com.felicks.sirbo.isSetted
+import com.felicks.sirbo.utils.FechaUtils
 import com.felicks.sirbo.utils.MapConfig
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.net.UnknownHostException
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
 class PlannerViewModel @Inject constructor(
-    private val planRepository: PlanRespository
+    private val planRepository: PlanRespository,
+    private val rutaGuardadaDao: RutaGuardadaDao,
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
     private val _config = MutableStateFlow(OtpConfig())
     val config: StateFlow<OtpConfig> = _config
@@ -82,6 +95,48 @@ class PlannerViewModel @Inject constructor(
     fun updateCameraPosition(newPosition: LatLng) {
 //        _cameraPosition.value = n ewPosition
     }
+
+
+    private val fusedClient = LocationServices.getFusedLocationProviderClient(context)
+
+    private val _ubicacion = MutableStateFlow<Place?>(null)
+    val ubicacion: StateFlow<Place?> = _ubicacion
+
+    fun obtenerUbicacion(isOrigin: Boolean) {
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.e("Ubicacion", "Permiso no otorgado")
+            return
+        }
+
+        fusedClient.lastLocation
+            .addOnSuccessListener { location ->
+                location?.let {
+                    val location = LocationDetail(
+                        description = "Mi ubicación",
+                        address = "",
+                        latitude = location.latitude,
+                        longitude = location.longitude
+                    )
+                    if (isOrigin) {
+                        setFromPlace(location)
+                    } else {
+                        setToPlace(location)
+                    }
+                } ?: Log.e("Ubicacion", "Ubicación no disponible")
+            }
+            .addOnFailureListener {
+                Log.e("Ubicacion", "Error al obtener ubicación", it)
+            }
+    }
+
+    fun limpiarUbicacion() {
+        _ubicacion.value = null
+    }
+
 
     fun setFromPlace(fromPlace: LocationDetail) {
         Log.d("PlannerViewModel", "Setting from place: $fromPlace")
@@ -237,8 +292,12 @@ class PlannerViewModel @Inject constructor(
                 }
 // 🆕 Verificar si hubo error PATH_NOT_FOUND o noPath = true
                 if (planResponse.error?.noPath == true) {
-                    _errorState.value = "No se encontró una ruta disponible con los parámetros actuales. Intenta aumentar la distancia máxima para caminar o elige otra ubicación."
-                    Log.e("PlannerViewModel", "Error: no se encontró una ruta válida - ${planResponse.error?.msg}")
+                    _errorState.value =
+                        "No se encontró una ruta disponible con los parámetros actuales. Intenta aumentar la distancia máxima para caminar o elige otra ubicación."
+                    Log.e(
+                        "PlannerViewModel",
+                        "Error: no se encontró una ruta válida - ${planResponse.error?.msg}"
+                    )
                     _isLoading.value = false
                     _planResult.value = null
                     _itineraries.value = emptyList()
@@ -257,6 +316,31 @@ class PlannerViewModel @Inject constructor(
                 _itineraries.value = plan.itineraries
                 _selectedItinerary.value = plan.itineraries.first()
                 _isLoading.value = false
+                // Guardar en Room
+                val origen = plan.from
+                val destino = plan.to
+
+                val geoJson = Gson().toJson(plan) // o solo la geometría si la tienes parseada
+
+                val nuevaRuta = RutaGuardadaDomain(
+                    usuarioId = "usuario_demo", // este puedes pasarlo desde auth o prefs
+                    nombreRuta = "Ruta guardada ${FechaUtils.dateToString(Date())}",
+                    origenLat = origen.lat,
+                    origenLon = origen.lon,
+                    destinoLat = destino.lat,
+                    destinoLon = destino.lon,
+                    geoJson = geoJson,
+                    direccionOrigen = _fromLocation.value.description,
+                    direccionDestino = _toLocation.value.description,
+                    fechaGuardado = Date(),
+                    fechaUltimoUso = Date(),
+                )
+
+// Guardar en Room con coroutine
+                viewModelScope.launch {
+                    rutaGuardadaDao.insertar(nuevaRuta.toEntity())
+                    Log.d("PlannerViewModel", "Ruta guardada en Room")
+                }
                 Log.d(
                     "PlannerViewModel",
                     "Plan obtenido con ${plan.itineraries.size} itinerarios."
@@ -304,7 +388,8 @@ class PlannerViewModel @Inject constructor(
                 }
 
                 if (planResponse.error?.noPath == true) {
-                    _errorState.value = "No se encontró una ruta disponible con los parámetros actuales. Intenta aumentar la distancia máxima o elige otra ubicación."
+                    _errorState.value =
+                        "No se encontró una ruta disponible con los parámetros actuales. Intenta aumentar la distancia máxima o elige otra ubicación."
                     _planResult.value = null                   // 🔥 limpia la ruta
                     _itineraries.value = emptyList()           // 🔥 limpia la list
                     return@launch
@@ -331,12 +416,12 @@ class PlannerViewModel @Inject constructor(
     }
 
 
-
     // Función para limpiar el error después de mostrarlo
     fun clearError() {
         _errorState.value = null
     }
-@Deprecated("no es reactivo")
+
+    @Deprecated("no es reactivo")
     fun isPlacesDefined(): Boolean {
         return _fromLocation.value.latitude != 0.0 && _fromLocation.value.longitude != 0.0 &&
                 _toLocation.value.latitude != 0.0 && _toLocation.value.longitude != 0.0

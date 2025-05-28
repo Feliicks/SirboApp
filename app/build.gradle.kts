@@ -1,4 +1,4 @@
-import org.gradle.api.JavaVersion.VERSION_11
+import org.gradle.api.JavaVersion.VERSION_17
 
 plugins {
     alias(libs.plugins.android.application)
@@ -10,6 +10,9 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
 
+}
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
 }
 android {
     namespace = "com.felicks.sirbo"
@@ -29,31 +32,38 @@ android {
     }
 
     buildTypes {
-        getByName("debug") {
+        debug {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
+        release {
+            isMinifyEnabled = true
+            isDebuggable = true
+            isShrinkResources = true
+
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            signingConfig = signingConfigs.getByName("debug")
+        }
     }
 
     compileOptions {
-        sourceCompatibility = VERSION_11
-        targetCompatibility = VERSION_11
+        sourceCompatibility = VERSION_17
+        targetCompatibility = VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
 
     buildFeatures {
         compose = true
         viewBinding = true
-    }
-
-    composeOptions {
-//        kotlinCompilerExtensionVersion = "1.5.12"
     }
 
     packaging {
@@ -160,6 +170,7 @@ dependencies {
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
 
-    implementation (libs.androidx.datastore.preferences)
+    implementation(libs.androidx.datastore.preferences)
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.14")
 
 }

@@ -120,12 +120,13 @@ fun validateString(string: String): String {
 @Composable
 fun RouteItem(
     ruta: RoutesItem,
+    modifier : Modifier = Modifier,
     navigateToDetail: () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val indication = LocalIndication.current
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
             .padding(vertical = 8.dp, horizontal = 16.dp)

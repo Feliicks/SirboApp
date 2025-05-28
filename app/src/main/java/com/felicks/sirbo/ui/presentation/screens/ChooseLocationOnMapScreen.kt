@@ -166,8 +166,8 @@ fun handleLocationConfirm(
     val isPlacesDefined = plannerViewModel.isPlacesDefined()
     Log.d("ChooseLocationsScreen", "is places test defined: $isPlacesDefined")
 
-    navController.navigate(Destinations.HomeScreen.route) {
-        popUpTo(Destinations.HomeScreen.route) { inclusive = true }
+    navController.navigate(Destinations.PlanificaScreen.route) {
+        popUpTo(Destinations.PlanificaScreen.route) { inclusive = true }
     }
 }
 
