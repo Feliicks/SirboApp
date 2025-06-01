@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Sirbo</string>
+    <string name="app_name">Sirbo App</string>
     <string name="mapbox_access_token">pk.eyJ1IjoiZmVsaWNrcyIsImEiOiJjbDRtcGh2N2QwejJ6M2NsMHo0aWh5dWhxIn0.DhjLCbJmiDv_zvlZdRtjtg</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
