@@ -17,3 +17,11 @@ data class Properties(
     val street: String,
     val type: String
 )
+
+fun Properties.toCompactLabel(): String {
+    return when {
+        !name.isNullOrBlank() -> "$name, ${street ?: ""} , ${city ?: state ?: country}"
+        !street.isNullOrBlank() -> "$street, ${city ?: state ?: country}"
+        else -> city ?: state ?: country ?: "Ubicación sin nombre"
+    }
+}

@@ -28,13 +28,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.felicks.sirbo.LocationDetail
 import com.felicks.sirbo.data.models.RutaGuardadaDomain
 import com.felicks.sirbo.data.remote.photon.PhotonFeature
+import com.felicks.sirbo.data.remote.photon.toCompactLabel
 import com.felicks.sirbo.ui.navigation.Destinations.MapScreen
 import com.felicks.sirbo.ui.presentation.components.topBars.SearchTopBar
 import com.felicks.sirbo.viewmodel.LocationViewModel
@@ -48,7 +51,6 @@ fun AlternativeChooseLocationScreen(
     plannerViewModel: PlannerViewModel = hiltViewModel()
 ) {
     viewModel.getRutasRecientes()
-    val recentLocations by viewModel.recentLocations.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
     val rutasRecientes by viewModel.recentPlaces.collectAsState()
     val searchResults by viewModel.searchResults.collectAsState()
@@ -78,6 +80,41 @@ fun AlternativeChooseLocationScreen(
             Log.d("LocationsOptions", "Mi ubicación")
             plannerViewModel.obtenerUbicacion(isOrigin)
             navController.popBackStack()
+        },
+        onRecentLocationClick = { it ->
+            Log.d("LocationsOptions", "Click en Ubicacion reciente")
+//            plannerViewModel.obtenerUbicacionReciente(isOrigin)
+            val origen = LocationDetail(
+                description = it.direccionOrigen,
+                address = "",
+                latitude = it.origenLat,
+                longitude = it.origenLon
+            )
+            val destino = LocationDetail(
+                description = it.direccionDestino,
+                address = "",
+                latitude = it.destinoLat,
+                longitude = it.destinoLon
+            )
+            Log.d("LocationsOptions", "Detalle $origen   AND $destino")
+
+            plannerViewModel.setFromPlace(origen)
+            plannerViewModel.setToPlace(destino)
+            navController.popBackStack()
+        },
+        onClick = {
+            val location = LocationDetail(
+                description = it.properties.toCompactLabel(),
+                address = "",
+                latitude = it.geometry.coordinates[1],
+                longitude = it.geometry.coordinates[0]
+            )
+            if (isOrigin) {
+                plannerViewModel.setFromPlace(location)
+            } else {
+                plannerViewModel.setToPlace(location)
+            }
+            navController.popBackStack()
         }
     )
 }
@@ -94,7 +131,9 @@ fun ChooseLocationScreenContent(
     onSearchQueryChanged: (String) -> Unit,
     onBackPressed: () -> Unit,
     onMyLocation: () -> Unit,
+    onRecentLocationClick: (RutaGuardadaDomain) -> Unit,
     searchResults: List<PhotonFeature>,
+    onClick: (PhotonFeature) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -114,12 +153,25 @@ fun ChooseLocationScreenContent(
                     onLocationSelected = onLocationSelected,
                     onNavigateToMap = onNavigateToMap,
                     onDebugLocationClick = onDebugLocationClick,
-                    onMyLocation = onMyLocation
+                    onMyLocation = onMyLocation,
+                    onRecentLocationClick = onRecentLocationClick
                 )
             }
 
             else -> {
-                LocationsResult(paddingValues, searchResults)
+                LocationsResult(paddingValues, searchResults, onClick = {
+                    Log.d("LocationsResult", "Selected feature: ${it.properties.toCompactLabel()}")
+                    Log.d("LocationsResult", "Selected feature: ${it.geometry.coordinates}")
+                    onClick(it)
+//                    onLocationSelected(
+//                        com.felicks.sirbo.domain.Place(
+//                            name = it.properties.toCompactLabel(),
+//                            latitud = it.geometry.coordinates[1],
+//                            longitud = it.geometry.coordinates[0]
+//                        )
+//                    )
+//                    navController.popBackStack() // Navigate back after selection
+                })
             }
         }
     }
@@ -128,14 +180,15 @@ fun ChooseLocationScreenContent(
 @Composable
 fun LocationsResult(
     paddingValues: PaddingValues,
-    searchResults: List<PhotonFeature>
+    searchResults: List<PhotonFeature>,
+    onClick: (PhotonFeature) -> Unit = { }
 ) {
     LazyColumn {
         items(searchResults) { feature ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { /* Handle click on search result */ }
+                    .clickable { onClick(feature) }
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -146,8 +199,7 @@ fun LocationsResult(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = feature.properties?.name ?: "Unknown Location",
-//                    text = "Unknown Location",
+                    text = feature.properties.toCompactLabel(),
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.weight(1f)
                 )
@@ -163,6 +215,7 @@ fun DefaultLocationList(
     onDebugLocationClick: () -> Unit,
     recentPlaces: List<RutaGuardadaDomain>,
     onMyLocation: () -> Unit,
+    onRecentLocationClick: (RutaGuardadaDomain) -> Unit,
     onLocationSelected: (com.felicks.sirbo.domain.Place) -> Unit,
     viewModel: LocationViewModel = hiltViewModel()
 ) {
@@ -195,9 +248,7 @@ fun DefaultLocationList(
                 items(recentPlaces) { location ->
                     RecentLocationItem(
                         place = location,
-                        onClick = {
-//                            onLocationSelected(location)
-                        }
+                        onClick = { onRecentLocationClick(location) }
                     )
                 }
             }
@@ -234,11 +285,18 @@ fun RecentLocationItem(
     ) {
         Icon(imageVector = Icons.Default.Place, contentDescription = "Ubicación reciente")
         Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = place.direccionOrigen,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.weight(1f)
-        )
+        Column {
+            Text(
+                text = place.direccionOrigen,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            Text(
+                text = place.direccionDestino,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = Color.Gray
+                ),
+            )
+        }
         if (false) {
             IconButton(onClick = { /* Guardar ubicación como favorita */ }) {
                 Icon(

@@ -217,6 +217,7 @@ fun CustomLocationFormField(
     ) {
         // Icono de Reset (Solo si hay ubicaciones definidas)
         if (plannerViewModel.isPlacesDefined()) {
+//        if (plannerViewModel.isAnyPlaceDefined()) {
             trailing?.let {
                 IconButton(
                     onClick = onTrailingClick,
@@ -327,6 +328,7 @@ fun SmallLocationFormField(
         TrailingIcon(
             trailing = trailing,
             isPlacesDefined = plannerViewModel.isPlacesDefined(),
+//            isPlacesDefined = plannerViewModel.isAnyPlaceDefined(),
             onTrailingClick = onTrailingClick
         )
 

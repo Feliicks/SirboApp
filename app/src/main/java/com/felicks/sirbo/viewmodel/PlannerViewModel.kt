@@ -322,6 +322,13 @@ class PlannerViewModel @Inject constructor(
 
                 val geoJson = Gson().toJson(plan) // o solo la geometría si la tienes parseada
 
+                val rutaExistente = rutaGuardadaDao.obtenerRutaExistente(
+                    origenLat = origen.lat,
+                    origenLon = origen.lon,
+                    destinoLat = destino.lat,
+                    destinoLon = destino.lon
+                )
+
                 val nuevaRuta = RutaGuardadaDomain(
                     usuarioId = "usuario_demo", // este puedes pasarlo desde auth o prefs
                     nombreRuta = "Ruta guardada ${FechaUtils.dateToString(Date())}",
@@ -336,11 +343,21 @@ class PlannerViewModel @Inject constructor(
                     fechaUltimoUso = Date(),
                 )
 
-// Guardar en Room con coroutine
-                viewModelScope.launch {
+                if (rutaExistente != null) {
+                    // Actualizar fecha de último uso si ya existe
+                    rutaGuardadaDao.actualizarFechaUltimoUso(
+                        rutaExistente.id,
+                        FechaUtils.dateToString(Date())
+                    )
+                    Log.d("PlannerViewModel", "Ruta Fecha Actualizada")
+                } else {
+                    // Insertar la nueva ruta
                     rutaGuardadaDao.insertar(nuevaRuta.toEntity())
+//                    rutaGuardadaDao.insertar(nuevaRuta.toEntity())
                     Log.d("PlannerViewModel", "Ruta guardada en Room")
                 }
+
+
                 Log.d(
                     "PlannerViewModel",
                     "Plan obtenido con ${plan.itineraries.size} itinerarios."
@@ -423,9 +440,17 @@ class PlannerViewModel @Inject constructor(
 
     @Deprecated("no es reactivo")
     fun isPlacesDefined(): Boolean {
+        Log.d("PlannerViewModel", "***isPlacesDefined Checking if places are defined: " +
+                "From: ${_fromLocation.value.isSetted()}, To: ${_toLocation.value.isSetted()}")
         return _fromLocation.value.latitude != 0.0 && _fromLocation.value.longitude != 0.0 &&
                 _toLocation.value.latitude != 0.0 && _toLocation.value.longitude != 0.0
     }
+    fun isAnyPlaceDefined(): Boolean {
+        Log.d("PlannerViewModel", "***isAnyPlaceDefined Checking if places are defined: " +
+                "From: ${_fromLocation.value.isSetted()}, To: ${_toLocation.value.isSetted()}")
+        return fromLocation.value.isSetted() || toLocation.value.isSetted()
+    }
+
 
     fun testSetLocations() {
         Log.d("PlannerViewModel", "Setting test locations")
