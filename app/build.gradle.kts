@@ -16,7 +16,7 @@ ksp {
 }
 android {
     namespace = "com.felicks.sirbo"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.felicks.sirbo"
@@ -70,6 +70,9 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+    buildFeatures {
+        buildConfig = true
     }
 }
 

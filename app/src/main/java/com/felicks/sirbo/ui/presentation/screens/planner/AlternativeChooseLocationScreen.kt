@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -137,11 +138,21 @@ fun ChooseLocationScreenContent(
 ) {
     Scaffold(
         topBar = {
+//            SearchTopBar(
+//                placeholder = "Busca un dirección. Ej. Avenida Carrasco",
+//                searchQuery = searchQuery,
+//                onSearchQueryChanged = onSearchQueryChanged,
+//                isOrigin = isOrigin,
+//                onBackPressed = onBackPressed
+//            )
             SearchTopBar(
+                placeholder = "Busca un dirección. Ej. Avenida Carrasco",
                 searchQuery = searchQuery,
                 onSearchQueryChanged = onSearchQueryChanged,
                 isOrigin = isOrigin,
-                onBackPressed = onBackPressed
+                onBackPressed = onBackPressed,
+                searchResults = searchResults,
+                onResultClick = onClick
             )
         }
     ) { paddingValues ->
@@ -183,6 +194,7 @@ fun LocationsResult(
     searchResults: List<PhotonFeature>,
     onClick: (PhotonFeature) -> Unit = { }
 ) {
+//    val searchResults = SpatialUtils.deduplicarFeaturesPorNombreYDistancia(searchResults, verbose = true)
     LazyColumn {
         items(searchResults) { feature ->
             Row(
@@ -231,11 +243,13 @@ fun DefaultLocationList(
             text = "Seleccionar ubicación en el mapa",
             onClick = onNavigateToMap
         )
-        LocationOption(
-            icon = Icons.Default.LocationOn,
-            text = "Debug",
-            onClick = onDebugLocationClick
-        )
+        if (com.felicks.sirbo.BuildConfig.DEBUG) {
+            LocationOption(
+                icon = Icons.Default.LocationOn,
+                text = "Debug",
+                onClick = onDebugLocationClick
+            )
+        }
 
         Text(
             text = "RECIENTES",
@@ -252,6 +266,15 @@ fun DefaultLocationList(
                     )
                 }
             }
+        } else {
+            Text(
+                text = "No hay ubicaciones recientes",
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(vertical = 8.dp)
+                    .fillMaxWidth(),
+                style = MaterialTheme.typography.bodyLarge.copy(color = Color.Gray)
+            )
         }
     }
 }

@@ -7,13 +7,13 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface PhotonService {
-    @GET("/reverse")
+    @GET("reverse")
     suspend fun getAdressByLocation(
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,
     ): Response<ReverseResponse>
 
-    @GET("/api")
+    @GET("api")
     suspend fun searchPlaces(
         @Query("q") query: String,
         @Query("limit") limit: Int = 5

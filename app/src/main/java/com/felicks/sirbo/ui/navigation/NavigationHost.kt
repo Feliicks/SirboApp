@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -50,6 +51,7 @@ fun NavigationHost(
     locationViewModel: LocationViewModel,
 
     ) {
+    val saveableStateHolder = rememberSaveableStateHolder()
     val cameraPositionState = remember { MapConfig.initialState }
     NavHost(navController = navController, startDestination = PlanificaScreen.route,
         enterTransition = {
@@ -77,13 +79,17 @@ fun NavigationHost(
             )
         }) {
         composable(PlanificaScreen.route) {
-            PlanificaScreen(
-                viewModel = homeScreenViewModel,
-                navController = navController,
-                myCameraPositionState = cameraPositionState,
-                plannerViewModel = plannerViewModel,
-                navBarPadding = bottomPadding,
-            )
+            saveableStateHolder.SaveableStateProvider(PlanificaScreen.route) {
+                PlanificaScreen(
+                    viewModel = homeScreenViewModel,
+                    navController = navController,
+                    myCameraPositionState = cameraPositionState,
+                    plannerViewModel = plannerViewModel,
+                    navBarPadding = bottomPadding,
+                )
+
+            }
+
         }
         composable(
             FavoritesScreen.route,
@@ -94,10 +100,12 @@ fun NavigationHost(
             )
         }
         composable(route = ListaDeRutasScreen.route) { backStackEntry ->
-            ListaRutasScreen(
-                navController = navController,
-                bottomPadding = bottomPadding
-            )
+            saveableStateHolder.SaveableStateProvider(ListaDeRutasScreen.route) {
+                ListaRutasScreen(
+                    navController = navController,
+                    bottomPadding = bottomPadding
+                )
+            }
         }
         composable(Destinations.RouteDetailScreen.route + "{id}") { backStrackEntry ->
             val id = backStrackEntry.arguments?.getString("id").toString()

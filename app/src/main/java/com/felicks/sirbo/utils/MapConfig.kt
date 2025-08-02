@@ -9,6 +9,8 @@ import com.google.maps.android.compose.MapUiSettings
 
 
 object MapConfig {
+
+    val LP_LOCATION = LatLng(-16.489689, -68.15693)
     var mapProperties: MapProperties = MapProperties(
         mapType = MapType.NORMAL,
         isMyLocationEnabled = false,
@@ -17,13 +19,14 @@ object MapConfig {
     )
     var mapUiConfig: MapUiSettings = MapUiSettings(
         myLocationButtonEnabled = false,
-        zoomControlsEnabled = true
+        zoomControlsEnabled = true,
+        mapToolbarEnabled = false
     )
     val initialState: CameraPositionState
 
 
     init {
-        val lpLocation = LatLng(-16.489689, -68.15693)
+        val lpLocation = LP_LOCATION
         initialState = CameraPositionState(
             position = CameraPosition.fromLatLngZoom(lpLocation, 12f)
         )

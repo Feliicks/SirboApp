@@ -18,10 +18,14 @@ data class Properties(
     val type: String
 )
 
-fun Properties.toCompactLabel(): String {
-    return when {
-        !name.isNullOrBlank() -> "$name, ${street ?: ""} , ${city ?: state ?: country}"
-        !street.isNullOrBlank() -> "$street, ${city ?: state ?: country}"
-        else -> city ?: state ?: country ?: "Ubicación sin nombre"
+fun Properties.toCompactLabel(withOsmId: Boolean = false): String {
+    val location = city ?: state ?: country ?: "Ubicación sin nombre"
+    val label = when {
+        !name.isNullOrBlank() -> "$name, $location"
+        !street.isNullOrBlank() -> "$street, $location"
+        else -> location
     }
+
+    return if (withOsmId) "$label (id: $osm_id)" else label
 }
+

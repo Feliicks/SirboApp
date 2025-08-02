@@ -19,7 +19,7 @@ interface OtpService {
     suspend fun getLinea(@Url url: String): Response<RutaVehicular>
 
 //    @GET("otp/routers/default/index/routes/") //PASADO
-    @GET("/plan/rutas")
+    @GET("plan/rutas")
     suspend fun indexRoutes(): Response<List<RoutesItem>>
 
     @GET
@@ -38,7 +38,7 @@ interface OtpService {
 suspend fun getPatternDetailsByPatternId(@Path("patternId") patternId: String): Response<PatterDetail>
 
 //    @GET("otp/routers/default/plan")
-    @GET("/plan")
+    @GET("plan")
     suspend fun fetchPlan(
         @Query("fromPlace") fromPlace: String,
         @Query("toPlace") toPlace: String,

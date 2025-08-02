@@ -51,11 +51,12 @@ import com.felicks.sirbo.data.models.otpModels.routes.PatternGeometry
 import com.felicks.sirbo.data.models.otpModels.routes.RoutesItem
 import com.felicks.sirbo.ui.presentation.components.RouteDetailsTopBar
 import com.felicks.sirbo.ui.presentation.components.RouteStopItem
+import com.felicks.sirbo.ui.utils.MapaUtils
+import com.felicks.sirbo.ui.utils.rememberPortraitMapPadding
 import com.felicks.sirbo.utils.BitMapUtils
 import com.felicks.sirbo.utils.MapConfig
 import com.felicks.sirbo.viewmodel.RoutesViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.PolyUtil
@@ -89,6 +90,7 @@ fun DetalleRutaScreen(
     navController: NavController
 ) {
 
+    val coroutineScope = rememberCoroutineScope()
     Log.d(TAG, "Route en el viewmodel: $idRuta")
 
     val patterGeom by viewModel.selectedPatternGeometry.collectAsState()
@@ -106,7 +108,8 @@ fun DetalleRutaScreen(
     val sheetState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberStandardBottomSheetState(initialValue = SheetValue.PartiallyExpanded)
     )
-    val stops = stopsList.stops.map { it.name }
+//    val stops = stopsList.stops.map { it.name }
+    val stops = stopsList.stops
 
     var isInitialState by rememberSaveable { mutableStateOf(true) }
 
@@ -132,10 +135,9 @@ fun DetalleRutaScreen(
     )
     val scaffoldState =
         io.morfly.compose.bottomsheet.material3.rememberBottomSheetScaffoldState(bottomSheet)
-
-
-
-
+    val cameraState = rememberCameraPositionState {
+        position = cameraPositionState
+    }
     Scaffold(
         topBar = {
             RouteDetailsTopBar(route = route, navController = navController)
@@ -147,7 +149,15 @@ fun DetalleRutaScreen(
             sheetContainerColor = MaterialTheme.colorScheme.surfaceVariant,
             sheetContent = {
                 if (true) {
-                    BottomSheetContent(stops)
+                    BottomSheetContent(stops) {
+                        // logica para haz er czoom a la parda
+                        coroutineScope.launch {
+                            val position = LatLng(it.lat, it.lon)
+                            cameraState.animate(
+                                update = CameraUpdateFactory.newLatLngZoom(position, 16f)
+                            )
+                        }
+                    }
                 }
             }
         ) { it ->
@@ -156,7 +166,7 @@ fun DetalleRutaScreen(
             }
             RouteDetailScreenContent(
                 bottomPadding = bottomPadding,
-                cameraPositionState = cameraPositionState,
+                cameraState = cameraState,
                 patternGeom = patterGeom,
                 route = route,
                 stopsList = stopsList.stops,
@@ -170,7 +180,10 @@ fun DetalleRutaScreen(
 }
 
 @Composable
-private fun BottomSheetContent(stops: List<String>) {
+private fun BottomSheetContent(
+    stops: List<RouteStopItem>,
+    onStopClick: (stop: RouteStopItem) -> Unit = {}
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -187,9 +200,10 @@ private fun BottomSheetContent(stops: List<String>) {
         ) {
             itemsIndexed(stops) { index, stop ->
                 RouteStopItem(
-                    stopName = stop,
+                    stopName = stop.name,
                     isFirst = index == 0,
-                    isLast = index == stops.size - 1
+                    isLast = index == stops.size - 1,
+                    onClick = { onStopClick(stop) }
                 )
             }
         }
@@ -221,10 +235,10 @@ private fun rememberPortraitMapPadding(bottomPadding: Dp, maxBottomPadding: Dp):
 @Composable
 fun RouteDetailScreenContent(
     route: RoutesItem,
+    cameraState: CameraPositionState,
     stopsList: List<RouteStopItem>,
     padding: PaddingValues,
     patternGeom: PatternGeometry,
-    cameraPositionState: CameraPosition,
     layoutHeight: Dp = Dp.Unspecified,
     bottomPadding: Dp = 0.dp,
 ) {
@@ -233,9 +247,7 @@ fun RouteDetailScreenContent(
 
     val points = remember(patternGeom.points) { PolyUtil.decode(patternGeom.points) }
 
-    val cameraState = rememberCameraPositionState {
-        position = cameraPositionState
-    }
+
 
     Column(
         modifier = Modifier
@@ -289,49 +301,48 @@ fun Map(
         }
     }
     Box(modifier = Modifier.fillMaxSize()) {
-    GoogleMap(
-        uiSettings = mapUiConfiguration,
-        properties = mapConfiguration,
-        cameraPositionState = initialState,
-        onMapLoaded = {},
-        contentPadding = contentPadding,
+        GoogleMap(
+            uiSettings = mapUiConfiguration,
+            properties = mapConfiguration,
+            cameraPositionState = initialState,
+            onMapLoaded = {},
+            contentPadding = contentPadding,
 
-        ) {
-        Polyline(
-            points = points,
-            color = MaterialTheme.colorScheme.primary,
-            width = scaledWidth
-        )
-        // 🔥 Agregar icono al inicio de la ruta1
-        if (points.isNotEmpty()) {
-            Marker(
-                state = rememberMarkerState(position = points.first()), // 🔹 Primer punto
-                title = "Inicio de Ruta",
+            ) {
+            Polyline(
+                points = points,
+                color = MaterialTheme.colorScheme.primary,
+                width = scaledWidth
+            )
+            // 🔥 Agregar icono al inicio de la ruta1
+            if (points.isNotEmpty()) {
+                Marker(
+                    state = rememberMarkerState(position = points.first()), // 🔹 Primer punto
+                    title = "Inicio de Ruta",
 //                icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN) // 🚩 Verde
-                icon = customICon // 🚩 Verde
-            )
-        }
+                    icon = customICon // 🚩 Verde
+                )
+            }
 
-        // 🔥 Agregar icono al final de la ruta
-        if (points.isNotEmpty()) {
-            Marker(
-                state = rememberMarkerState(position = points.last()), // 🔹 Último punto
-                title = "Fin de Ruta",
-                icon = BitMapUtils.bitmapDescriptor(
-                    context = LocalContext.current,
-                    vectorResId = R.drawable.ic_location_on,
-                ) // 🚩 Rojo
-            )
+            // 🔥 Agregar icono al final de la ruta
+            if (points.isNotEmpty()) {
+                Marker(
+                    state = rememberMarkerState(position = points.last()), // 🔹 Último punto
+                    title = "Fin de Ruta",
+                    icon = BitMapUtils.bitmapDescriptor(
+                        context = LocalContext.current,
+                        vectorResId = R.drawable.ic_location_on,
+                    ) // 🚩 Rojo
+                )
+            }
         }
-    }
         FloatingActionButton(
             onClick = {
                 coroutineScope.launch {
-//                    adjustCameraToItineraryList(
-//                        list = listItinerary,
-//                        cameraPositionState = cameraPositionState,
-//                        itineraries = TODO()
-//                    )
+                    MapaUtils.adjustCameraToItineraryList(
+                        list = points,
+                        cameraPositionState = initialState
+                    )
                 }
             },
             modifier = Modifier
