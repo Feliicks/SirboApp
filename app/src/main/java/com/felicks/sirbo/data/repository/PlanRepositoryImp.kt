@@ -3,7 +3,7 @@ package com.felicks.sirbo.data.repository
 import com.felicks.sirbo.data.models.otpModels.PatterDetail
 import com.felicks.sirbo.data.models.otpModels.Pattern
 import com.felicks.sirbo.data.models.otpModels.routes.PatternGeometry
-import com.felicks.sirbo.data.models.otpModels.routes.RoutesItem
+import com.felicks.sirbo.data.models.otpModels.routes.RutasItem
 import com.felicks.sirbo.data.models.otpModels.routing.RoutingResponse
 import com.felicks.sirbo.data.remote.OtpService
 import com.felicks.sirbo.domain.models.OtpConfig
@@ -29,11 +29,11 @@ class PlanRepositoryImp @Inject constructor(
         )
     }
 
-    override suspend fun fetchRoutes(): Response<List<RoutesItem>> {
+    override suspend fun fetchRoutes(): Response<List<RutasItem>> {
         return apiService.indexRoutes()
     }
 
-    override suspend fun getRouteDetail(id: String): RoutesItem {
+    override suspend fun getRouteDetail(id: String): RutasItem {
         return apiService.getRouteDetail(id)
     }
 
@@ -42,7 +42,6 @@ class PlanRepositoryImp @Inject constructor(
     }
 
     override suspend fun getPatternDetailsByPatternId(patternId: String): Response<PatterDetail> {
-//        TODO("Not yet implemented")
         return apiService.getPatternDetailsByPatternId(patternId)
     }
 

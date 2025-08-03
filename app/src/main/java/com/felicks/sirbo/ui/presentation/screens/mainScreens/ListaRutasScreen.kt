@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -22,13 +23,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -46,36 +48,57 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.felicks.sirbo.data.models.otpModels.routes.RoutesItem
+import com.felicks.sirbo.data.models.SyncStatus
+import com.felicks.sirbo.data.models.otpModels.routes.RutasItem
+import com.felicks.sirbo.extensions.toIndicatorColor
 import com.felicks.sirbo.ui.navigation.Destinations.RouteDetailScreen
 import com.felicks.sirbo.ui.navigation.plus
 import com.felicks.sirbo.ui.presentation.screens.RouteItem
-import com.felicks.sirbo.ui.presentation.screens.SearchBar
 import com.felicks.sirbo.viewmodel.RoutesViewModel
 import kotlinx.coroutines.launch
 
 
+@Composable
+fun SearchBar(query: String, onQueryChanged: (String) -> Unit, modifier: Modifier = Modifier) {
+    OutlinedTextField(
+        value = query,
+        onValueChange = onQueryChanged,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 0.dp, horizontal = 16.dp),
+//            .padding(16.dp),
+        leadingIcon = {
+            Icon(imageVector = Icons.Default.Search, contentDescription = "Buscar")
+        },
+        placeholder = {
+            Text(text = "Busca rutas/lineas de transporte")
+        },
+        singleLine = true
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ListaRutasScreenContent(
-    rutas: List<RoutesItem>,
+    rutasItems: List<RutasItem>,
     isLoading: Boolean,
     searchQuery: String,
     onRetry: () -> Unit,
     errorMessage: String?,
-    onNavigateToDetail: (RoutesItem) -> Unit,
+    onNavigateToDetail: (RutasItem) -> Unit,
     onDismissError: () -> Unit,
     bottomPadding: PaddingValues,
     onSearchQueryChanged: (String) -> Unit,
+    isSyncing: Boolean,
+    syncStatus: SyncStatus
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
-    val rutasAnimadas = remember { mutableStateListOf<RoutesItem>() }
-
+    val rutasAnimadas = remember { mutableStateListOf<RutasItem>() }
 // Actualiza la lista animada cada vez que cambian las rutas
-    LaunchedEffect(rutas) {
+    LaunchedEffect(rutasItems) {
         rutasAnimadas.clear()
-        rutasAnimadas.addAll(rutas)
+        rutasAnimadas.addAll(rutasItems)
     }
 
     // Mostrar el Snackbar cuando hay un error
@@ -99,10 +122,22 @@ fun ListaRutasScreenContent(
     ) { padding ->
         val fullPadding = padding.plus(bottomPadding)
         Column(modifier = Modifier.padding(bottomPadding)) {
-            SearchBar(query = searchQuery, onQueryChanged = {
-                onSearchQueryChanged(it)
-                Log.d("ListaRutasScreenContent", "Query: $it")
-            })
+            SearchBar(
+                query = searchQuery,
+                onQueryChanged = {
+                    onSearchQueryChanged(it)
+                    Log.d("ListaRutasScreenContent", "Query: $it")
+                },
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 15.dp)
+            )
+//                    && syncStatus != SyncStatus.SINCRONIZADO
+            if (isSyncing ) {
+                LinearProgressIndicator(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = syncStatus.toIndicatorColor()
+                )
+            }
+
             Box(
                 modifier = Modifier.fillMaxSize(),
 //                contentAlignment = Alignment.CenterHorizontally
@@ -113,12 +148,11 @@ fun ListaRutasScreenContent(
                         CircularProgressIndicator()
                     }
 
-                    errorMessage != null -> {
-                        ErrorMessage(message = errorMessage, onRetry = onRetry)
+//                    errorMessage != null -> {
+//                        ErrorMessage(message = errorMessage, onRetry = onRetry)
+//                    }
 
-                    }
-
-                    rutas.isEmpty() -> {
+                    rutasItems.isEmpty() -> {
                         EmptyStateMessage()
                     }
 
@@ -129,7 +163,7 @@ fun ListaRutasScreenContent(
                                 key = { it.id }
                             ) { ruta ->
                                 AnimatedRouteItem(
-                                    ruta = ruta,
+                                    rutasItem = ruta,
                                     navigateToDetail = { onNavigateToDetail(ruta) }
                                 )
                             }
@@ -146,7 +180,7 @@ fun ListaRutasScreenContent(
 
 @Composable
 fun AnimatedRouteItem(
-    ruta: RoutesItem,
+    rutasItem: RutasItem,
     modifier: Modifier = Modifier,
     navigateToDetail: () -> Unit
 ) {
@@ -164,7 +198,7 @@ fun AnimatedRouteItem(
     }
 
     RouteItem(
-        ruta = ruta,
+        rutasItem = rutasItem,
         navigateToDetail = navigateToDetail,
         modifier = modifier.graphicsLayer {
             translationX = offsetX
@@ -185,10 +219,11 @@ fun ListaRutasScreen(
 
     val listaRutas by viewModel.filteredRoutesList.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-    val errorMessage by viewModel.errorMessage.collectAsState()
+    val errorMessage by viewModel.errorToastMessage.collectAsState()
 
     val searchQuery by viewModel.searchQuery.collectAsState()
-
+    val isSyncing by viewModel.isSyncing.collectAsState()
+    val syncStatus by viewModel.syncStatus.collectAsState()
     Log.d("ListaRutasScreen", "estado de carga$isLoading")
     // Mostrar el Snackbar cuando hay un error
     LaunchedEffect(errorMessage) {
@@ -206,13 +241,6 @@ fun ListaRutasScreen(
         viewModel.obtenerRutas()
     }
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(text = "Busca lineas de transporte")
-                }
-            )
-        },
         snackbarHost = {
             SnackbarHost(
                 snackbarHostState,
@@ -222,7 +250,7 @@ fun ListaRutasScreen(
     ) { padding ->
         val fullPading = padding.plus(bottomPadding)
         ListaRutasScreenContent(
-            rutas = listaRutas,
+            rutasItems = listaRutas,
             errorMessage = errorMessage,
             onNavigateToDetail = { ruta ->
                 viewModel.setRouteSelected(ruta)
@@ -234,6 +262,8 @@ fun ListaRutasScreen(
             onRetry = { viewModel.obtenerRutas() },
             searchQuery = searchQuery,
             onSearchQueryChanged = { viewModel.setSearchQuery(it) },
+            isSyncing = isSyncing,
+            syncStatus = syncStatus,
         )
 
     }
@@ -253,13 +283,13 @@ fun ThirdScreenPreview(modifier: Modifier = Modifier) {
 @Composable
 fun PreviewListaRutasScreen(
 ) {
-    val rutas = listOf(
-        RoutesItem(id = "1", shortName = "R1", longName = "Ruta Centro"),
-        RoutesItem(id = "2", shortName = "R2", longName = "Ruta Norte")
+    val rutasItems = listOf(
+        RutasItem(id = "1", shortName = "R1", longName = "Ruta Centro"),
+        RutasItem(id = "2", shortName = "R2", longName = "Ruta Norte")
     )
 
     ListaRutasScreenContent(
-        rutas = rutas,
+        rutasItems = rutasItems,
         errorMessage = null, // 🔥 No hay error en la preview
         onNavigateToDetail = {}, // 🔥 No hace nada en preview
         onDismissError = {}, // 🔥 No hace nada en preview
@@ -267,10 +297,11 @@ fun PreviewListaRutasScreen(
         isLoading = true,
         onRetry = {},
         onSearchQueryChanged = {},
-        searchQuery = ""
+        searchQuery = "",
+        isSyncing = true,
+        syncStatus = SyncStatus.SINCRONIZANDO
     )
 }
-
 
 @Composable
 fun ErrorMessage(message: String, onRetry: () -> Unit) {

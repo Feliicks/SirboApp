@@ -1,38 +1,64 @@
 package com.felicks.sirbo.data.local.database
 
-import android.content.Context
 import androidx.room.Database
-import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.felicks.sirbo.data.local.dao.PatternDao
+import com.felicks.sirbo.data.local.dao.PatternGeometryDao
 import com.felicks.sirbo.data.local.dao.PlaceDao
 import com.felicks.sirbo.data.local.dao.RutaGuardadaDao
+import com.felicks.sirbo.data.local.dao.RutasDao
+import com.felicks.sirbo.data.local.dao.patternDetailDao.PatternDetailDao
+import com.felicks.sirbo.data.local.dao.patternDetailDao.StopDao
+import com.felicks.sirbo.data.local.dao.patternDetailDao.TripDao
+import com.felicks.sirbo.data.local.entity.PatternEntity
+import com.felicks.sirbo.data.local.entity.PatternGeometryEntity
 import com.felicks.sirbo.data.local.entity.PlaceEntity
+import com.felicks.sirbo.data.local.entity.RutaEntity
 import com.felicks.sirbo.data.local.entity.RutaGuardadaEntity
+import com.felicks.sirbo.data.local.entity.patternDetail.PatternDetailEntity
+import com.felicks.sirbo.data.local.entity.patternDetail.StopEntity
+import com.felicks.sirbo.data.local.entity.patternDetail.TripEntity
 
 @Database(
-    entities = [PlaceEntity::class, RutaGuardadaEntity::class],
-    version = 1
+    entities = [
+        PlaceEntity::class,
+        RutaGuardadaEntity::class,
+        RutaEntity::class,
+        PatternEntity::class,
+        PatternDetailEntity::class,
+        PatternGeometryEntity::class,
+        StopEntity::class,
+        TripEntity::class,
+    ],
+    version = 4
 )
 abstract class SirboDatabase : RoomDatabase() {
     abstract fun placedao(): PlaceDao
     abstract fun rutasGuardadas(): RutaGuardadaDao
+    abstract fun rutasDao(): RutasDao
+    abstract fun patternDao(): PatternDao
+    abstract fun patternDetailDao(): PatternDetailDao
+    abstract fun patternGeometryDao(): PatternGeometryDao
+    abstract fun stopDao(): StopDao
+    abstract fun tripDao(): TripDao
 
-    companion object {
-        @Volatile
-        private var INSTANCE: SirboDatabase? = null
 
-        fun getInstance(context: Context): SirboDatabase {
-            return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    SirboDatabase::class.java,
-                    "SirboApp.db"
-                ).build()
-                INSTANCE = instance
-                instance
-            }
-        }
-    }
+//    companion object {
+//        @Volatile
+//        private var INSTANCE: SirboDatabase? = null
+//
+//        fun getInstance(context: Context): SirboDatabase {
+//            return INSTANCE ?: synchronized(this) {
+//                val instance = Room.databaseBuilder(
+//                    context.applicationContext,
+//                    SirboDatabase::class.java,
+//                    DBConstants.DB_NAME
+//                ).build()
+//                INSTANCE = instance
+//                instance
+//            }
+//        }
+//    }
 }
 
 

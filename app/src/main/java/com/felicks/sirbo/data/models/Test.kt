@@ -1,7 +1,7 @@
 package com.felicks.sirbo.data.models
 
 import com.felicks.sirbo.viewmodel.RoutesViewModel
-import com.felicks.sirbo.data.models.otpModels.routes.RoutesItem
+import com.felicks.sirbo.data.models.otpModels.routes.RutasItem
 import com.felicks.sirbo.data.models.otpModels.routing.FromLeg
 import com.felicks.sirbo.data.models.otpModels.routing.FromX
 import com.felicks.sirbo.data.models.otpModels.routing.Leg
@@ -12,7 +12,7 @@ import com.felicks.sirbo.data.models.otpModels.routing.ToX
 import com.felicks.sirbo.viewmodel.LocationViewModel
 import com.google.android.gms.maps.model.LatLng
 
-val rutaTest = RoutesItem(
+val rutasItemTest = RutasItem(
     id = "893",
     agencyName = "default",
     longName = "MiniBus 893: Reyesano → Rio Abuná",

@@ -6,41 +6,71 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.felicks.sirbo.data.local.dao.PatternDao
+import com.felicks.sirbo.data.local.dao.PatternGeometryDao
+import com.felicks.sirbo.data.local.dao.RutasDao
+import com.felicks.sirbo.data.local.dao.patternDetailDao.PatternDetailDao
+import com.felicks.sirbo.data.local.dao.patternDetailDao.StopDao
+import com.felicks.sirbo.data.local.dao.patternDetailDao.TripDao
+import com.felicks.sirbo.data.local.entity.RutaEntity
+import com.felicks.sirbo.data.local.entity.patternDetail.toDomain
+import com.felicks.sirbo.data.local.entity.toDomain
+import com.felicks.sirbo.data.local.entity.toDomainList
 import com.felicks.sirbo.data.models.AddressState
 import com.felicks.sirbo.data.models.Ruta
 import com.felicks.sirbo.data.models.RutaState
+import com.felicks.sirbo.data.models.SyncStatus
 import com.felicks.sirbo.data.models.otpModels.PatterDetail
 import com.felicks.sirbo.data.models.otpModels.Pattern
 import com.felicks.sirbo.data.models.otpModels.RouteStopItem
 import com.felicks.sirbo.data.models.otpModels.routes.PatternGeometry
-import com.felicks.sirbo.data.models.otpModels.routes.RoutesItem
+import com.felicks.sirbo.data.models.otpModels.routes.RutasItem
+import com.felicks.sirbo.data.models.otpModels.routes.toEntity
+import com.felicks.sirbo.data.models.otpModels.routes.toEntityList
 import com.felicks.sirbo.data.models.otpModels.routing.Leg
+import com.felicks.sirbo.data.models.otpModels.toEntity
+import com.felicks.sirbo.data.models.otpModels.toEntityList
 import com.felicks.sirbo.domain.repository.PlanRespository
 import com.felicks.sirbo.utils.MapConfig
+import com.felicks.sirbo.utils.StringUtils.toApiString
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.net.SocketTimeoutException
 import javax.inject.Inject
 
 @HiltViewModel
 class RoutesViewModel @Inject constructor(
 //    private val otpService: OtpService
-    private val planRepository: PlanRespository
+    private val planRepository: PlanRespository,
+    private val rutasDao: RutasDao,
+    private val patternDao: PatternDao,
+    private val geometryDao: PatternGeometryDao,
+    private val patternDetailDao: PatternDetailDao,
+    private val stopsDao: StopDao,
+    private val tripsDao: TripDao,
 ) : ViewModel() {
 
+    private val TAG = "RoutesViewModel";
     var state by mutableStateOf(RutaState())
         private set
 
-    private val _allRoutesList = MutableStateFlow<List<RoutesItem>>(emptyList())
-    val allRoutesList: StateFlow<List<RoutesItem>> = _allRoutesList
+    private val _allRoutesList =
+        MutableStateFlow<List<com.felicks.sirbo.data.models.otpModels.routes.RutasItem>>(emptyList())
+    val allRoutesList: StateFlow<List<com.felicks.sirbo.data.models.otpModels.routes.RutasItem>> =
+        _allRoutesList
 
-    private val _filteredRoutesList = MutableStateFlow<List<RoutesItem>>(emptyList())
-    val filteredRoutesList: StateFlow<List<RoutesItem>> = _filteredRoutesList
+    private val _filteredRoutesList =
+        MutableStateFlow<List<com.felicks.sirbo.data.models.otpModels.routes.RutasItem>>(emptyList())
+    val filteredRoutesList: StateFlow<List<com.felicks.sirbo.data.models.otpModels.routes.RutasItem>> =
+        _filteredRoutesList
 
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
@@ -48,6 +78,8 @@ class RoutesViewModel @Inject constructor(
     private val _selectedPatternGeometry = MutableStateFlow(PatternGeometry())
     val selectedPatternGeometry: StateFlow<PatternGeometry> = _selectedPatternGeometry.asStateFlow()
 
+    private val _isSyncing: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isSyncing: StateFlow<Boolean> = _isSyncing
 
     var routeStops by mutableStateOf<List<RouteStopItem>>(emptyList())
         private set
@@ -80,11 +112,15 @@ class RoutesViewModel @Inject constructor(
         _errorState.value = newData
     }
 
-    private val _routeSelected = MutableStateFlow<RoutesItem>(RoutesItem())
-    val routeSelected: MutableStateFlow<RoutesItem> = _routeSelected
+    private val _routeSelected =
+        MutableStateFlow<com.felicks.sirbo.data.models.otpModels.routes.RutasItem>(
+            RutasItem()
+        )
+    val routeSelected: MutableStateFlow<com.felicks.sirbo.data.models.otpModels.routes.RutasItem> =
+        _routeSelected
 
-    private val _errorMessage = MutableStateFlow<String?>(null) // Estado para manejar errores
-    val errorMessage: MutableStateFlow<String?> = _errorMessage
+    private val _errorToastMessage = MutableStateFlow<String?>(null) // Estado para manejar errores
+    val errorToastMessage: MutableStateFlow<String?> = _errorToastMessage
 
     var routePatterns by mutableStateOf(listOf<Pattern>())
         private set
@@ -95,8 +131,11 @@ class RoutesViewModel @Inject constructor(
     var optimalRouteLegs by mutableStateOf<List<Leg>>(emptyList())
         private set
 
-    private val _isLoading = MutableStateFlow<Boolean>(false) // Estado para manejar errores
-    val isLoading: MutableStateFlow<Boolean> = _isLoading
+    private val _isLocalLoading = MutableStateFlow<Boolean>(false) // Estado para manejar errores
+    val isLoading: MutableStateFlow<Boolean> = _isLocalLoading
+
+    private val _syncStatus = MutableStateFlow(SyncStatus.MOSTRANDO_LOCAL)
+    val syncStatus: StateFlow<SyncStatus> = _syncStatus
 
 
     fun setSearchQuery(query: String) {
@@ -131,40 +170,101 @@ class RoutesViewModel @Inject constructor(
         }
     }
 
-
-    fun setRouteSelected(ruta: RoutesItem) {
-        _routeSelected.value = ruta
+    fun setRouteSelected(rutasItem: com.felicks.sirbo.data.models.otpModels.routes.RutasItem) {
+        _routeSelected.value = rutasItem
     }
 
-    fun obtenerRutas() {
-        _isLoading.value = true
-        viewModelScope.launch {
-            try {
-                val resultado = planRepository.fetchRoutes()
-                val rutas = resultado.body() ?: emptyList()
-
-                // Ordenar por nombre corto
-                val rutasOrdenadas = rutas.sortedBy { it.shortName.lowercase() }
-
-                _allRoutesList.value = rutasOrdenadas
-                _filteredRoutesList.value = rutasOrdenadas
-
-                Log.d("RutasViewModel", "Total rutas obtenidas ${rutasOrdenadas.size}")
-
-            } catch (e: SocketTimeoutException) {
-                Log.e("RutasViewModel", "Error de conexión: ${e.message}")
-                _errorMessage.value = "No se pudo conectar con el servidor. Verifica la red."
-
-            } catch (e: Exception) {
-                Log.e("RutasViewModel", "Error al obtener las rutas", e)
-                _errorMessage.value = "Ocurrió un error: ${e.message}"
-            } finally {
-                _isLoading.value = false
-            }
+    suspend fun insertarRutas(rutas: List<RutaEntity>): Boolean = withContext(Dispatchers.IO) {
+        return@withContext try {
+            val resultado = rutasDao.insertAll(rutas)
+            resultado.all { it != -1L }
+        } catch (e: Exception) {
+            Log.e("RoutesViewModel", "Ocurrió un error de inserción: ${e.message}")
+            false
         }
     }
 
 
+    fun obtenerRutas() {
+        viewModelScope.launch {
+            _isLocalLoading.value = true
+            // 1. Mostrar datos locales inmediatamente
+            val rutasLocales = rutasDao.getAllRoutes().toDomainList()
+            val rutasOrdenadas = rutasLocales.sortedBy { it.shortName.lowercase() }
+            Log.d(TAG, "Rutas locales obtenidas ${rutasLocales.size}")
+            _isLocalLoading.value = false
+
+            _filteredRoutesList.value = rutasOrdenadas
+            _syncStatus.value =
+                SyncStatus.MOSTRANDO_LOCAL // ← Mostrar indicador visual en UI (gris)
+            // 2. Intentar sincronizar en segundo plano
+            try {
+                _isSyncing.value = true
+                val resultado = withContext(Dispatchers.IO) {
+                    _syncStatus.value = SyncStatus.SINCRONIZANDO // ← Mostrar in
+//                    delay(10000) // Simula 3 segundos de espera
+                    planRepository.fetchRoutes()
+                }
+                val rutasRemotas = resultado.body() ?: emptyList()
+
+                if (rutasRemotas.isNotEmpty()) {
+                    val exito = insertarRutas(rutasRemotas.toEntityList())
+                    if (exito) {
+                        // Acutalizar UI
+
+                        val rutasActualizadas = rutasRemotas.sortedBy { it.shortName.lowercase() }
+                        _allRoutesList.value = rutasActualizadas
+                        _filteredRoutesList.value = rutasActualizadas
+                        // obtener
+                        for (item in rutasActualizadas) {
+                            val resultadoVariantes = planRepository.getPatternByRouteId(item.id)
+                            if (resultadoVariantes.isSuccessful) {
+                                val variantes = resultadoVariantes.body() ?: emptyList()
+                                patternDao.insertAll(variantes.toEntityList(item.id))
+                                for (variante in variantes) {
+                                    val geometriaVariante = fetchRouteGeometry(variante.id)
+                                    geometryDao.insert(geometriaVariante.toEntity(variante.id))
+                                    val responseVariante =
+                                        planRepository.getPatternDetailsByPatternId(variante.id)
+                                    val detalleVariante = responseVariante.body() ?: PatterDetail()
+                                    patternDetailDao.insert(detalleVariante.toEntity())
+                                    guardarPatternDetail(detalleVariante)
+
+                                }
+                            } else {
+//                                return@launch
+                                continue
+                            }
+                        }
+
+                    } else {
+                        _syncStatus.value =
+                            SyncStatus.ERROR_INSERCION // ← Mostrar advertencia o ícono de error
+                    }
+                    Log.d("RoutesViewModel", "Sincronización completada con éxito")
+                } else {
+                    _syncStatus.value = SyncStatus.VACIO_REMOTO
+                }
+
+            } catch (e: SocketTimeoutException) {
+                Log.e("RutasViewModel", "Error de conexión: ${e.message}")
+                _syncStatus.value = SyncStatus.ERROR_CONEXION
+                _errorToastMessage.value = "No se pudo conectar con el servidor. Verifica la red."
+
+            } catch (e: Exception) {
+                Log.e("RutasViewModel", "Error al obtener las rutas", e)
+                _errorToastMessage.value =
+                    "Ocurrió un error inesperado" // cambiarpor un itempo de erro personalzaod
+            } finally {
+                _isSyncing.value = false
+            }
+        }
+    }
+
+    suspend fun guardarPatternDetail(detail: PatterDetail) {
+        stopsDao.insertAll(detail.stops.toEntityList(detail.id))
+        tripsDao.insertAll(detail.trips.toEntityList(detail.id))
+    }
 
     fun getRouteGeometry(patternId: String) {
         viewModelScope.launch {
@@ -174,6 +274,53 @@ class RoutesViewModel @Inject constructor(
             } catch (e: Exception) {
 //                Actualizar error state
             }
+        }
+    }
+
+    fun getVariante(rutaId: String, position: Int) {
+        viewModelScope.launch {
+            try {
+                val detalle = withContext(Dispatchers.IO) {
+                    val variantes = patternDao.getPatternsByRutaId(rutaId).toDomainList()
+                    val varianteSeleccionada = variantes[position]
+                    val stops = stopsDao.getStopsByPatternId(varianteSeleccionada.id)
+                    val trips = tripsDao.getTripsByPatternId(varianteSeleccionada.id)
+                    val detalleVariante = patternDetailDao.getById(varianteSeleccionada.id)
+                    val geometria = geometryDao.getByPatternId(varianteSeleccionada.id)
+                    val detalleRuta = rutasDao.getRouteById(rutaId)
+                    _routeSelected.value =detalleRuta!!.toDomain()
+                    _selectedPatternGeometry.value = geometria!!.toDomain()
+                    detalleVariante?.toDomain(stops, trips)
+                }
+
+                detalle?.let {
+                    _routeSelectePattern.value = it
+                } ?: Log.w("PlannerViewModel", "Detalle variante no encontrado")
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Error atrapado en routesViewMOdel: ${e.message}")
+            }
+        }
+    }
+
+    fun getVarianteDebug(rutaId: String, position: Int) {
+        runBlocking {
+            val variantes = patternDao.getPatternsByRutaId(rutaId).toDomainList()
+            val varianteSeleccionada = variantes[position]
+            val stops = stopsDao.getStopsByPatternId(varianteSeleccionada.id)
+            val trips = tripsDao.getTripsByPatternId(varianteSeleccionada.id)
+            val detalleVariante = patternDetailDao.getById(varianteSeleccionada.id)
+
+            val detalle = detalleVariante?.toDomain(stops, trips)
+            println("Detalle = $detalle")
+        }
+    }
+
+
+    suspend fun fetchRouteGeometry(patternId: String): PatternGeometry {
+        return withContext(Dispatchers.IO) {
+            val response = planRepository.getGeomByPattern(patternId)
+            response.body() ?: PatternGeometry()
         }
     }
 
@@ -188,6 +335,28 @@ class RoutesViewModel @Inject constructor(
                 // Manejar errores, por ejemplo, emitir un estado de error
                 Log.e("RutasViewModel", "Error al Obtner detalle de ruta", e)
             }
+        }
+    }
+
+    suspend fun getVariantesPorRutaID(id: String): List<Pattern> {
+        return withContext(Dispatchers.IO) {
+            patternDao.getPatternsByRutaId(id).toDomainList()
+            // ahora se obtiene la geometría de un variante especifica
+        }
+    }
+
+    fun getGeometriaDeVariante(idRuta: String, posicionVariante: Int) {
+        viewModelScope.launch() {
+            val variantes = getVariantesPorRutaID(idRuta)
+
+        }
+    }
+
+    fun getGeometriaByRutaID(id: String) {
+        viewModelScope.launch() {
+            val variantesDeRuta: List<Pattern> = patternDao.getPatternsByRutaId(id).toDomainList()
+            // ahora se obtiene la geometría de un variante especifica
+
         }
     }
 
@@ -223,30 +392,6 @@ class RoutesViewModel @Inject constructor(
         }
     }
 
-    fun LatLng.toApiString(): String {
-        return "${this.latitude},${this.longitude}"
-    }
-
-    //    fun getOptimalRoutes(fromLocation: AddressState, toLocation: AddressState) {
-//        viewModelScope.launch {
-//            try {
-//                val resultado = planRepository.fetchPlan(
-//                    fromLocation.coordinates.toApiString(), toLocation.coordinates.toApiString()
-//                )
-//                Log.d("RutasViewModel", "resultado de la ruta optima es " + resultado.body())
-////            TODO:
-////             realiza la validacion en cuaso de existe el objeto error en lugar de otro de los itinerarios
-//                val rutas = resultado.body()?.plan!!.itineraries[0].legs
-//                optimalRouteLegs = resultado.body()?.plan!!.itineraries[0].legs
-//                Log.d("RutasViewModel", "los itinerarios es  $rutas")
-//            } catch (e: Exception) {
-//                Log.e("RutasViewModel", "Error al obtener las rutas", e)
-//                _errorState.value = "Ocurrió un error con el servidor ${e.message}"
-//            }
-//
-//        }
-//
-//    }
     @Deprecated("A remover usar itinerarios en su lugar")
     fun getOptimalRoutes(fromLocation: AddressState, toLocation: AddressState) {
         viewModelScope.launch {

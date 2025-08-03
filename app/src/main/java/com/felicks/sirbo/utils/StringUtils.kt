@@ -1,6 +1,7 @@
 package com.felicks.sirbo.utils
 
 import com.felicks.sirbo.data.models.TransportMode
+import com.google.android.gms.maps.model.LatLng
 
 object StringUtils {
 
@@ -20,5 +21,8 @@ object StringUtils {
         } catch (e: IllegalArgumentException) {
             TransportMode.UNKNOWN // Si no existe, usa un valor por defecto
         }
+    }
+    fun LatLng.toApiString(): String {
+        return "${this.latitude},${this.longitude}"
     }
 }

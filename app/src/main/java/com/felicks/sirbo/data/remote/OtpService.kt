@@ -1,12 +1,11 @@
 package com.felicks.sirbo.data.remote
 
-import com.felicks.sirbo.data.models.Ruta
 import com.felicks.sirbo.data.models.RutaVehicular
 import com.felicks.sirbo.data.models.otpModels.PatterDetail
 import com.felicks.sirbo.data.models.otpModels.Pattern
 import com.felicks.sirbo.data.models.otpModels.RouteStopItem
 import com.felicks.sirbo.data.models.otpModels.routes.PatternGeometry
-import com.felicks.sirbo.data.models.otpModels.routes.RoutesItem
+import com.felicks.sirbo.data.models.otpModels.routes.RutasItem
 import com.felicks.sirbo.data.models.otpModels.routing.RoutingResponse
 import retrofit2.Response
 import retrofit2.http.GET
@@ -20,10 +19,10 @@ interface OtpService {
 
 //    @GET("otp/routers/default/index/routes/") //PASADO
     @GET("plan/rutas")
-    suspend fun indexRoutes(): Response<List<RoutesItem>>
+    suspend fun indexRoutes(): Response<List<com.felicks.sirbo.data.models.otpModels.routes.RutasItem>>
 
     @GET
-    suspend fun getRuta(@Url url: String): Response<Ruta>
+    suspend fun getRuta(@Url url: String): Response<RutasItem>
     //suspend fun getRuta(@Url url: String): Response<Ruta>
 
     @GET("otp/routers/default/index/routes/{id}/stops")
@@ -53,7 +52,7 @@ suspend fun getPatternDetailsByPatternId(@Path("patternId") patternId: String): 
     @GET("plan/rutas/{id}")
     suspend fun getRouteDetail(
         @Path("id") routeId: String,
-    ): RoutesItem
+    ): com.felicks.sirbo.data.models.otpModels.routes.RutasItem
 
     @GET("otp/routers/default/plan")
 //    @GET("plan")

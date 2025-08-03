@@ -1,6 +1,6 @@
 package com.felicks.sirbo.data.models
 
-import com.felicks.sirbo.data.models.otpModels.routes.RoutesItem
+import com.felicks.sirbo.data.models.otpModels.routes.RutasItem
 
 //data class RutaState (
 //    val cod_ruta: String= "",
@@ -13,6 +13,6 @@ import com.felicks.sirbo.data.models.otpModels.routes.RoutesItem
 //    val tipo_vehiculo: TipoVehiculo = TipoVehiculo(id = 0, tipo_vehiculo = "")
 //)
 data class RutaState (
-    val rutas : List<RoutesItem> = emptyList(),
-    val currentRuta : List<RoutesItem> = emptyList()
+    val rutasItems : List<RutasItem> = emptyList(),
+    val currentRutasItem : List<RutasItem> = emptyList()
 )

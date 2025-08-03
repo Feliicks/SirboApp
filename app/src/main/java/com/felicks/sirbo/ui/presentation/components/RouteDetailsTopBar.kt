@@ -28,14 +28,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.felicks.sirbo.data.models.otpModels.routes.RoutesItem
-import com.felicks.sirbo.data.models.rutaTest
+import com.felicks.sirbo.data.models.otpModels.routes.RutasItem
+import com.felicks.sirbo.data.models.rutasItemTest
 import com.felicks.sirbo.utils.StringUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RouteDetailsTopBar(
-    route: RoutesItem,
+    route: RutasItem,
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
@@ -110,7 +110,7 @@ fun RouteDetailsTopBar(
 @Composable
 fun RouteTopBarPreview() {
     RouteDetailsTopBar(
-        route = rutaTest,
+        route = rutasItemTest,
         modifier = Modifier,
         navController = NavController(LocalContext.current)
     )

@@ -48,7 +48,7 @@ import androidx.navigation.compose.rememberNavController
 import com.felicks.sirbo.R
 import com.felicks.sirbo.data.models.otpModels.RouteStopItem
 import com.felicks.sirbo.data.models.otpModels.routes.PatternGeometry
-import com.felicks.sirbo.data.models.otpModels.routes.RoutesItem
+import com.felicks.sirbo.data.models.otpModels.routes.RutasItem
 import com.felicks.sirbo.ui.presentation.components.RouteDetailsTopBar
 import com.felicks.sirbo.ui.presentation.components.RouteStopItem
 import com.felicks.sirbo.ui.utils.MapaUtils
@@ -80,7 +80,7 @@ const val TAG = "RouteDetailScreen"
 private const val DefaultMapZoom = 13f
 private val MapUiOffsetLimit = 100.dp
 
-
+private val NRO_VARIANTE = 1;
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -97,9 +97,12 @@ fun DetalleRutaScreen(
     val cameraPositionState by viewModel.cameraPosition.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.getRouteDetails(idRuta)
-        viewModel.getRouteStops(idRuta)
-        viewModel.getRouteGeometry(idRuta)
+//        viewModel.getRouteDetails(idRuta)
+//        viewModel.getRouteStops(idRuta)
+//        viewModel.getVariantesPorRutaID(idRuta)
+//        viewModel.getRouteGeometry(idRuta)
+//        viewModel.getVarianteDebug(idRuta, 0)
+        viewModel.getVariante(idRuta, 0)
     }
 
     val route by viewModel.routeSelected.collectAsState()
@@ -234,7 +237,7 @@ private fun rememberPortraitMapPadding(bottomPadding: Dp, maxBottomPadding: Dp):
 
 @Composable
 fun RouteDetailScreenContent(
-    route: RoutesItem,
+    route: RutasItem,
     cameraState: CameraPositionState,
     stopsList: List<RouteStopItem>,
     padding: PaddingValues,
@@ -360,7 +363,7 @@ fun Map(
 @Composable
 fun PreviewRouteDetailScreen() {
     // Datos de prueba para la ruta
-    val fakeRoute = RoutesItem(
+    val fakeRoute = RutasItem(
         id = "1",
         shortName = "R1",
         longName = "Ruta 1 - Centro",

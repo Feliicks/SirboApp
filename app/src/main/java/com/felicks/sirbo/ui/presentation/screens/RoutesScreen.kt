@@ -17,14 +17,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -38,8 +36,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.felicks.sirbo.data.models.otpModels.routes.RoutesItem
-import com.felicks.sirbo.data.models.rutaTest
+import com.felicks.sirbo.data.models.otpModels.routes.RutasItem
+import com.felicks.sirbo.data.models.rutasItemTest
 import com.felicks.sirbo.viewmodel.RoutesViewModel
 import java.util.Locale
 
@@ -69,12 +67,12 @@ fun RoutesScreen(
                 }
             )
             // Agrega aquí tu contenido de Compose para el fragmento Routes
-            SearchBar(query = "", onQueryChanged = {})
+//            SearchBar(query = "", onQueryChanged = {})
             LazyColumn {
 
-                items(state.rutas) { ruta ->
+                items(state.rutasItems) { ruta ->
                     RouteItem(
-                        ruta = ruta,
+                        rutasItem = ruta,
                         navigateToDetail = {
                             // Llama a la función de navegación del NavController aquí
                             //navController.navigate("fragment_addresses")
@@ -119,7 +117,7 @@ fun validateString(string: String): String {
 
 @Composable
 fun RouteItem(
-    ruta: RoutesItem,
+    rutasItem: RutasItem,
     modifier : Modifier = Modifier,
     navigateToDetail: () -> Unit
 ) {
@@ -156,12 +154,12 @@ fun RouteItem(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = ruta.shortName,
+                    text = rutasItem.shortName,
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = ruta.mode,
+                    text = rutasItem.mode,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -172,12 +170,12 @@ fun RouteItem(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = "Hacia: ${cortarCadena(ruta.longName)}",
+                    text = "Hacia: ${cortarCadena(rutasItem.longName)}",
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = ruta.longName,
+                    text = rutasItem.longName,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -208,24 +206,5 @@ fun RouteItem(
 @Preview
 @Composable
 fun RouteItemPreview() {
-    RouteItem(rutaTest, navigateToDetail = {})
-}
-
-@Composable
-fun SearchBar(query: String, onQueryChanged: (String) -> Unit) {
-    OutlinedTextField(
-        value = query,
-        onValueChange = onQueryChanged,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 0.dp, horizontal = 16.dp),
-//            .padding(16.dp),
-        leadingIcon = {
-            Icon(imageVector = Icons.Default.Search, contentDescription = "Buscar")
-        },
-        placeholder = {
-            Text(text = "Buscar rutas...")
-        },
-        singleLine = true
-    )
+    RouteItem(rutasItemTest, navigateToDetail = {})
 }
