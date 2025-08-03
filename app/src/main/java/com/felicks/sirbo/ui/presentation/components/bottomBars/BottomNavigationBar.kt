@@ -12,14 +12,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.rememberNavController
-import com.felicks.sirbo.ui.navigation.MAIN_DESTINATIONS
+import com.felicks.sirbo.ui.navigation.MainDestinations
 import com.felicks.sirbo.utils.currentRoute
 
 @Composable
 fun BottomNavigationBar(
     navController: NavController,
 ) {
-    val items = MAIN_DESTINATIONS
+    val items = MainDestinations.items
     val currentRoute = currentRoute(navController = navController)
     val haptic = LocalHapticFeedback.current
 
@@ -66,7 +66,7 @@ fun BottomNavigationBar(
 @Composable
 fun BottomNavigationBarPreview(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
-    val items = MAIN_DESTINATIONS
+    val items = MainDestinations.items
     NavigationBar {
         items.forEach { destination ->
             NavigationBarItem(

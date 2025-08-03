@@ -99,7 +99,8 @@ class RoutesViewModel @Inject constructor(
     )
     val cameraPosition: StateFlow<CameraPosition> = _cameraPosition.asStateFlow()
 
-
+    private val _isInitialized = MutableStateFlow(false)
+    val isInitialized: StateFlow<Boolean> = _isInitialized
 //    private val _errorState = MutableStateFlow<String?>(null)
 //    val errorState : String = _errorState.asStateFlow()
 //
@@ -188,6 +189,96 @@ class RoutesViewModel @Inject constructor(
         }
     }
 
+    fun cargarRutasLocales() {
+        viewModelScope.launch {
+            _isLocalLoading.value = true
+            val rutasLocales = rutasDao.getAllRoutes().toDomainList()
+            val rutasOrdenadas = rutasLocales.sortedBy { it.shortName.lowercase() }
+            _filteredRoutesList.value = rutasOrdenadas
+            _syncStatus.value = SyncStatus.MOSTRANDO_LOCAL
+            _isLocalLoading.value = false
+        }
+    }
+
+    fun sincronizarRutasRemotas() {
+        viewModelScope.launch {
+            if (!NetworkUtils.isInternetAvailable(context)) {
+                Log.w(TAG, "Sin conexión, no se sincroniza")
+                return@launch
+            }
+
+            try {
+                _isSyncing.value = true
+                _syncStatus.value = SyncStatus.SINCRONIZANDO
+
+                val resultado = withContext(Dispatchers.IO) {
+                    planRepository.fetchRoutes()
+                }
+
+                val rutasRemotas = resultado.body() ?: emptyList()
+
+                if (rutasRemotas.isEmpty()) {
+                    _syncStatus.value = SyncStatus.VACIO_REMOTO
+                    return@launch
+                }
+
+                val exito = insertarRutas(rutasRemotas.toEntityList())
+                if (!exito) {
+                    _syncStatus.value = SyncStatus.ERROR_INSERCION
+                    return@launch
+                }
+
+                val rutasOrdenadas = rutasRemotas.sortedBy { it.shortName.lowercase() }
+                _allRoutesList.value = rutasOrdenadas
+                _filteredRoutesList.value = rutasOrdenadas
+
+                // Variantes, geometrías y detalles
+                for (item in rutasRemotas) {
+                    val resultadoVariantes = planRepository.getPatternByRouteId(item.id)
+                    if (!resultadoVariantes.isSuccessful) continue
+
+                    val variantes = resultadoVariantes.body() ?: emptyList()
+                    patternDao.insertAll(variantes.toEntityList(item.id))
+
+                    for (variante in variantes) {
+                        val geometriaVariante = fetchRouteGeometry(variante.id)
+                        geometryDao.insert(geometriaVariante.toEntity(variante.id))
+
+                        val responseVariante =
+                            planRepository.getPatternDetailsByPatternId(variante.id)
+                        val detalleVariante = responseVariante.body() ?: continue
+                        patternDetailDao.insert(detalleVariante.toEntity())
+                        guardarPatternDetail(detalleVariante)
+                    }
+                }
+
+                _syncStatus.value = SyncStatus.SINCRONIZADO
+
+            } catch (e: SocketTimeoutException) {
+                Log.e(TAG, "Timeout de conexión: ${e.message}")
+                _syncStatus.value = SyncStatus.ERROR_CONEXION
+                _errorToastMessage.value = "No se pudo conectar al servidor. Verifica tu red."
+            } catch (e: Exception) {
+                Log.e(TAG, "Error inesperado", e)
+                _syncStatus.value = SyncStatus.ERROR_GENERAL
+                _errorToastMessage.value = "Ocurrió un error inesperado"
+            } finally {
+                _isSyncing.value = false
+            }
+        }
+    }
+
+    fun cargarYSincronizarRutas() {
+        cargarRutasLocales()
+        sincronizarRutasRemotas()
+    }
+
+    fun syncRutasSiEsNecesario() {
+        cargarRutasLocales()
+        if (_isInitialized.value) return
+        _isInitialized.value = true
+        sincronizarRutasRemotas()
+    }
 
     fun obtenerRutas() {
         viewModelScope.launch {

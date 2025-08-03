@@ -238,7 +238,8 @@ fun ListaRutasScreen(
         }
     }
     LaunchedEffect(Unit) {
-        viewModel.obtenerRutas()
+//        viewModel.obtenerRutas()
+        viewModel.syncRutasSiEsNecesario()
     }
     Scaffold(
         snackbarHost = {

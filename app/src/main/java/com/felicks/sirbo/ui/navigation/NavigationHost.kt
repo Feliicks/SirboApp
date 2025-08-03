@@ -17,16 +17,16 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.felicks.sirbo.ui.navigation.Destinations.FavoritesScreen
 import com.felicks.sirbo.ui.navigation.Destinations.ListaDeRutasScreen
 import com.felicks.sirbo.ui.navigation.Destinations.LocationsSelectionScreen
 import com.felicks.sirbo.ui.navigation.Destinations.MapScreen
 import com.felicks.sirbo.ui.navigation.Destinations.PlanificaScreen
+import com.felicks.sirbo.ui.navigation.Destinations.Settingscreen
 import com.felicks.sirbo.ui.presentation.screens.ChooseLocationOnMapScreen
 import com.felicks.sirbo.ui.presentation.screens.DetalleRutaScreen
 import com.felicks.sirbo.ui.presentation.screens.mainScreens.ListaRutasScreen
 import com.felicks.sirbo.ui.presentation.screens.mainScreens.PlanificaScreen
-import com.felicks.sirbo.ui.presentation.screens.mainScreens.SecondScreen
+import com.felicks.sirbo.ui.presentation.screens.mainScreens.SettingsScreen
 import com.felicks.sirbo.ui.presentation.screens.planner.AlternativeChooseLocationScreen
 import com.felicks.sirbo.ui.presentation.screens.planner.OptimalRouteScreen
 import com.felicks.sirbo.utils.MapConfig
@@ -34,12 +34,6 @@ import com.felicks.sirbo.viewmodel.HomeScreenViewModel
 import com.felicks.sirbo.viewmodel.LocationViewModel
 import com.felicks.sirbo.viewmodel.PlannerViewModel
 import com.felicks.sirbo.viewmodel.RoutesViewModel
-
-val MAIN_DESTINATIONS = listOf(
-//    FavoritesScreen,
-    PlanificaScreen,
-    ListaDeRutasScreen
-)
 
 @Composable
 fun NavigationHost(
@@ -49,7 +43,6 @@ fun NavigationHost(
     routesViewModel: RoutesViewModel = hiltViewModel(),
     homeScreenViewModel: HomeScreenViewModel,
     locationViewModel: LocationViewModel,
-
     ) {
     val saveableStateHolder = rememberSaveableStateHolder()
     val cameraPositionState = remember { MapConfig.initialState }
@@ -92,11 +85,11 @@ fun NavigationHost(
 
         }
         composable(
-            FavoritesScreen.route,
+            Settingscreen.route,
         ) { navBackstateEntry ->
-            SecondScreen(
-                navController = navController,
-                bottomPadding = bottomPadding
+            SettingsScreen(
+//                navController = navController,
+//                bottomPadding = bottomPadding
             )
         }
         composable(route = ListaDeRutasScreen.route) { backStackEntry ->

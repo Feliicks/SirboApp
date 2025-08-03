@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Directions
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Route
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class Destinations(
@@ -27,6 +28,11 @@ sealed class Destinations(
         "addresses_screen",
         "Rutas",
         Icons.Filled.Directions
+    )
+    object Settingscreen : Destinations(
+        "settings_screen",
+        "Configuraciones",
+        Icons.Filled.Settings
     )
 
     object RouteDetailScreen : Destinations(
