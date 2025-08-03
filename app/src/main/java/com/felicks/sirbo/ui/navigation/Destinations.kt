@@ -1,6 +1,7 @@
 package com.felicks.sirbo.ui.navigation
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Directions
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Route
@@ -29,10 +30,16 @@ sealed class Destinations(
         "Rutas",
         Icons.Filled.Directions
     )
-    object Settingscreen : Destinations(
+    object SettingScreen : Destinations(
         "settings_screen",
         "Configuraciones",
         Icons.Filled.Settings
+    )
+
+    object ProfileScreen : Destinations(
+        "profile_screen",
+        "Perfil",
+        Icons.Filled.AccountCircle
     )
 
     object RouteDetailScreen : Destinations(

@@ -45,6 +45,7 @@ import com.felicks.sirbo.ui.presentation.components.topBars.SmallRouterPlannerBa
 import com.felicks.sirbo.ui.presentation.dialogs.OtpConfigDialog
 import com.felicks.sirbo.viewmodel.HomeScreenViewModel
 import com.felicks.sirbo.viewmodel.PlannerViewModel
+import com.felicks.sirbo.viewmodel.UserViewModel
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
@@ -60,6 +61,7 @@ fun PlanificaScreen(
     myCameraPositionState: CameraPositionState,
     plannerViewModel: PlannerViewModel,
     navBarPadding: PaddingValues,
+    userViewModel: UserViewModel = hiltViewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
     val isPlacesDefined by plannerViewModel.isLocationDefined.collectAsState()

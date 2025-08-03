@@ -6,6 +6,7 @@ import com.felicks.sirbo.data.local.dao.PatternDao
 import com.felicks.sirbo.data.local.dao.PatternGeometryDao
 import com.felicks.sirbo.data.local.dao.RutaGuardadaDao
 import com.felicks.sirbo.data.local.dao.RutasDao
+import com.felicks.sirbo.data.local.dao.UserDao
 import com.felicks.sirbo.data.local.dao.patternDetailDao.PatternDetailDao
 import com.felicks.sirbo.data.local.dao.patternDetailDao.StopDao
 import com.felicks.sirbo.data.local.dao.patternDetailDao.TripDao
@@ -69,5 +70,9 @@ object DatabaseModule {
         return database.tripDao()
     }
 
+    @Provides
+    fun provideUserDao(database: SirboDatabase): UserDao {
+        return database.userDao()
+    }
 }
 

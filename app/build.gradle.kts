@@ -176,4 +176,7 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     debugImplementation("com.squareup.leakcanary:leakcanary-android:2.14")
 
+    implementation("io.coil-kt.coil3:coil-compose:3.0.0")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.0")
+
 }

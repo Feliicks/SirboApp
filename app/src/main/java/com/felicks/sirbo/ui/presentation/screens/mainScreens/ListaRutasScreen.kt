@@ -48,8 +48,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.felicks.sirbo.data.models.SyncStatus
 import com.felicks.sirbo.data.models.otpModels.routes.RutasItem
+import com.felicks.sirbo.domain.models.SyncStatus
 import com.felicks.sirbo.extensions.toIndicatorColor
 import com.felicks.sirbo.ui.navigation.Destinations.RouteDetailScreen
 import com.felicks.sirbo.ui.navigation.plus

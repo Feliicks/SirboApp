@@ -8,8 +8,12 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -17,15 +21,11 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.felicks.sirbo.ui.navigation.Destinations.ListaDeRutasScreen
-import com.felicks.sirbo.ui.navigation.Destinations.LocationsSelectionScreen
-import com.felicks.sirbo.ui.navigation.Destinations.MapScreen
-import com.felicks.sirbo.ui.navigation.Destinations.PlanificaScreen
-import com.felicks.sirbo.ui.navigation.Destinations.Settingscreen
 import com.felicks.sirbo.ui.presentation.screens.ChooseLocationOnMapScreen
 import com.felicks.sirbo.ui.presentation.screens.DetalleRutaScreen
 import com.felicks.sirbo.ui.presentation.screens.mainScreens.ListaRutasScreen
 import com.felicks.sirbo.ui.presentation.screens.mainScreens.PlanificaScreen
+import com.felicks.sirbo.ui.presentation.screens.mainScreens.ProfileScreen
 import com.felicks.sirbo.ui.presentation.screens.mainScreens.SettingsScreen
 import com.felicks.sirbo.ui.presentation.screens.planner.AlternativeChooseLocationScreen
 import com.felicks.sirbo.ui.presentation.screens.planner.OptimalRouteScreen
@@ -43,36 +43,67 @@ fun NavigationHost(
     routesViewModel: RoutesViewModel = hiltViewModel(),
     homeScreenViewModel: HomeScreenViewModel,
     locationViewModel: LocationViewModel,
-    ) {
+) {
     val saveableStateHolder = rememberSaveableStateHolder()
     val cameraPositionState = remember { MapConfig.initialState }
-    NavHost(navController = navController, startDestination = PlanificaScreen.route,
+
+    // Guarda el índice actual de la pestaña visible
+    var currentTabIndex by rememberSaveable { mutableStateOf(1) } // Por ejemplo, PlanificaScreen es índice 1
+
+
+    NavHost(navController = navController, startDestination = Destinations.PlanificaScreen.route,
         enterTransition = {
-            slideIntoContainer(
-                AnimatedContentTransitionScope.SlideDirection.Start,
-                animationSpec = tween(350)
-            )
+            val newIndex = MainDestinations.items.indexOfFirst { it.route == this.targetState.destination.route }
+            val direction = if (newIndex > currentTabIndex)
+                AnimatedContentTransitionScope.SlideDirection.Left
+            else
+                AnimatedContentTransitionScope.SlideDirection.Right
+
+            slideIntoContainer(direction, animationSpec = tween(350))
         },
         exitTransition = {
-            slideOutOfContainer(
-                AnimatedContentTransitionScope.SlideDirection.Start,
-                animationSpec = tween(350)
-            )
+            val newIndex = MainDestinations.items.indexOfFirst { it.route == this.targetState.destination.route }
+            val direction = if (newIndex > currentTabIndex)
+                AnimatedContentTransitionScope.SlideDirection.Left
+            else
+                AnimatedContentTransitionScope.SlideDirection.Right
+
+            slideOutOfContainer(direction, animationSpec = tween(350))
         },
         popEnterTransition = {
-            slideIntoContainer(
-                AnimatedContentTransitionScope.SlideDirection.Start,
-                animationSpec = tween(350)
-            )
+            val newIndex = MainDestinations.items.indexOfFirst { it.route == this.targetState.destination.route }
+            val direction = if (newIndex < currentTabIndex)
+                AnimatedContentTransitionScope.SlideDirection.Right
+            else
+                AnimatedContentTransitionScope.SlideDirection.Left
+
+            slideIntoContainer(direction, animationSpec = tween(350))
         },
+
         popExitTransition = {
-            slideOutOfContainer(
-                AnimatedContentTransitionScope.SlideDirection.Start,
-                animationSpec = tween(350)
-            )
-        }) {
-        composable(PlanificaScreen.route) {
-            saveableStateHolder.SaveableStateProvider(PlanificaScreen.route) {
+            val newIndex = MainDestinations.items.indexOfFirst { it.route == this.targetState.destination.route }
+            val direction = if (newIndex < currentTabIndex)
+                AnimatedContentTransitionScope.SlideDirection.Right
+            else
+                AnimatedContentTransitionScope.SlideDirection.Left
+
+            slideOutOfContainer(direction, animationSpec = tween(350))
+        }
+    ) {
+
+        composable(route = Destinations.ListaDeRutasScreen.route) { backStackEntry ->
+            saveableStateHolder.SaveableStateProvider(Destinations.ListaDeRutasScreen.route) {
+                currentTabIndex = 0
+                ListaRutasScreen(
+                    navController = navController,
+                    bottomPadding = bottomPadding
+                )
+            }
+        }
+
+        composable(Destinations.PlanificaScreen.route) {
+            saveableStateHolder.SaveableStateProvider(Destinations.PlanificaScreen.route) {
+                currentTabIndex = 1
                 PlanificaScreen(
                     viewModel = homeScreenViewModel,
                     navController = navController,
@@ -80,26 +111,24 @@ fun NavigationHost(
                     plannerViewModel = plannerViewModel,
                     navBarPadding = bottomPadding,
                 )
-
             }
-
         }
+
         composable(
-            Settingscreen.route,
+            Destinations.ProfileScreen.route,
         ) { navBackstateEntry ->
-            SettingsScreen(
-//                navController = navController,
-//                bottomPadding = bottomPadding
+            currentTabIndex = 2
+            ProfileScreen(
+                navController = navController,
             )
         }
-        composable(route = ListaDeRutasScreen.route) { backStackEntry ->
-            saveableStateHolder.SaveableStateProvider(ListaDeRutasScreen.route) {
-                ListaRutasScreen(
-                    navController = navController,
-                    bottomPadding = bottomPadding
-                )
-            }
+
+        composable(
+            Destinations.SettingScreen.route,
+        ) { navBackstateEntry ->
+            SettingsScreen()
         }
+
         composable(Destinations.RouteDetailScreen.route + "{id}") { backStrackEntry ->
             val id = backStrackEntry.arguments?.getString("id").toString()
             val TAG = "NavigationHost"
@@ -117,7 +146,8 @@ fun NavigationHost(
                 navController = navController,
             )
         }
-        composable(LocationsSelectionScreen.route) {
+
+        composable(Destinations.LocationsSelectionScreen.route) {
             LocationsSelectionScreen(
                 navController = navController,
                 locationViewModel = locationViewModel,
@@ -125,7 +155,7 @@ fun NavigationHost(
 
         }
         composable(
-            route = MapScreen.route + "{isOrigin}",
+            route = Destinations.MapScreen.route + "{isOrigin}",
             arguments = listOf(navArgument("isOrigin") {
                 type = NavType.BoolType
             })

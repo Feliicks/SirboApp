@@ -7,6 +7,7 @@ import com.felicks.sirbo.data.local.dao.PatternGeometryDao
 import com.felicks.sirbo.data.local.dao.PlaceDao
 import com.felicks.sirbo.data.local.dao.RutaGuardadaDao
 import com.felicks.sirbo.data.local.dao.RutasDao
+import com.felicks.sirbo.data.local.dao.UserDao
 import com.felicks.sirbo.data.local.dao.patternDetailDao.PatternDetailDao
 import com.felicks.sirbo.data.local.dao.patternDetailDao.StopDao
 import com.felicks.sirbo.data.local.dao.patternDetailDao.TripDao
@@ -15,6 +16,7 @@ import com.felicks.sirbo.data.local.entity.PatternGeometryEntity
 import com.felicks.sirbo.data.local.entity.PlaceEntity
 import com.felicks.sirbo.data.local.entity.RutaEntity
 import com.felicks.sirbo.data.local.entity.RutaGuardadaEntity
+import com.felicks.sirbo.data.local.entity.UserEntity
 import com.felicks.sirbo.data.local.entity.patternDetail.PatternDetailEntity
 import com.felicks.sirbo.data.local.entity.patternDetail.StopEntity
 import com.felicks.sirbo.data.local.entity.patternDetail.TripEntity
@@ -29,8 +31,9 @@ import com.felicks.sirbo.data.local.entity.patternDetail.TripEntity
         PatternGeometryEntity::class,
         StopEntity::class,
         TripEntity::class,
+        UserEntity::class
     ],
-    version = 4
+    version = 5
 )
 abstract class SirboDatabase : RoomDatabase() {
     abstract fun placedao(): PlaceDao
@@ -41,6 +44,7 @@ abstract class SirboDatabase : RoomDatabase() {
     abstract fun patternGeometryDao(): PatternGeometryDao
     abstract fun stopDao(): StopDao
     abstract fun tripDao(): TripDao
+    abstract fun userDao(): UserDao
 
 
 //    companion object {

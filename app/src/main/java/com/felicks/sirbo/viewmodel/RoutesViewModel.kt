@@ -20,7 +20,6 @@ import com.felicks.sirbo.data.local.entity.toDomainList
 import com.felicks.sirbo.data.models.AddressState
 import com.felicks.sirbo.data.models.Ruta
 import com.felicks.sirbo.data.models.RutaState
-import com.felicks.sirbo.data.models.SyncStatus
 import com.felicks.sirbo.data.models.otpModels.PatterDetail
 import com.felicks.sirbo.data.models.otpModels.Pattern
 import com.felicks.sirbo.data.models.otpModels.RouteStopItem
@@ -31,6 +30,7 @@ import com.felicks.sirbo.data.models.otpModels.routes.toEntityList
 import com.felicks.sirbo.data.models.otpModels.routing.Leg
 import com.felicks.sirbo.data.models.otpModels.toEntity
 import com.felicks.sirbo.data.models.otpModels.toEntityList
+import com.felicks.sirbo.domain.models.SyncStatus
 import com.felicks.sirbo.domain.repository.PlanRespository
 import com.felicks.sirbo.utils.MapConfig
 import com.felicks.sirbo.utils.NetworkUtils

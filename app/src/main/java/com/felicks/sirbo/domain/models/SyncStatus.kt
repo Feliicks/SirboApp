@@ -1,4 +1,4 @@
-package com.felicks.sirbo.data.models
+package com.felicks.sirbo.domain.models
 
 enum class SyncStatus {
     MOSTRANDO_LOCAL,
@@ -7,6 +7,7 @@ enum class SyncStatus {
     ERROR_CONEXION,
     ERROR_GENERAL,
     VACIO_REMOTO,
+    COMPLETADO,
     SINCRONIZADO, // ← o COMPLETADO_EXITO
 }
 
