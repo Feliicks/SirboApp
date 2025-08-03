@@ -1,10 +1,13 @@
 package com.felicks.sirbo.di
 
+import android.content.Context
 import com.felicks.sirbo.data.repository.PlanRepositoryImp
 import com.felicks.sirbo.domain.repository.PlanRespository
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -16,5 +19,14 @@ abstract class AppModule {
     @Singleton
     abstract fun bindPlanRepository(
         impl: PlanRepositoryImp
-    ): PlanRespository // ✅ Conectamos la interfaz con la implementación
+    ): PlanRespository
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+object ContextModule {
+
+    @Provides
+    @Singleton
+    fun provideContext(@ApplicationContext context: Context): Context = context
 }

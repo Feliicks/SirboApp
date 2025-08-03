@@ -1,5 +1,6 @@
 package com.felicks.sirbo.viewmodel
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,10 +33,12 @@ import com.felicks.sirbo.data.models.otpModels.toEntity
 import com.felicks.sirbo.data.models.otpModels.toEntityList
 import com.felicks.sirbo.domain.repository.PlanRespository
 import com.felicks.sirbo.utils.MapConfig
+import com.felicks.sirbo.utils.NetworkUtils
 import com.felicks.sirbo.utils.StringUtils.toApiString
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -56,6 +59,7 @@ class RoutesViewModel @Inject constructor(
     private val patternDetailDao: PatternDetailDao,
     private val stopsDao: StopDao,
     private val tripsDao: TripDao,
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
 
     private val TAG = "RoutesViewModel";
@@ -200,9 +204,11 @@ class RoutesViewModel @Inject constructor(
             // 2. Intentar sincronizar en segundo plano
             try {
                 _isSyncing.value = true
+                if (NetworkUtils.isInternetAvailable(context)) {
+                    return@launch
+                }
                 val resultado = withContext(Dispatchers.IO) {
                     _syncStatus.value = SyncStatus.SINCRONIZANDO // ← Mostrar in
-//                    delay(10000) // Simula 3 segundos de espera
                     planRepository.fetchRoutes()
                 }
                 val rutasRemotas = resultado.body() ?: emptyList()
@@ -288,7 +294,7 @@ class RoutesViewModel @Inject constructor(
                     val detalleVariante = patternDetailDao.getById(varianteSeleccionada.id)
                     val geometria = geometryDao.getByPatternId(varianteSeleccionada.id)
                     val detalleRuta = rutasDao.getRouteById(rutaId)
-                    _routeSelected.value =detalleRuta!!.toDomain()
+                    _routeSelected.value = detalleRuta!!.toDomain()
                     _selectedPatternGeometry.value = geometria!!.toDomain()
                     detalleVariante?.toDomain(stops, trips)
                 }
