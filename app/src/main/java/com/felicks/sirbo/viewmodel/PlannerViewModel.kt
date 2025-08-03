@@ -370,9 +370,10 @@ class PlannerViewModel @Inject constructor(
                 _isLoading.value = false
 
             } catch (e: Exception) {
-//                _errorState.value = "Error al obtener rutas: ${e.localizedMessage}"
-                Log.e("PlannerViewModel", "Excepción al obtener rutas", e)
+                _planResult.value = null
                 _isLoading.value = false
+                _errorState.value = "Error al obtener rutas: ${e.message}"
+                Log.e("PlannerViewModel", "Excepción al obtener rutas", e)
             }
         }
     }
