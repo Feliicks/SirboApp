@@ -6,10 +6,9 @@ plugins {
     alias(libs.plugins.secrets.gradle)
     alias(libs.plugins.google.services)
     alias(libs.plugins.compose.compiler)
-
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
-
+    alias(libs.plugins.firebase.crashlytics)
 }
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
@@ -23,7 +22,7 @@ android {
         minSdk = 24
         targetSdk = 33
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -178,5 +177,13 @@ dependencies {
 
     implementation("io.coil-kt.coil3:coil-compose:3.0.0")
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.0")
+    implementation("com.google.firebase:firebase-config")
+    implementation(libs.firebase.remote.config)
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
+    implementation(platform(libs.firebase.bom))
+
+    // Add the dependencies for the Remote Config and Analytics libraries
+    // When using the BoM, you don't specify versions in Firebase library dependencies
 
 }

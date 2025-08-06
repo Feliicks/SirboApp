@@ -1,7 +1,9 @@
 package com.felicks.sirbo.di
 
+import android.util.Log
 import com.felicks.sirbo.data.remote.OtpService
 import com.felicks.sirbo.data.remote.PhotonService
+import com.felicks.sirbo.services.RemoteConfigProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,11 +19,30 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-    private const val OTP_BASE_URL = "http://10.0.2.2/sirbo/api/"
-    private const val KOMOOT_BASE_URL = "http://10.0.2.2/geocoder/api/"
+    private const val TAG = "NetworkModule";
 
-//    private const val OTP_BASE_URL = "http://10.0.2.2:3050"
-//    private const val KOMOOT_BASE_URL = "http://10.0.2.2:2380"
+    //    private const val BASE_URL = "https://f-decline-conditional-glen.trycloudflare.com/";
+    private const val BASE_URL = "http://10.0.2.2";
+    private const val OTP_BASE_URL = "${BASE_URL}/sirbo/api/"
+    private const val KOMOOT_BASE_URL = "${BASE_URL}/geocoder/api/"
+
+//    @Provides
+//    @Singleton
+//    fun provideFirebaseRemoteConfig(): FirebaseRemoteConfig {
+//        val config = FirebaseRemoteConfig.getInstance()
+//        config.setConfigSettingsAsync(
+//            FirebaseRemoteConfigSettings.Builder()
+//                .setMinimumFetchIntervalInSeconds(3600)
+//                .build()
+//        )
+//        config.setDefaultsAsync(
+//            mapOf(
+//                "otp_base_url" to "http://10.0.2.2/sirbo/api/",
+//                "photon_base_url" to "http://10.0.2.2/geocoder/api/"
+//            )
+//        )
+//        return config
+//    }
 
     @Provides
     @Singleton
@@ -41,8 +62,9 @@ object NetworkModule {
     @Singleton
     @Named("otp")
     fun provideOtpRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        Log.d(TAG,"Inicianod OTP url con ${RemoteConfigProvider.otpBaseUrl}")
         return Retrofit.Builder()
-            .baseUrl(OTP_BASE_URL) // Cambia a tu URL base
+            .baseUrl(RemoteConfigProvider.otpBaseUrl) // Cambia a tu URL base
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -52,6 +74,7 @@ object NetworkModule {
     @Singleton
     @Named("photon")
     fun providePhotonRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        Log.d(TAG,"Inicianod photon url con ${RemoteConfigProvider.photonBaseUrl}")
         return Retrofit.Builder()
             .baseUrl(KOMOOT_BASE_URL)
             .client(okHttpClient)

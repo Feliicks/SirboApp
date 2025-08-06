@@ -130,18 +130,18 @@ fun ListaRutasScreenContent(
                 },
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 15.dp)
             )
-//                    && syncStatus != SyncStatus.SINCRONIZADO
-            if (isSyncing ) {
-                LinearProgressIndicator(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = syncStatus.toIndicatorColor()
-                )
+            Box(modifier = Modifier.height(10.dp)) {
+                if (isSyncing) {
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .fillMaxWidth(),
+                        color = syncStatus.toIndicatorColor()
+                    )
+                }
             }
 
-            Box(
-                modifier = Modifier.fillMaxSize(),
-//                contentAlignment = Alignment.CenterHorizontally
-            ) {
+            Box(modifier = Modifier.fillMaxSize()) {
 
                 when {
                     isLoading -> {
