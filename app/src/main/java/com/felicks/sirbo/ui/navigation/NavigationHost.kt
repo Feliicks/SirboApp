@@ -35,6 +35,14 @@ import com.felicks.sirbo.viewmodel.LocationViewModel
 import com.felicks.sirbo.viewmodel.PlannerViewModel
 import com.felicks.sirbo.viewmodel.RoutesViewModel
 
+object MainDestinations {
+    val items = listOf(
+        Destinations.ListaDeRutasScreen,
+        Destinations.PlanificaScreen,
+        Destinations.ProfileScreen,
+    )
+}
+
 @Composable
 fun NavigationHost(
     bottomPadding: PaddingValues,

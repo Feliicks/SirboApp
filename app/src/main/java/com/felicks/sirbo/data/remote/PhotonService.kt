@@ -6,14 +6,15 @@ import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 
+private const val PREFIX = "geocoder/api/"
 interface PhotonService {
-    @GET("reverse")
+    @GET("${PREFIX}reverse")
     suspend fun getAdressByLocation(
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,
     ): Response<ReverseResponse>
 
-    @GET("api")
+    @GET("${PREFIX}api")
     suspend fun searchPlaces(
         @Query("q") query: String,
         @Query("limit") limit: Int = 5

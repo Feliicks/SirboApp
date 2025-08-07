@@ -8,11 +8,14 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -44,6 +47,7 @@ import com.felicks.sirbo.ui.presentation.components.bottomBars.SheetContent
 import com.felicks.sirbo.ui.presentation.components.topBars.SmallRouterPlannerBar
 import com.felicks.sirbo.ui.presentation.dialogs.OtpConfigDialog
 import com.felicks.sirbo.viewmodel.HomeScreenViewModel
+import com.felicks.sirbo.viewmodel.PlanificaScreenViewModel
 import com.felicks.sirbo.viewmodel.PlannerViewModel
 import com.felicks.sirbo.viewmodel.UserViewModel
 import com.google.maps.android.compose.CameraPositionState
@@ -60,16 +64,24 @@ fun PlanificaScreen(
     navController: NavController,
     myCameraPositionState: CameraPositionState,
     plannerViewModel: PlannerViewModel,
+    planificaScreenViewModel: PlanificaScreenViewModel = hiltViewModel(),
     navBarPadding: PaddingValues,
     userViewModel: UserViewModel = hiltViewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
     val isPlacesDefined by plannerViewModel.isLocationDefined.collectAsState()
+    val errorMessage by planificaScreenViewModel.errorConnectionMessage.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(isPlacesDefined) {
         if (isPlacesDefined) {
             plannerViewModel.fetchPlan()
         }
+    }
+    LaunchedEffect(errorMessage) {
+        if (!errorMessage.isNullOrEmpty()) {
+            snackbarHostState.showSnackbar(errorMessage!!)
+            planificaScreenViewModel.clearErrorMessage()}
     }
 
     val errorState by plannerViewModel.errorState.collectAsState()
@@ -85,6 +97,7 @@ fun PlanificaScreen(
 
     LaunchedEffect(Unit) {
         plannerViewModel.loadConfig(context)
+        planificaScreenViewModel.checkConnectionAndServerOnce()
     }
 
     Scaffold(
@@ -97,6 +110,12 @@ fun PlanificaScreen(
                 }
             )
         },
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.padding(navBarPadding)
+            )
+        }
     ) { padding ->
         PlanificaScreenContent(
             bottomLayoutPadding = navBarPadding,

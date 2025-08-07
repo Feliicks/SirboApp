@@ -2,6 +2,7 @@ package com.felicks.sirbo.di
 
 import android.content.Context
 import androidx.room.Room
+import com.felicks.sirbo.data.local.dao.AppConfigDao
 import com.felicks.sirbo.data.local.dao.PatternDao
 import com.felicks.sirbo.data.local.dao.PatternGeometryDao
 import com.felicks.sirbo.data.local.dao.RutaGuardadaDao
@@ -73,6 +74,10 @@ object DatabaseModule {
     @Provides
     fun provideUserDao(database: SirboDatabase): UserDao {
         return database.userDao()
+    }
+    @Provides
+    fun provideAppConfigDao(db: SirboDatabase): AppConfigDao {
+        return db.appConfigdao()
     }
 }
 

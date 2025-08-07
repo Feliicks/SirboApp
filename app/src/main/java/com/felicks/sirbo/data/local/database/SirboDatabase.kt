@@ -2,6 +2,7 @@ package com.felicks.sirbo.data.local.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import com.felicks.sirbo.data.local.dao.AppConfigDao
 import com.felicks.sirbo.data.local.dao.PatternDao
 import com.felicks.sirbo.data.local.dao.PatternGeometryDao
 import com.felicks.sirbo.data.local.dao.PlaceDao
@@ -11,6 +12,7 @@ import com.felicks.sirbo.data.local.dao.UserDao
 import com.felicks.sirbo.data.local.dao.patternDetailDao.PatternDetailDao
 import com.felicks.sirbo.data.local.dao.patternDetailDao.StopDao
 import com.felicks.sirbo.data.local.dao.patternDetailDao.TripDao
+import com.felicks.sirbo.data.local.entity.AppConfigEntity
 import com.felicks.sirbo.data.local.entity.PatternEntity
 import com.felicks.sirbo.data.local.entity.PatternGeometryEntity
 import com.felicks.sirbo.data.local.entity.PlaceEntity
@@ -31,9 +33,10 @@ import com.felicks.sirbo.data.local.entity.patternDetail.TripEntity
         PatternGeometryEntity::class,
         StopEntity::class,
         TripEntity::class,
-        UserEntity::class
+        UserEntity::class,
+        AppConfigEntity::class,
     ],
-    version = 5
+    version = 6
 )
 abstract class SirboDatabase : RoomDatabase() {
     abstract fun placedao(): PlaceDao
@@ -45,6 +48,7 @@ abstract class SirboDatabase : RoomDatabase() {
     abstract fun stopDao(): StopDao
     abstract fun tripDao(): TripDao
     abstract fun userDao(): UserDao
+    abstract fun appConfigdao(): AppConfigDao
 
 
 //    companion object {
