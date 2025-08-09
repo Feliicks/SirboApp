@@ -17,7 +17,7 @@ import retrofit2.http.Url
 private const val PREFIX = "sirbo/api/";
 interface OtpService {
 
-    @GET("")
+    @GET("${PREFIX}")
     suspend fun ping(): Response<ResponseBody>
 
     @GET

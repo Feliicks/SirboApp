@@ -97,7 +97,7 @@ android-application = { id = "com.android.application", version = "8.1.0" } # As
 android-library = { id = "com.android.library", version = "8.8.2" } # Asegúrate de poner la versión que uses
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" } # Asegúrate de poner la versión de Kotlin correcta
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-google-services = { id = "com.google.gms.google-services", version = "4.3.15" }
+google-services = { id = "com.google.gms.google-services", version = "4.4.1" }
 firebase_crashlytics = { id = "com.google.firebase.crashlytics", version = "3.0.5" }
 secrets-gradle = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version = "2.0.1" }
 

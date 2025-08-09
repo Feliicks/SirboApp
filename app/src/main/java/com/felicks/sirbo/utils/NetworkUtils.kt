@@ -30,6 +30,7 @@ object NetworkUtils {
 
     suspend fun isOtpServerAvailable(apiService: OtpService): Boolean {
         return try {
+            Log.d(TAG, "makking request")
             val response = apiService.ping() // endpoint simple, tipo GET /ping o /health
             response.isSuccessful
         } catch (e: Exception) {
