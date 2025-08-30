@@ -148,7 +148,8 @@ fun TransportBadge(leg: Leg, maxDuration: Double = 1000.0) {
         Text(
             text = text,
             color = textColor,
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.bodySmall,
+            maxLines = 2
         )
     }
 }

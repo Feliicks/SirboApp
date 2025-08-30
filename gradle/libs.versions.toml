@@ -9,7 +9,7 @@ material = "1.8.0"
 constraintlayout = "2.1.4"
 lifecycle = "2.6.2"
 activityCompose = "1.8.0"
-composeBom = "2023.03.00"
+composeBom = "2025.06.00"
 firebaseDatabaseKtx = "20.0.4"
 junit = "4.13.2"
 testJunitExt = "1.1.5"
@@ -45,23 +45,43 @@ androidx-datastore-preferences = { module = "androidx.datastore:datastore-prefer
 junit = { module = "junit:junit", version.ref = "junit" }
 test-junit = { module = "androidx.test.ext:junit", version.ref = "testJunitExt" }
 espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCore" }
-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "compose" }
-# ui Testins
-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "compose" }
+
 #
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
 constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
 lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
-compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
-compose-graphics = { module = "androidx.compose.ui:ui-graphics", version.ref = "compose" }
-compose-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
-compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
-compose-material = { module = "androidx.compose.material:material", version.ref = "compose" }
-compose-icons = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIcons" }
+
+# compose section
+# ui Testins
+compose-ui = { module = "androidx.compose.ui:ui" }
+compose-graphics = { module = "androidx.compose.ui:ui-graphics" }
+compose-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+compose-material3 = { module = "androidx.compose.material3:material3" }
+compose-material = { module = "androidx.compose.material:material" }
+compose-icons = { module = "androidx.compose.material:material-icons-extended" }
+
+activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" } # no va en compose  bom
+compose-foundations = { module = "androidx.compose.foundation:foundation" }
+
+ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+
+compose-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "navVersion" }# no va en compose  bom
+
+ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
+
+
+
+maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose" }
+
+androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidxHiltNavigationCompose" }
+
+##
+
+
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMaps" }
 maps-utils = { module = "com.google.maps.android:android-maps-utils", version.ref = "mapsUtils" }
@@ -71,11 +91,10 @@ gson-converter = { module = "com.squareup.retrofit2:converter-gson", version.ref
 fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentKtx" }
 activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityKtx" }
 livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "livedataKtx" }
-maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose" }
-compose-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "navVersion" }
+
 google-accompanist = { module = "com.google.accompanist:accompanist-permissions", version.ref = "googleAccompanist" }
 
-androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidxHiltNavigationCompose" }
+
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
 ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }

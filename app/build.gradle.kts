@@ -126,6 +126,8 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(libs.compose.graphics)
     implementation(libs.compose.tooling.preview)
+    implementation(platform(libs.compose.bom))
+    androidTestImplementation(platform(libs.compose.bom))
     implementation(libs.compose.material3)
     implementation(libs.compose.material)
     implementation(libs.compose.icons)
@@ -140,12 +142,7 @@ dependencies {
     implementation(libs.livedata.ktx)
     implementation(libs.maps.compose)
     implementation(libs.compose.navigation)
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
-    implementation("io.morfly.compose:advanced-bottomsheet-material3:0.1.0")
-    implementation(libs.google.accompanist)
-    implementation("com.google.accompanist:accompanist-permissions:0.32.0")
-
-
+    implementation(libs.compose.foundations)
     testImplementation(libs.junit)
     androidTestImplementation(libs.test.junit)
     androidTestImplementation(libs.espresso.core)
@@ -153,6 +150,14 @@ dependencies {
 
     debugImplementation(libs.ui.tooling)
     debugImplementation(libs.ui.test.manifest)
+
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation("io.morfly.compose:advanced-bottomsheet-material3:0.1.0")
+    implementation(libs.google.accompanist)
+    implementation("com.google.accompanist:accompanist-permissions:0.32.0")
+
+
+
 
 //     DI DEPRECATED
 //    implementation(libs.dagger.hilt.android)
@@ -186,4 +191,5 @@ dependencies {
     // Add the dependencies for the Remote Config and Analytics libraries
     // When using the BoM, you don't specify versions in Firebase library dependencies
 
+    implementation("com.airbnb.android:lottie-compose:4.0.0")
 }
