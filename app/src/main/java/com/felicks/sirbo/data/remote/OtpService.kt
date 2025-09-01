@@ -1,5 +1,6 @@
 package com.felicks.sirbo.data.remote
 
+import com.felicks.sirbo.core.OtpEndpoints
 import com.felicks.sirbo.data.models.RutaVehicular
 import com.felicks.sirbo.data.models.otpModels.PatterDetail
 import com.felicks.sirbo.data.models.otpModels.Pattern
@@ -14,36 +15,30 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.Url
 
-private const val PREFIX = "sirbo/api/";
 interface OtpService {
 
-    @GET("${PREFIX}")
+    @GET(OtpEndpoints.PING)
     suspend fun ping(): Response<ResponseBody>
 
     @GET
     suspend fun getLinea(@Url url: String): Response<RutaVehicular>
 
-//    @GET("otp/routers/default/index/routes/") //PASADO
-    @GET("${PREFIX}plan/rutas")
-    suspend fun indexRoutes(): Response<List<com.felicks.sirbo.data.models.otpModels.routes.RutasItem>>
+    @GET(OtpEndpoints.INDEX_ROUTES)
+    suspend fun indexRoutes(): Response<List<RutasItem>>
 
     @GET
     suspend fun getRuta(@Url url: String): Response<RutasItem>
-    //suspend fun getRuta(@Url url: String): Response<Ruta>
 
-    @GET("${PREFIX}otp/routers/default/index/routes/{id}/stops")
+    @GET(OtpEndpoints.GET_ROUTE_STOPS)
     suspend fun getRouteStops(@Path("id") idRoute: String): Response<List<RouteStopItem>>
-    // detalle de paradas de la ruta
-//    @GET("otp/routers/default/index/routes/{routeId}/patterns")
-    @GET("${PREFIX}plan/rutas/{routeId}/patterns")
+
+    @GET(OtpEndpoints.GET_PATTERN_BY_ROUTE_ID)
     suspend fun getPatternByRouteId(@Path("routeId") routeId: String): Response<List<Pattern>>
 
-//@GET("otp/routers/default/index/patterns/{patternId}")
-    @GET("${PREFIX}plan/patterns/{patternId}")
-suspend fun getPatternDetailsByPatternId(@Path("patternId") patternId: String): Response<PatterDetail>
+    @GET(OtpEndpoints.GET_PATTERN_DETAILS_BY_ID)
+    suspend fun getPatternDetailsByPatternId(@Path("patternId") patternId: String): Response<PatterDetail>
 
-//    @GET("otp/routers/default/plan")
-    @GET("${PREFIX}plan")
+    @GET(OtpEndpoints.FETCH_PLAN)
     suspend fun fetchPlan(
         @Query("fromPlace") fromPlace: String,
         @Query("toPlace") toPlace: String,
@@ -53,15 +48,10 @@ suspend fun getPatternDetailsByPatternId(@Path("patternId") patternId: String): 
         @Query("numItineraries") numItineraries: Int = 3
     ): Response<RoutingResponse>
 
-    /// Seu sa para la cabecera en el dealle de ruta
-//    @GET("otp/routers/default/index/routes/{id}")
-    @GET("${PREFIX}plan/rutas/{id}")
-    suspend fun getRouteDetail(
-        @Path("id") routeId: String,
-    ): com.felicks.sirbo.data.models.otpModels.routes.RutasItem
+    @GET(OtpEndpoints.GET_ROUTE_DETAIL)
+    suspend fun getRouteDetail(@Path("id") routeId: String): RutasItem
 
-    @GET("${PREFIX}otp/routers/default/plan")
-//    @GET("plan")
+    @GET(OtpEndpoints.GET_OPTIMAL_ROUTES)
     suspend fun getOptimalRoutes(
         @Query("fromPlace") fromPlace: String,
         @Query("toPlace") toPlace: String,
@@ -69,12 +59,10 @@ suspend fun getPatternDetailsByPatternId(@Path("patternId") patternId: String): 
         @Query("maxWalkDistance") maxWalkDistance: Int = 5000
     ): Response<RoutingResponse>
 
-    @GET("${PREFIX}otp/routers/default/index/patterns/{id}")
+    @GET(OtpEndpoints.GET_ROUTE_PATTERNS)
     suspend fun getRoutePatterns(@Path("id") routeId: String): Response<RutaVehicular>
 
-    // GEOEMTRIA DE UNA RUTA ESPECIFICA
-//    @GET("otp/routers/default/index/patterns/{patternId}/geometry")
-    @GET("${PREFIX}plan/patterns/{patternId}/geometry")
+    @GET(OtpEndpoints.GET_GEOM_BY_PATTERN)
     suspend fun getGeomByPattern(@Path("patternId") patternId: String): Response<PatternGeometry>
 
 }

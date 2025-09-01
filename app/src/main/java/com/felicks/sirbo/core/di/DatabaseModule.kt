@@ -1,4 +1,4 @@
-package com.felicks.sirbo.di
+package com.felicks.sirbo.core.di
 
 import android.content.Context
 import androidx.room.Room

@@ -1,4 +1,4 @@
-package com.felicks.sirbo.di
+package com.felicks.sirbo.core.di
 
 import android.content.Context
 import com.felicks.sirbo.data.repository.PlanRepositoryImp
@@ -14,7 +14,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class AppModule {
-
     @Binds
     @Singleton
     abstract fun bindPlanRepository(
@@ -25,7 +24,6 @@ abstract class AppModule {
 @Module
 @InstallIn(SingletonComponent::class)
 object ContextModule {
-
     @Provides
     @Singleton
     fun provideContext(@ApplicationContext context: Context): Context = context
