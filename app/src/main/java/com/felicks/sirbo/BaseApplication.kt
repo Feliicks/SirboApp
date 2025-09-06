@@ -2,6 +2,7 @@ package com.felicks.sirbo
 
 import android.app.Application
 import android.util.Log
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
@@ -12,6 +13,10 @@ import dagger.hilt.android.HiltAndroidApp
 class BaseApplication : Application() {
     override fun onCreate() {
         super.onCreate()
+
+        val analytics = FirebaseAnalytics.getInstance(this)
+        analytics.setAnalyticsCollectionEnabled(true)
+        analytics.setUserId(null)
 
         FirebaseCrashlytics.getInstance().isCrashlyticsCollectionEnabled = true
 
@@ -29,13 +34,12 @@ class BaseApplication : Application() {
         )
 
         remoteConfig.fetchAndActivate()
-            .addOnCompleteListener{
-                task ->
-            if (task.isSuccessful) {
-                Log.d("RemoteConfig", "Config updated")
-            } else {
-                Log.w("RemoteConfig", "Fetch failed")
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d("RemoteConfig", "Config updated")
+                } else {
+                    Log.w("RemoteConfig", "Fetch failed")
+                }
             }
-        }
     }
 }
