@@ -99,15 +99,6 @@ class RoutesViewModel @Inject constructor(
     )
     val cameraPosition: StateFlow<CameraPosition> = _cameraPosition.asStateFlow()
 
-    private val _isInitialized = MutableStateFlow(false)
-    val isInitialized: StateFlow<Boolean> = _isInitialized
-//    private val _errorState = MutableStateFlow<String?>(null)
-//    val errorState : String = _errorState.asStateFlow()
-//
-//    private val _errorState = MutableStateFlow<String?>(null)
-//        val errorState : String?= _errorState.value
-
-
     private val _errorState = MutableStateFlow<String?>(null)
     val errorState: StateFlow<String?> = _errorState.asStateFlow()
 
@@ -139,7 +130,7 @@ class RoutesViewModel @Inject constructor(
     private val _isLocalLoading = MutableStateFlow<Boolean>(false) // Estado para manejar errores
     val isLoading: MutableStateFlow<Boolean> = _isLocalLoading
 
-    private val _syncStatus = MutableStateFlow(SyncStatus.MOSTRANDO_LOCAL)
+    private val _syncStatus = MutableStateFlow<SyncStatus>(SyncStatus.CARGANDO)
     val syncStatus: StateFlow<SyncStatus> = _syncStatus
 
 
@@ -191,12 +182,11 @@ class RoutesViewModel @Inject constructor(
 
     fun cargarRutasLocales() {
         viewModelScope.launch {
-            _isLocalLoading.value = true
+            _syncStatus.value = SyncStatus.CARGANDO
             val rutasLocales = rutasDao.getAllRoutes().toDomainList()
             val rutasOrdenadas = rutasLocales.sortedBy { it.shortName.lowercase() }
             _filteredRoutesList.value = rutasOrdenadas
-            _syncStatus.value = SyncStatus.MOSTRANDO_LOCAL
-            _isLocalLoading.value = false
+//            _syncStatus.value = null
         }
     }
 
@@ -209,24 +199,13 @@ class RoutesViewModel @Inject constructor(
 
             try {
                 _isSyncing.value = true
-                _syncStatus.value = SyncStatus.SINCRONIZANDO
+                _syncStatus.value = SyncStatus.CARGANDO
 
                 val resultado = withContext(Dispatchers.IO) {
                     planRepository.fetchRoutes()
                 }
 
                 val rutasRemotas = resultado.body() ?: emptyList()
-
-                if (rutasRemotas.isEmpty()) {
-                    _syncStatus.value = SyncStatus.VACIO_REMOTO
-                    return@launch
-                }
-
-                val exito = insertarRutas(rutasRemotas.toEntityList())
-                if (!exito) {
-                    _syncStatus.value = SyncStatus.ERROR_INSERCION
-                    return@launch
-                }
 
                 val rutasOrdenadas = rutasRemotas.sortedBy { it.shortName.lowercase() }
                 _allRoutesList.value = rutasOrdenadas
@@ -251,32 +230,22 @@ class RoutesViewModel @Inject constructor(
                         guardarPatternDetail(detalleVariante)
                     }
                 }
-
-                _syncStatus.value = SyncStatus.SINCRONIZADO
-
             } catch (e: SocketTimeoutException) {
                 Log.e(TAG, "Timeout de conexión: ${e.message}")
-                _syncStatus.value = SyncStatus.ERROR_CONEXION
-                _errorToastMessage.value = "No se pudo conectar al servidor. Verifica tu red."
+                _errorToastMessage.value = "No se pudo conectar al servidor. "
             } catch (e: Exception) {
                 Log.e(TAG, "Error inesperado", e)
-                _syncStatus.value = SyncStatus.ERROR_GENERAL
+//                _syncStatus.value = SyncStatus.ERROR_GENERAL
                 _errorToastMessage.value = "Ocurrió un error inesperado"
             } finally {
+//                _syncStatus.value = null
                 _isSyncing.value = false
             }
         }
     }
 
-    fun cargarYSincronizarRutas() {
-        cargarRutasLocales()
-        sincronizarRutasRemotas()
-    }
-
     fun syncRutasSiEsNecesario() {
         cargarRutasLocales()
-        if (_isInitialized.value) return
-        _isInitialized.value = true
         sincronizarRutasRemotas()
     }
 
@@ -290,8 +259,8 @@ class RoutesViewModel @Inject constructor(
             _isLocalLoading.value = false
 
             _filteredRoutesList.value = rutasOrdenadas
-            _syncStatus.value =
-                SyncStatus.MOSTRANDO_LOCAL // ← Mostrar indicador visual en UI (gris)
+            _syncStatus.value = SyncStatus.CARGANDO
+            // ← Mostrar indicador visual en UI (gris)
             // 2. Intentar sincronizar en segundo plano
             try {
                 _isSyncing.value = true
@@ -299,7 +268,7 @@ class RoutesViewModel @Inject constructor(
                     return@launch
                 }
                 val resultado = withContext(Dispatchers.IO) {
-                    _syncStatus.value = SyncStatus.SINCRONIZANDO // ← Mostrar in
+//                    _syncStatus.value = SyncStatus.SINCRONIZANDO // ← Mostrar in
                     planRepository.fetchRoutes()
                 }
                 val rutasRemotas = resultado.body() ?: emptyList()
@@ -335,17 +304,17 @@ class RoutesViewModel @Inject constructor(
                         }
 
                     } else {
-                        _syncStatus.value =
-                            SyncStatus.ERROR_INSERCION // ← Mostrar advertencia o ícono de error
+//                        _syncStatus.value =
+//                            SyncStatus.ERROR_INSERCION // ← Mostrar advertencia o ícono de error
                     }
                     Log.d("RoutesViewModel", "Sincronización completada con éxito")
                 } else {
-                    _syncStatus.value = SyncStatus.VACIO_REMOTO
+//                    _syncStatus.value = SyncStatus.VACIO_REMOTO
                 }
 
             } catch (e: SocketTimeoutException) {
                 Log.e("RutasViewModel", "Error de conexión: ${e.message}")
-                _syncStatus.value = SyncStatus.ERROR_CONEXION
+//                _syncStatus.value = SyncStatus.ERROR_CONEXION
                 _errorToastMessage.value = "No se pudo conectar con el servidor. Verifica la red."
 
             } catch (e: Exception) {

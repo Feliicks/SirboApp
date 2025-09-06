@@ -3,7 +3,9 @@ package com.felicks.sirbo.ui.presentation.screens.mainScreens
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.felicks.sirbo.core.RetrofitProvider
 import com.felicks.sirbo.data.remote.OtpService
+import com.felicks.sirbo.data.repository.AppConfigRepository
 import com.felicks.sirbo.domain.repository.PlanRespository
 import com.felicks.sirbo.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,10 +24,26 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
+    private val otpService : OtpService,
+    private val appConfigRepository: AppConfigRepository,
     @ApplicationContext private val context: Context,
-    private val planRepository: PlanRespository,
-    private val otpService: OtpService
 ) : ViewModel() {
+
+//    private var otpService: OtpService? = null
+//    init {
+//        viewModelScope.launch {
+//            try {
+//                // 1. Crear el servicio con la baseUrl guardada en Room
+//                otpService = RetrofitProvider.createService(
+//                    appConfigRepository,
+//                    OtpService::class.java
+//                )
+//
+//            } catch (e: Exception) {
+//
+//            }
+//        }
+//    }
 
     private val _isOnline = MutableStateFlow(false)  // Inicializa en false
     val isOnline: StateFlow<Boolean> = _isOnline
@@ -77,7 +95,7 @@ class SettingsViewModel @Inject constructor(
                 val startTime = System.currentTimeMillis()
 
                 val serverAvailable = withContext(Dispatchers.IO) {
-                    NetworkUtils.isOtpServerAvailable(otpService)
+                    NetworkUtils.isOtpServerAvailable(otpService!!)
                 }
 
                 val elapsed = System.currentTimeMillis() - startTime

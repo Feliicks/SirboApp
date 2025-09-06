@@ -226,10 +226,9 @@ fun ListaRutasScreen(
     val syncStatus by viewModel.syncStatus.collectAsState()
     Log.d("ListaRutasScreen", "estado de carga$isLoading")
     // Mostrar el Snackbar cuando hay un error
-    LaunchedEffect(errorMessage) {
-        errorMessage?.let { message ->
-            Log.d("ListaRutasScreen", "Error message: $errorMessage")
-            coroutineScope.launch {
+    LaunchedEffect(Unit) {
+        viewModel.errorToastMessage.collect { message ->
+            message?.let {
                 snackbarHostState.showSnackbar(
                     message = message,
                     duration = SnackbarDuration.Short
@@ -237,6 +236,7 @@ fun ListaRutasScreen(
             }
         }
     }
+
     LaunchedEffect(Unit) {
 //        viewModel.obtenerRutas()
         viewModel.syncRutasSiEsNecesario()
@@ -300,7 +300,7 @@ fun PreviewListaRutasScreen(
         onSearchQueryChanged = {},
         searchQuery = "",
         isSyncing = true,
-        syncStatus = SyncStatus.SINCRONIZANDO
+        syncStatus = SyncStatus.CARGANDO
     )
 }
 

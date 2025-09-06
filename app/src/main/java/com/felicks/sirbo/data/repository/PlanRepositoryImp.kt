@@ -1,5 +1,7 @@
 package com.felicks.sirbo.data.repository
 
+import android.R.attr.mode
+import com.felicks.sirbo.core.RetrofitProvider
 import com.felicks.sirbo.data.models.otpModels.PatterDetail
 import com.felicks.sirbo.data.models.otpModels.Pattern
 import com.felicks.sirbo.data.models.otpModels.routes.PatternGeometry
@@ -12,8 +14,13 @@ import retrofit2.Response
 import javax.inject.Inject
 
 class PlanRepositoryImp @Inject constructor(
+//    private val appConfigRepository: AppConfigRepository
     private val apiService: OtpService
 ) : PlanRespository {
+//    private suspend fun getService(): OtpService {
+//        return RetrofitProvider.createService(appConfigRepository, OtpService::class.java)
+//    }
+
     override suspend fun fetchPlan(
         from: String,
         to: String,
@@ -30,7 +37,7 @@ class PlanRepositoryImp @Inject constructor(
     }
 
     override suspend fun fetchRoutes(): Response<List<RutasItem>> {
-//        return apiService.indexRoutes()
+//        return getService().indexRoutes()
         return apiService.indexRoutes()
     }
 

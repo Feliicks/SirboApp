@@ -4,8 +4,10 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.felicks.sirbo.core.RetrofitProvider
 import com.felicks.sirbo.data.remote.OtpService
 import com.felicks.sirbo.data.remote.PhotonService
+import com.felicks.sirbo.data.repository.AppConfigRepository
 import com.felicks.sirbo.services.RemoteConfigManager
 import com.felicks.sirbo.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,9 +23,20 @@ class PlanificaScreenViewModel @Inject constructor(
 //    private val rutaGuardadaDao: RutaGuardadaDao,
     @ApplicationContext private val context: Context,
     private val otpService: OtpService,
-    private val photonService: PhotonService,
+    private val appConfigRepository: AppConfigRepository,
     private val remoteConfigManager: RemoteConfigManager
 ) : ViewModel() {
+
+//    private var otpService: OtpService? = null
+
+    init {
+        viewModelScope.launch {
+            remoteConfigManager.fetchAndStoreBaseUrl()
+//            val service = RetrofitProvider.createService(appConfigRepository, OtpService::class.java)
+//            otpService = service
+        }
+    }
+
     private val TAG = "PlanificaScreenViewModel";
     private val _errorConnectionMessage = MutableStateFlow<String?>(null)
     val errorConnectionMessage: StateFlow<String?> = _errorConnectionMessage
@@ -38,12 +51,6 @@ class PlanificaScreenViewModel @Inject constructor(
         hasCheckedConnection = true
 
         checkConnectionAndServer()
-    }
-
-    init {
-        viewModelScope.launch {
-            remoteConfigManager.fetchAndStoreBaseUrl()
-        }
     }
 
     fun checkConnectionAndServer() {

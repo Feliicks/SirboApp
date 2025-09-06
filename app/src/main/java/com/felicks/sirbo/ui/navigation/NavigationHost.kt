@@ -39,7 +39,7 @@ object MainDestinations {
     val items = listOf(
         Destinations.ListaDeRutasScreen,
         Destinations.PlanificaScreen,
-        Destinations.ProfileScreen,
+//        Destinations.ProfileScreen,
     )
 }
 

@@ -16,14 +16,15 @@ val ColorCompleto = Color(0xFF4CAF50)        // Verde (igual que sincronizado)
 // Extensión que devuelve el color según el estado
 fun SyncStatus.toIndicatorColor(): Color {
     return when (this) {
-        SyncStatus.MOSTRANDO_LOCAL -> ColorCargandoLocal
-        SyncStatus.SINCRONIZANDO   -> ColorSincronizando2
-        SyncStatus.ERROR_INSERCION -> ColorError
-        SyncStatus.ERROR_CONEXION  -> ColorWarn
-        SyncStatus.VACIO_REMOTO    -> ColorVacio
-        SyncStatus.COMPLETADO      -> ColorCompleto
-        SyncStatus.ERROR_GENERAL   -> ColorError
-        SyncStatus.SINCRONIZADO    -> ColorSincronizando
+//        SyncStatus.MOSTRANDO_LOCAL -> ColorCargandoLocal
+//        SyncStatus.SINCRONIZANDO -> ColorSincronizando2
+//        SyncStatus.ERROR_INSERCION -> ColorError
+//        SyncStatus.ERROR_CONEXION -> ColorWarn
+//        SyncStatus.VACIO_REMOTO -> ColorVacio
+        SyncStatus.COMPLETADO -> ColorCompleto
+//        SyncStatus.ERROR_GENERAL -> ColorError
+//        SyncStatus.SINCRONIZADO -> ColorSincronizando
+        SyncStatus.CARGANDO -> ColorWarn
     }
 }
 

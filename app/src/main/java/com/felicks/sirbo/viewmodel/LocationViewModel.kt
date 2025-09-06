@@ -13,14 +13,18 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.felicks.sirbo.core.RetrofitProvider
 import com.felicks.sirbo.data.local.dao.RutaGuardadaDao
 import com.felicks.sirbo.data.models.AddressState
 import com.felicks.sirbo.data.models.LocationInfo
 import com.felicks.sirbo.data.models.RutaGuardadaDomain
+import com.felicks.sirbo.data.models.otpModels.routes.RutasItem
 import com.felicks.sirbo.data.models.photonModels.toDomain
 import com.felicks.sirbo.data.models.toDomain
+import com.felicks.sirbo.data.remote.OtpService
 import com.felicks.sirbo.data.remote.PhotonService
 import com.felicks.sirbo.data.remote.photon.PhotonFeature
+import com.felicks.sirbo.data.repository.AppConfigRepository
 import com.felicks.sirbo.domain.LocationProperties
 import com.felicks.sirbo.domain.Place
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -48,8 +52,20 @@ class LocationViewModel @Inject constructor(
     private val photonService: PhotonService,
     private val rutaGuardadaDao: RutaGuardadaDao,
     @ApplicationContext private val context: Context,
+    private val appConfigRepository: AppConfigRepository,
 ) : ViewModel() {
-    //
+
+//    private var photonService: PhotonService? = null
+
+    private val _routes = MutableStateFlow<List<RutasItem>>(emptyList())
+    val routes: StateFlow<List<RutasItem>> = _routes
+
+//    init {
+//        viewModelScope.launch {
+//            photonService = RetrofitProvider.createService(appConfigRepository, PhotonService::class.java)
+//        }
+//    }
+
 //    Localizacion Actualizada
 
     private val _startLocation = MutableStateFlow(LocationInfo())
@@ -168,7 +184,7 @@ class LocationViewModel @Inject constructor(
         viewModelScope.launch {
 //            val results = locationRepository.searchPlaces(query)
 //            _searchResults.value = results
-            photonService.searchPlaces(query).let { response ->
+            photonService!!.searchPlaces(query).let { response ->
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body != null) {
@@ -284,7 +300,7 @@ class LocationViewModel @Inject constructor(
     fun getAddress(coords: LatLng) {
         viewModelScope.launch {
             try {
-                val response = photonService.getAdressByLocation(
+                val response = photonService!!.getAdressByLocation(
                     coords.latitude,
                     coords.longitude
                 ) // Asegurar orden correcto

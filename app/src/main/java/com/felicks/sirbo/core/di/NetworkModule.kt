@@ -4,10 +4,12 @@ import android.util.Log
 import com.felicks.sirbo.data.remote.OtpService
 import com.felicks.sirbo.data.remote.PhotonService
 import com.felicks.sirbo.data.repository.AppConfigProvider
+import com.felicks.sirbo.data.repository.AppConfigRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -18,8 +20,8 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
+
     private const val TAG = "NetworkModule"
-    private const val BASE_URL = "http://10.0.2.2/"  // Solo la raíz
 
     @Provides
     @Singleton
@@ -35,13 +37,17 @@ object NetworkModule {
             .build()
     }
 
+    // Proveemos Retrofit dinámico
     @Provides
     @Singleton
     fun provideRetrofit(
         okHttpClient: OkHttpClient,
-        appConfigProvider: AppConfigProvider
+        appConfigRepository: AppConfigRepository
     ): Retrofit {
-        val baseUrl = appConfigProvider.getBaseUrl()
+        // Lee la baseUrl de manera **sincrónica** o proporciona una default
+        val baseUrl = runBlocking {
+            appConfigRepository.getBaseUrl() ?: "http://10.0.2.2/"
+        }
         Log.d(TAG, "Inicializando Retrofit con base URL $baseUrl")
         return Retrofit.Builder()
             .baseUrl(baseUrl)
